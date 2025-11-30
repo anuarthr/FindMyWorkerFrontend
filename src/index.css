@@ -1,3 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Colores FindMyWorker */
+  --color-primary: #C04A3E;
+  --color-primary-hover: #A63D33;
+  --color-secondary: #E37B5B;
+  
+  --color-neutral-dark: #4A3B32;
+  --color-neutral-light: #EFE6DD;
+  
+  --color-surface: #FFFFFF;
+  
+  /* Tipografías */
+  --font-heading: Montserrat, sans-serif;
+  --font-sans: Inter, sans-serif;
+}
