@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
-import { AlertTriangle, CheckCircle, Edit2, Briefcase, MapPin, Loader2 } from 'lucide-react';
+import { Clock, AlertTriangle, CheckCircle, Edit2, Briefcase, MapPin, Loader2 } from 'lucide-react';
 
 const WorkerHome = ({ user }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const hasData = Boolean(profile?.profession) && (Boolean(profile?.lat) || Boolean(profile?.latitude));
+  const isVerified = Boolean(profile?.is_verified);
 
   useEffect(() => {
     const fetchFreshProfile = async () => {
@@ -60,38 +62,64 @@ const WorkerHome = ({ user }) => {
         )}
       </div>
 
-      {!isProfileComplete ? (
-        <div className="bg-secondary/10 border border-secondary text-neutral-dark p-6 rounded-xl flex flex-col md:flex-row items-start gap-4 animate-in fade-in slide-in-from-top-4">
-          <div className="bg-white p-2 rounded-full text-secondary shrink-0 shadow-sm">
+      {!hasData ? (
+        <div className="bg-amber-50 border border-amber-200 p-6 rounded-xl flex flex-col md:flex-row items-start gap-4 animate-in fade-in">
+          <div className="bg-white p-2 rounded-full text-amber-600 shrink-0 shadow-sm">
             <AlertTriangle size={24} />
           </div>
           <div className="flex-1">
             <h3 className="font-heading font-bold text-lg text-neutral-dark">
               ¡Completa tu perfil para aparecer en el mapa!
             </h3>
-            <p className="text-sm opacity-80 mb-4 leading-relaxed">
-              Los clientes usan el mapa para encontrar talento cercano. Necesitamos saber tu 
+            <p className="text-sm opacity-80 mb-4 leading-relaxed text-amber-800">
+              Los clientes no pueden encontrarte. Necesitamos saber tu 
               <span className="font-bold"> profesión</span> y <span className="font-bold">ubicación</span>.
             </p>
             <Link 
               to="/profile/edit" 
-              className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-md hover:shadow-lg active:scale-95"
+              className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-md"
             >
               Completar Perfil Ahora <span className="text-lg">→</span>
             </Link>
           </div>
         </div>
+
+      ) : !isVerified ? (
+        <div className="bg-blue-50 border border-blue-200 p-6 rounded-xl flex flex-col md:flex-row items-start gap-4 animate-in fade-in">
+          <div className="bg-white p-2 rounded-full text-blue-600 shrink-0 shadow-sm">
+            <Clock size={24} />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-heading font-bold text-lg text-blue-900">
+              Perfil en Proceso de Verificación
+            </h3>
+            <p className="text-sm text-blue-800/80 mb-2 max-w-xl leading-relaxed">
+              Has completado tu información exitosamente. Un administrador está revisando tu perfil. 
+              Una vez aprobado, aparecerás automáticamente en el mapa.
+            </p>
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full mt-2">
+              Estado: Pendiente
+            </span>
+          </div>
+          <Link 
+            to="/profile/edit" 
+            className="self-center md:self-start px-4 py-2 text-blue-700 font-bold hover:bg-blue-100 rounded-lg transition-colors"
+          >
+            Editar Datos
+          </Link>
+        </div>
+
       ) : (
         <div className="bg-white border border-neutral-dark/10 rounded-xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-4 w-full">
-             <div className="w-12 h-12 rounded-full bg-neutral-light flex items-center justify-center text-2xl">
+             <div className="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-2xl border border-green-100">
                👷
              </div>
              <div>
                <h3 className="font-bold text-lg text-neutral-dark flex items-center gap-2">
                  {profile.profession}
-                 <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
-                   Activo
+                 <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold flex items-center gap-1">
+                   <CheckCircle size={10} /> Verificado
                  </span>
                </h3>
                <div className="flex items-center gap-3 text-xs text-neutral-dark/60 mt-1">
