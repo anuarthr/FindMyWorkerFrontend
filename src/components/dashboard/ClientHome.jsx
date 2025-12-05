@@ -1,8 +1,10 @@
-import { Search } from 'lucide-react';
+import { Search, MapPin } from 'lucide-react';
+import WorkerMap from '../WorkerMap';
 
 const ClientHome = ({ user }) => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 pb-10">
+      {/*(Buscador IA)*/}
       <div className="bg-neutral-dark rounded-2xl p-8 md:p-12 text-center shadow-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -mr-16 -mt-16 blur-2xl"></div>
         
@@ -27,7 +29,6 @@ const ClientHome = ({ user }) => {
         </div>
       </div>
 
-      {/* Placeholders */}
       <div>
         <h3 className="font-heading text-xl font-bold text-neutral-dark mb-4">Categorías Populares</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -38,6 +39,27 @@ const ClientHome = ({ user }) => {
           ))}
         </div>
       </div>
+
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex items-center gap-2 mb-4">
+          <MapPin className="text-primary" size={24} />
+          <h3 className="font-heading text-xl font-bold text-neutral-dark">
+            Talento cerca de ti
+          </h3>
+        </div>
+        
+        <div className="bg-surface rounded-2xl shadow-md border border-neutral-dark/10 p-1 overflow-hidden h-[500px] md:h-[600px] relative">
+          <WorkerMap />
+          
+          {/* Overlay informativo */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-neutral-dark/80 to-transparent p-4 pointer-events-none z-[400]">
+            <p className="text-white text-xs md:text-sm text-center">
+              Explora el mapa para encontrar profesionales verificados en tu zona.
+            </p>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };

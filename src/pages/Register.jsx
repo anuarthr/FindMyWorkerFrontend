@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../api/axios'; // Importamos tu instancia configurada de Axios
+import api from '../api/axios';
 import { User, Hammer, Building2, ArrowRight, Loader2 } from 'lucide-react';
 
 const Register = () => {

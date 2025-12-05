@@ -1,4 +1,4 @@
-import { useAuth } from '../context/authcontext';
+import { useAuth } from '../context/AuthContext';
 import { LogOut, User as UserIcon } from 'lucide-react';
 import ClientHome from '../components/dashboard/ClientHome';
 import WorkerHome from '../components/dashboard/WorkerHome';
