@@ -126,37 +126,47 @@ export default function WorkerMap() {
         )}
 
         {/* Marcadores: Trabajadores */}
-        {workers.map((worker, index) => (
-          <Marker
-            key={index}
-            position={[worker.latitude, worker.longitude]}
-            icon={workerIcon}
-          >
-            <Popup>
-              <div className="p-1 min-w-[150px]">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="bg-[#E37B5B]/20 text-[#C04A3E] text-xs font-bold px-2 py-0.5 rounded-full uppercase">
-                    {worker.profession}
-                  </span>
-                  <span className="flex items-center text-yellow-500 text-xs font-bold">
-                    ★ {worker.average_rating}
-                  </span>
+        {workers.map((worker) => {
+          const lat = parseFloat(worker.lat || worker.latitude);
+          const lng = parseFloat(worker.lng || worker.longitude);
+
+          if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+            return null;
+          }
+
+          return (
+            <Marker
+              key={worker.id || Math.random()} 
+              position={[lat, lng]}
+              icon={workerIcon}
+            >
+              <Popup>
+                <div className="p-1 min-w-[150px]">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="bg-[#E37B5B]/20 text-[#C04A3E] text-xs font-bold px-2 py-0.5 rounded-full uppercase">
+                      {worker.profession}
+                    </span>
+                    <span className="flex items-center text-yellow-500 text-xs font-bold">
+                      ★ {worker.average_rating || '0.0'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-2 italic">
+                    "{worker.bio}"
+                  </p>
+                  <div className="border-t border-gray-100 pt-2 mt-2 flex justify-between items-center">
+                    <span className="font-bold text-[#4A3B32]">
+                      ${worker.hourly_rate ? parseInt(worker.hourly_rate).toLocaleString() : '0'}/hr
+                    </span>
+                    <button className="text-xs bg-[#4A3B32] text-white px-2 py-1 rounded hover:bg-[#2A211C]">
+                      Ver Perfil
+                    </button>
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600 line-clamp-2 mb-2 italic">
-                  "{worker.bio}"
-                </p>
-                <div className="border-t border-gray-100 pt-2 mt-2 flex justify-between items-center">
-                  <span className="font-bold text-[#4A3B32]">
-                    ${parseInt(worker.hourly_rate).toLocaleString()}/hr
-                  </span>
-                  <button className="text-xs bg-[#4A3B32] text-white px-2 py-1 rounded hover:bg-[#2A211C]">
-                    Ver Perfil
-                  </button>
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          );
+        })}
+
       </MapContainer>
       
       {/* Leyenda simple */}
