@@ -6,7 +6,7 @@ import { Clock, AlertTriangle, CheckCircle, Edit2, Briefcase, MapPin, Loader2 } 
 const WorkerHome = ({ user }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const hasData = Boolean(profile?.profession) && (Boolean(profile?.lat) || Boolean(profile?.latitude));
+  const hasData = Boolean(profile?.profession) && Boolean(profile?.latitude) && Boolean(profile?.longitude);
   const isVerified = Boolean(profile?.is_verified);
 
   useEffect(() => {
@@ -50,16 +50,7 @@ const WorkerHome = ({ user }) => {
             Hola, {user.first_name} 👋
           </h1>
           <p className="text-neutral-dark/60 mt-1">Tu panel de control freelance.</p>
-        </div>
-        
-        {isProfileComplete && (
-          <Link 
-            to="/profile/edit" 
-            className="hidden md:flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-hover bg-primary/10 px-4 py-2 rounded-lg transition-colors"
-          >
-            <Edit2 size={16} /> Editar Perfil
-          </Link>
-        )}
+        </div>       
       </div>
 
       {!hasData ? (

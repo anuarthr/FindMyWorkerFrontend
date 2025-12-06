@@ -17,7 +17,7 @@ const ClientHome = ({ user }) => {
             <input 
               type="text" 
               placeholder="Ej. Plomero, Electricista, 'Se rompió la tubería'..." 
-              className="w-full py-4 pl-6 pr-16 rounded-full text-neutral-dark focus:outline-none shadow-xl focus:ring-4 focus:ring-primary/30 transition-all"
+              className="w-full py-4 pl-6 pr-16 rounded-full text-white focus:outline-none shadow-xl focus:ring-4 focus:ring-primary/30 bg-neutral-dark/50 placeholder-white/70 transition-colors"
             />
             <button className="absolute right-2 top-2 bg-primary hover:bg-primary-hover text-white p-2.5 rounded-full transition-transform active:scale-95 cursor-pointer">
               <Search size={24} />

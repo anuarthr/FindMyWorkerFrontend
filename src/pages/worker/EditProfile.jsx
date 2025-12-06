@@ -29,8 +29,8 @@ const EditProfile = () => {
           years_experience: data.years_experience || 0,
           hourly_rate: data.hourly_rate || '',
           bio: data.bio || '',
-          latitude: data.lat, 
-          longitude: data.lng 
+          latitude: data.latitude, 
+          longitude: data.longitude,
         });
       } catch (err) {
         console.error("Error cargando perfil:", err);

@@ -127,8 +127,8 @@ export default function WorkerMap() {
 
         {/* Marcadores: Trabajadores */}
         {workers.map((worker) => {
-          const lat = parseFloat(worker.lat || worker.latitude);
-          const lng = parseFloat(worker.lng || worker.longitude);
+          const lat = parseFloat(worker.latitude);
+          const lng = parseFloat(worker.longitude);
 
           if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
             return null;
