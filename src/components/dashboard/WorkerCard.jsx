@@ -1,7 +1,9 @@
 import React from 'react';
 import { Star, MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const WorkerCard = ({ worker }) => {
+const navigate = useNavigate();
   const userData = worker.user || worker;
   
   const firstName = userData.first_name || "";
@@ -67,7 +69,8 @@ const WorkerCard = ({ worker }) => {
             ${hourlyRate}
           </span>
         </div>
-        <button className="px-4 py-2 bg-[#4A3B32] text-white text-sm font-medium rounded-lg hover:bg-[#2A211C] transition-colors">
+        <button className="px-4 py-2 bg-[#4A3B32] text-white text-sm font-medium rounded-lg hover:bg-[#2A211C] transition-colors"
+            onClick={() => navigate(`/worker/${worker.id}`)}>
           Ver Perfil
         </button>
       </div>

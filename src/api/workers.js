@@ -25,3 +25,13 @@ export const getWorkers = async (filters) => {
     return [];
   }
 };
+
+export const getWorkerById = async (id) => {
+  try {
+    const response = await api.get(`/workers/${id}/`);
+    return response.data;
+  } catch (error) {
+    console.error(`❌ Error fetching worker ${id}:`, error);
+    return null;
+  }
+};

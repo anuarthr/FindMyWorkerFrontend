@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { userIcon, workerIcon } from '../../utils/mapIcons';
+import { useNavigate } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 
 function RecenterMap({ lat, lng }) {
@@ -14,7 +15,7 @@ function RecenterMap({ lat, lng }) {
 }
 
 export default function WorkerMap({ workers = [], userLocation }) {
-  
+  const navigate = useNavigate();
   const center = userLocation ? [userLocation.lat, userLocation.lng] : [11.24079, -74.19904];
 
   return (
@@ -73,7 +74,8 @@ export default function WorkerMap({ workers = [], userLocation }) {
                      </span>
                    </div>
                    
-                   <button className="w-full mt-2 bg-[#4A3B32] text-white text-xs py-1 rounded hover:bg-[#2e251f]">
+                   <button className="w-full mt-2 bg-[#4A3B32] text-white text-xs py-1 rounded hover:bg-[#2e251f]"
+                    onClick={() => navigate(`/worker/${worker.id}`)}>
                      Ver Perfil Completo
                    </button>
                 </div>
