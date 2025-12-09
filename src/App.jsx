@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import EditProfile from './pages/worker/EditProfile';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import WorkerPublicProfile from './components/dashboard/WorkerPublicProfile';
 
 function App() {
   return (
@@ -31,6 +32,13 @@ function App() {
                 <EditProfile />
               </ProtectedRoute>
             } 
+          />
+
+          <Route 
+            path="/worker/:id" 
+            element={
+              <WorkerPublicProfile />
+            }
           />
 
           <Route 
