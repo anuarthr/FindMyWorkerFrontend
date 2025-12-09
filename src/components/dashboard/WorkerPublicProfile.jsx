@@ -128,22 +128,6 @@ const WorkerPublicProfile = () => {
               </p>
             </div>
 
-            {/* Habilidades */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#4A3B32]/5">
-              <h3 className="font-bold text-xl text-[#4A3B32] mb-4">Habilidades & Servicios</h3>
-              <div className="flex flex-wrap gap-2">
-                {worker.skills?.length > 0 ? (
-                  worker.skills.map((skill, index) => (
-                    <span key={index} className="px-3 py-1.5 bg-[#EFE6DD] text-[#4A3B32] font-medium rounded-lg text-sm">
-                      ✅ {skill.name}
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-gray-400 italic">No especificadas.</p>
-                )}
-              </div>
-            </div>
-
             {/* (Placeholder) Reseñas */}
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#4A3B32]/5 opacity-60">
               <h3 className="font-bold text-xl text-[#4A3B32] mb-4 flex justify-between">
