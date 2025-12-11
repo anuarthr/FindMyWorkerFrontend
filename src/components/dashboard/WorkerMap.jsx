@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { userIcon, workerIcon } from '../../utils/mapIcons';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // Import i18n
 import 'leaflet/dist/leaflet.css';
 
 function RecenterMap({ lat, lng }) {
@@ -15,6 +16,7 @@ function RecenterMap({ lat, lng }) {
 }
 
 export default function WorkerMap({ workers = [], userLocation }) {
+  const { t } = useTranslation(); // Hook initialization
   const navigate = useNavigate();
   const center = userLocation ? [userLocation.lat, userLocation.lng] : [11.24079, -74.19904];
 
@@ -30,7 +32,7 @@ export default function WorkerMap({ workers = [], userLocation }) {
 
         {userLocation && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
-            <Popup><div className="text-center font-bold text-[#4A3B32]">¡Estás aquí!</div></Popup>
+            <Popup><div className="text-center font-bold text-[#4A3B32]">{t('workerMap.youAreHere')}</div></Popup>
           </Marker>
         )}
 
@@ -44,7 +46,7 @@ export default function WorkerMap({ workers = [], userLocation }) {
           const firstName = userData.first_name || "";
           const lastName = userData.last_name || "";
           let fullName = `${firstName} ${lastName}`.trim();
-          if (!fullName) fullName = "Usuario Sin Nombre";
+          if (!fullName) fullName = t('workerCard.defaultName'); // Reutilizamos clave común
           
           const avatar = userData.avatar || "https://placehold.co/50x50";
 
@@ -66,17 +68,17 @@ export default function WorkerMap({ workers = [], userLocation }) {
                    </div>
 
                    <div className="flex justify-between items-center border-t border-gray-200 pt-2 mt-1">
-                     <span className="font-bold text-[#4A3B32] text-sm">
+                      <span className="font-bold text-[#4A3B32] text-sm">
                         ${parseInt(worker.hourly_rate).toLocaleString()}
-                     </span>
-                     <span className="text-xs text-yellow-600 font-bold bg-yellow-50 px-1 rounded">
+                      </span>
+                      <span className="text-xs text-yellow-600 font-bold bg-yellow-50 px-1 rounded">
                         ★ {worker.average_rating}
-                     </span>
+                      </span>
                    </div>
                    
                    <button className="w-full mt-2 bg-[#4A3B32] text-white text-xs py-1 rounded hover:bg-[#2e251f]"
                     onClick={() => navigate(`/worker/${worker.id}`)}>
-                     Ver Perfil Completo
+                      {t('workerMap.viewFullProfile')}
                    </button>
                 </div>
               </Popup>

@@ -1,0 +1,139 @@
+{
+   "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "currency": "$",
+    "role_ADMIN": "ADMIN",
+    "role_CLIENT": "CLIENT",
+    "role_WORKER": "WORKER",
+    "role_COMPANY": "COMPANY"
+  },
+  "clientHome": {
+    "greeting": "What do you need today, {{name}}?",
+    "visitor": "Visitor",
+    "searchPlaceholder": "Ex. Plumber...",
+    "resultsCount": "{{count}} Results",
+    "noWorkers": "No workers found."
+  },
+  "workerCard": {
+    "defaultName": "Unnamed User",
+    "defaultProfession": "Professional",
+    "defaultBio": "No description available.",
+    "distance": "2.5 km away",
+    "rateLabel": "Hourly Rate",
+    "viewProfile": "View Profile"
+  },
+  "workerMap": {
+    "youAreHere": "You are here!",
+    "viewFullProfile": "View Full Profile"
+  },
+  "workerPublicProfile": {
+    "notFound": "Worker not found",
+    "backToMap": "Back to map",
+    "backToResults": "Back to results",
+    "verified": "Verified",
+    "unverified": "Unverified",
+    "location": "Santa Marta, Magdalena",
+    "rate": "Rate",
+    "rating": "Rating",
+    "perHour": "/hr",
+    "aboutMe": "About me",
+    "noBio": "This professional has not added a detailed description yet. Contact for more info.",
+    "reviewsTitle": "Client Reviews",
+    "comingSoon": "Coming Soon",
+    "reviewsPlaceholder": "The reviews module will be available soon.",
+    "interestTitle": "Interested in this profile?",
+    "hireNow": "Hire Now",
+    "sendMessage": "Send Message",
+    "escrowNote": "Payments protected by FindMyWorker Escrow."
+  },
+  "filtersSidebar": {
+    "title": "Filters",
+    "profession": "Profession",
+    "maxPrice": "Max Price",
+    "rating": "Rating",
+    "andMore": "& more",
+    "clear": "Clear Filters"
+  },
+  "workerHome": {
+    "hello": "Hello, {{name}} 👋",
+    "subtitle": "Your freelance dashboard.",
+    "completeProfileTitle": "Complete your profile to appear on the map!",
+    "completeProfileBody": "Clients can't find you. We need to know your <1>profession</1> and <1>location</1>.",
+    "completeProfileBtn": "Complete Profile Now",
+    "verificationTitle": "Profile Verification in Progress",
+    "verificationBody": "You have successfully completed your info. An admin is reviewing your profile. Once approved, you will appear on the map automatically.",
+    "statusPending": "Status: Pending",
+    "editData": "Edit Data",
+    "verified": "Verified",
+    "yearsExp": "{{years}} years exp.",
+    "visibleInMap": "Visible on map",
+    "edit": "Edit",
+    "monthEarnings": "Month Earnings",
+    "activeJobs": "Active Jobs",
+    "rating": "Rating"
+  },
+  "auth": {
+    "loginTitle": "Welcome to FindMy<1>Worker</1>",
+    "loginSubtitle": "Your trusted platform for hiring services.",
+    "emailLabel": "Email Address",
+    "passwordLabel": "Password",
+    "loginBtn": "Log In",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Sign up for free",
+    "registerTitle": "Join FindMy<1>Worker</1>",
+    "registerSubtitle": "Choose how you want to use the platform",
+    "registerError": "Error creating account. Please try again.",
+    "roleClient": "Client",
+    "roleClientDesc": "I want to hire services",
+    "roleWorker": "Worker",
+    "roleWorkerDesc": "I offer my skills",
+    "roleCompany": "Company",
+    "roleCompanyDesc": "I manage projects",
+    "nameLabel": "First Name",
+    "lastNameLabel": "Last Name",
+    "createAccountBtn": "Create Account",
+    "creatingAccountBtn": "Creating account...",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginLink": "Log In",
+    "emailPlaceholder": "example@mail.com",
+    "passwordPlaceholder": "••••••••",
+    "invalidCredentials": "Invalid credentials"
+  },
+  "admin": {
+    "dashboardTitle": "Control Panel",
+    "dashboardSubtitle": "Pending verification management",
+    "pendingRequests": "Pending Requests",
+    "emptyStateTitle": "All clear!",
+    "emptyStateBody": "No workers waiting for verification.",
+    "tableId": "ID",
+    "tableProfessional": "Professional",
+    "tableLocation": "Location",
+    "tableBio": "Bio (Summary)",
+    "tableActions": "Actions",
+    "statusDefined": "Defined",
+    "statusPending": "Pending",
+    "approveBtn": "Approve",
+    "loading": "Loading..."
+  },
+  "editProfile": {
+    "title": "Edit Professional Profile",
+    "backToDashboard": "Back to Dashboard",
+    "professionLabel": "Profession",
+    "experienceLabel": "Years of Experience",
+    "rateLabel": "Rate ($/hr)",
+    "bioLabel": "Biography",
+    "mapTitle": "Coverage Zone (Mandatory)",
+    "mapSubtitle": "You must select a location to appear on the client map.",
+    "saveBtn": "Save Full Profile"
+  },
+  "locationPicker": {
+    "title": "Work Location",
+    "useGps": "Use my GPS location",
+    "hint": "Tap on the map to adjust your exact location.",
+    "gpsNotSupported": "Geolocation is not supported by this browser."
+  },
+  "navbar": {
+    "logout": "Log Out"
+  }
+}

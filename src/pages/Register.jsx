@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { User, Hammer, Building2, ArrowRight, Loader2 } from 'lucide-react';
+import { useTranslation, Trans } from 'react-i18next';
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
 
 const Register = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -34,24 +37,27 @@ const Register = () => {
       navigate('/login');
     } catch (err) {
       console.error(err);
-      const errorMsg = err.response?.data?.email 
-        ? "Este correo ya está registrado." 
-        : "Error al crear la cuenta. Intenta nuevamente.";
-      setError(errorMsg);
+      setError(t('auth.registerError'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-neutral-light flex items-center justify-center p-4 py-10">
+    <div className="min-h-screen bg-neutral-light flex items-center justify-center p-4 py-10 relative">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
+
       <div className="bg-surface w-full max-w-2xl p-8 rounded-xl shadow-lg border border-neutral-dark/10">
         
         <div className="text-center mb-8">
           <h1 className="font-heading text-3xl font-bold text-neutral-dark">
-            Únete a FindMy<span className="text-primary">Worker</span>
+            <Trans i18nKey="auth.registerTitle">
+              Únete a FindMy<span className="text-primary">Worker</span>
+            </Trans>
           </h1>
-          <p className="text-neutral-dark/60 mt-2">Elige cómo quieres usar la plataforma</p>
+          <p className="text-neutral-dark/60 mt-2">{t('auth.registerSubtitle')}</p>
         </div>
 
         {error && (
@@ -77,8 +83,8 @@ const Register = () => {
               }`}>
                 <User size={20} />
               </div>
-              <h3 className="font-bold text-neutral-dark text-sm">Cliente</h3>
-              <p className="text-xs text-neutral-dark/60 mt-1">Busco contratar servicios</p>
+              <h3 className="font-bold text-neutral-dark text-sm">{t('auth.roleClient')}</h3>
+              <p className="text-xs text-neutral-dark/60 mt-1">{t('auth.roleClientDesc')}</p>
             </div>
 
             {/* Opción Trabajador */}
@@ -95,8 +101,8 @@ const Register = () => {
               }`}>
                 <Hammer size={20} />
               </div>
-              <h3 className="font-bold text-neutral-dark text-sm">Trabajador</h3>
-              <p className="text-xs text-neutral-dark/60 mt-1">Ofrezco mis habilidades</p>
+              <h3 className="font-bold text-neutral-dark text-sm">{t('auth.roleWorker')}</h3>
+              <p className="text-xs text-neutral-dark/60 mt-1">{t('auth.roleWorkerDesc')}</p>
             </div>
 
             {/* Opción Empresa */}
@@ -113,14 +119,14 @@ const Register = () => {
               }`}>
                 <Building2 size={20} />
               </div>
-              <h3 className="font-bold text-neutral-dark text-sm">Empresa</h3>
-              <p className="text-xs text-neutral-dark/60 mt-1">Gestiono proyectos</p>
+              <h3 className="font-bold text-neutral-dark text-sm">{t('auth.roleCompany')}</h3>
+              <p className="text-xs text-neutral-dark/60 mt-1">{t('auth.roleCompanyDesc')}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="block text-sm font-medium text-neutral-dark mb-1">Nombre</label>
+              <label className="block text-sm font-medium text-neutral-dark mb-1">{t('auth.nameLabel')}</label>
               <input
                 type="text"
                 name="first_name"
@@ -130,7 +136,7 @@ const Register = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-dark mb-1">Apellido</label>
+              <label className="block text-sm font-medium text-neutral-dark mb-1">{t('auth.lastNameLabel')}</label>
               <input
                 type="text"
                 name="last_name"
@@ -143,7 +149,7 @@ const Register = () => {
 
           <div className="space-y-4 mb-8">
             <div>
-              <label className="block text-sm font-medium text-neutral-dark mb-1">Correo Electrónico</label>
+              <label className="block text-sm font-medium text-neutral-dark mb-1">{t('auth.emailLabel')}</label>
               <input
                 type="email"
                 name="email"
@@ -153,7 +159,7 @@ const Register = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-dark mb-1">Contraseña</label>
+              <label className="block text-sm font-medium text-neutral-dark mb-1">{t('auth.passwordLabel')}</label>
               <input
                 type="password"
                 name="password"
@@ -171,20 +177,20 @@ const Register = () => {
           >
             {loading ? (
               <>
-                <Loader2 className="animate-spin" size={20} /> Creando cuenta...
+                <Loader2 className="animate-spin" size={20} /> {t('auth.creatingAccountBtn')}
               </>
             ) : (
               <>
-                Crear Cuenta <ArrowRight size={20} />
+                {t('auth.createAccountBtn')} <ArrowRight size={20} />
               </>
             )}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-neutral-dark/70">
-          ¿Ya tienes una cuenta?{' '}
+          {t('auth.alreadyHaveAccount')}{' '}
           <Link to="/login" className="text-primary font-semibold hover:underline">
-            Inicia Sesión
+            {t('auth.loginLink')}
           </Link>
         </div>
       </div>

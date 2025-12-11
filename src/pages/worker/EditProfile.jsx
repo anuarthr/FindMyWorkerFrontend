@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import LocationPicker from '../../components/LocationPicker';
 import { Save, ArrowLeft, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const EditProfile = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -80,11 +82,11 @@ const EditProfile = () => {
           onClick={() => navigate('/dashboard')} 
           className="flex items-center text-neutral-dark/60 hover:text-primary mb-6 text-sm font-bold transition-colors"
         >
-          <ArrowLeft size={16} className="mr-1" /> Volver al Dashboard
+          <ArrowLeft size={16} className="mr-1" /> {t('editProfile.backToDashboard')}
         </button>
 
         <h1 className="font-heading text-2xl font-bold text-neutral-dark mb-2">
-          Editar Perfil Profesional
+          {t('editProfile.title')}
         </h1>
         
         {error && (
@@ -96,7 +98,7 @@ const EditProfile = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           
           <div>
-            <label className="block text-sm font-medium text-neutral-dark mb-1">Profesión</label>
+            <label className="block text-sm font-medium text-neutral-dark mb-1">{t('editProfile.professionLabel')}</label>
             <input
               type="text"
               value={formData.profession}
@@ -109,7 +111,7 @@ const EditProfile = () => {
            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Experiencia */}
             <div>
-              <label className="block text-sm font-medium text-neutral-dark mb-1">Años de Experiencia</label>
+              <label className="block text-sm font-medium text-neutral-dark mb-1">{t('editProfile.experienceLabel')}</label>
               <input
                 type="number"
                 value={formData.years_experience}
@@ -121,7 +123,7 @@ const EditProfile = () => {
 
             {/* Tarifa */}
             <div>
-              <label className="block text-sm font-medium text-neutral-dark mb-1">Tarifa ($/hr)</label>
+              <label className="block text-sm font-medium text-neutral-dark mb-1">{t('editProfile.rateLabel')}</label>
               <input
                 type="number"
                 step="0.01"
@@ -135,7 +137,7 @@ const EditProfile = () => {
 
           {/* Bio */}
           <div>
-            <label className="block text-sm font-medium text-neutral-dark mb-1">Biografía</label>
+            <label className="block text-sm font-medium text-neutral-dark mb-1">{t('editProfile.bioLabel')}</label>
             <textarea
               rows="4"
               value={formData.bio}
@@ -147,10 +149,10 @@ const EditProfile = () => {
           {/* Mapa */}
           <div className="pt-6 border-t border-neutral-dark/10">
              <h3 className="font-heading text-lg font-bold text-neutral-dark mb-4">
-               📍 Zona de Cobertura (Obligatorio)
+               📍 {t('editProfile.mapTitle')}
              </h3>
              <p className="text-sm text-gray-500 mb-3">
-               Debes seleccionar una ubicación para aparecer en el mapa de clientes.
+               {t('editProfile.mapSubtitle')}
              </p>
              
              <div className="bg-white p-1 rounded-xl border border-neutral-dark/20">
@@ -168,7 +170,7 @@ const EditProfile = () => {
             className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 mt-4"
           >
             {loading ? <Loader2 className="animate-spin" /> : <Save size={20} />}
-            Guardar Perfil Completo
+            {t('editProfile.saveBtn')}
           </button>
         </form>
       </div>

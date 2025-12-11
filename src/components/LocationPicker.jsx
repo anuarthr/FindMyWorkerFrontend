@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { Navigation } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function LocationPicker({ latitude, longitude, onLocationChange }) {
-  const defaultCenter = { lat: 11.24079, lng: -74.19904 }; // Santa Marta por defecto
+  const { t } = useTranslation();
+  const defaultCenter = { lat: 11.24079, lng: -74.19904 }; 
   const [position, setPosition] = useState(null);
 
   useEffect(() => {
@@ -21,7 +23,7 @@ export default function LocationPicker({ latitude, longitude, onLocationChange }
         onLocationChange(newPos.lat, newPos.lng);
       });
     } else {
-      alert("La geolocalización no es soportada por este navegador.");
+      alert(t('locationPicker.gpsNotSupported'));
     }
   };
 
@@ -48,7 +50,7 @@ export default function LocationPicker({ latitude, longitude, onLocationChange }
     <div className="space-y-3">
       <div className="flex justify-between items-center">
         <label className="block text-sm font-bold text-neutral-dark">
-          📍 Ubicación de Trabajo
+          📍 {t('locationPicker.title')}
         </label>
         <button
           onClick={handleGetCurrentLocation}
@@ -56,7 +58,7 @@ export default function LocationPicker({ latitude, longitude, onLocationChange }
           type="button"
         >
           <Navigation size={14} />
-          Usar mi ubicación GPS
+          {t('locationPicker.useGps')}
         </button>
       </div>
 
@@ -74,7 +76,7 @@ export default function LocationPicker({ latitude, longitude, onLocationChange }
         </MapContainer>
       </div>
       <p className="text-xs text-gray-500">
-        Toca en el mapa para ajustar tu ubicación exacta.
+        {t('locationPicker.hint')}
       </p>
     </div>
   );
