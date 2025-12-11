@@ -1,0 +1,139 @@
+{
+   "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "currency": "$",
+    "role_ADMIN": "ADMINISTRADOR",
+    "role_CLIENT": "CLIENTE",
+    "role_WORKER": "TRABAJADOR",
+    "role_COMPANY": "EMPRESA"
+  },
+  "clientHome": {
+    "greeting": "¿Qué necesitas hoy, {{name}}?",
+    "visitor": "Visitante",
+    "searchPlaceholder": "Ej. Plomero...",
+    "resultsCount": "{{count}} Resultados",
+    "noWorkers": "No se encontraron trabajadores."
+  },
+  "workerCard": {
+    "defaultName": "Usuario Sin Nombre",
+    "defaultProfession": "Profesional",
+    "defaultBio": "Sin descripción disponible.",
+    "distance": "A 2.5 km",
+    "rateLabel": "Tarifa/Hora",
+    "viewProfile": "Ver Perfil"
+  },
+  "workerMap": {
+    "youAreHere": "¡Estás aquí!",
+    "viewFullProfile": "Ver Perfil Completo"
+  },
+  "workerPublicProfile": {
+    "notFound": "Trabajador no encontrado",
+    "backToMap": "Volver al mapa",
+    "backToResults": "Volver a resultados",
+    "verified": "Verificado",
+    "unverified": "No verificado",
+    "location": "Santa Marta, Magdalena",
+    "rate": "Tarifa",
+    "rating": "Rating",
+    "perHour": "/hr",
+    "aboutMe": "Sobre mí",
+    "noBio": "Este profesional no ha agregado una descripción detallada aún. Contacta para más información.",
+    "reviewsTitle": "Reseñas de Clientes",
+    "comingSoon": "Próximamente",
+    "reviewsPlaceholder": "El módulo de reseñas estará disponible pronto.",
+    "interestTitle": "¿Te interesa este perfil?",
+    "hireNow": "Contratar Ahora",
+    "sendMessage": "Enviar Mensaje",
+    "escrowNote": "Pagos protegidos por FindMyWorker Escrow."
+  },
+  "filtersSidebar": {
+    "title": "Filtros",
+    "profession": "Profesión",
+    "maxPrice": "Precio Máximo",
+    "rating": "Calificación",
+    "andMore": "& más",
+    "clear": "Limpiar Filtros"
+  },
+  "workerHome": {
+    "hello": "Hola, {{name}} 👋",
+    "subtitle": "Tu panel de control freelance.",
+    "completeProfileTitle": "¡Completa tu perfil para aparecer en el mapa!",
+    "completeProfileBody": "Los clientes no pueden encontrarte. Necesitamos saber tu <1>profesión</1> y <1>ubicación</1>.",
+    "completeProfileBtn": "Completar Perfil Ahora",
+    "verificationTitle": "Perfil en Proceso de Verificación",
+    "verificationBody": "Has completado tu información exitosamente. Un administrador está revisando tu perfil. Una vez aprobado, aparecerás automáticamente en el mapa.",
+    "statusPending": "Estado: Pendiente",
+    "editData": "Editar Datos",
+    "verified": "Verificado",
+    "yearsExp": "{{years}} años exp.",
+    "visibleInMap": "Visible en mapa",
+    "edit": "Editar",
+    "monthEarnings": "Ganancias del Mes",
+    "activeJobs": "Trabajos Activos",
+    "rating": "Calificación"
+  },
+  "auth": {
+    "loginTitle": "Bienvenido a FindMy<1>Worker</1>",
+    "loginSubtitle": "Tu plataforma de confianza para contratar servicios.",
+    "emailLabel": "Correo Electrónico",
+    "passwordLabel": "Contraseña",
+    "loginBtn": "Iniciar Sesión",
+    "noAccount": "¿No tienes una cuenta?",
+    "registerLink": "Regístrate gratis",
+    "registerTitle": "Únete a FindMy<1>Worker</1>",
+    "registerSubtitle": "Elige cómo quieres usar la plataforma",
+    "registerError": "Error al crear la cuenta. Intenta nuevamente.",
+    "roleClient": "Cliente",
+    "roleClientDesc": "Busco contratar servicios",
+    "roleWorker": "Trabajador",
+    "roleWorkerDesc": "Ofrezco mis habilidades",
+    "roleCompany": "Empresa",
+    "roleCompanyDesc": "Gestiono proyectos",
+    "nameLabel": "Nombre",
+    "lastNameLabel": "Apellido",
+    "createAccountBtn": "Crear Cuenta",
+    "creatingAccountBtn": "Creando cuenta...",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "loginLink": "Inicia Sesión",
+    "emailPlaceholder": "ejemplo@correo.com",
+    "passwordPlaceholder": "••••••••",
+    "invalidCredentials": "Credenciales inválidas"
+  },
+  "admin": {
+    "dashboardTitle": "Panel de Control",
+    "dashboardSubtitle": "Gestión de verificaciones pendientes",
+    "pendingRequests": "Solicitudes Pendientes",
+    "emptyStateTitle": "¡Todo limpio!",
+    "emptyStateBody": "No hay trabajadores esperando verificación.",
+    "tableId": "ID",
+    "tableProfessional": "Profesional",
+    "tableLocation": "Ubicación",
+    "tableBio": "Bio (Resumen)",
+    "tableActions": "Acciones",
+    "statusDefined": "Definida",
+    "statusPending": "Pendiente",
+    "approveBtn": "Aprobar",
+    "loading": "Cargando..."
+  },
+  "editProfile": {
+    "title": "Editar Perfil Profesional",
+    "backToDashboard": "Volver al Dashboard",
+    "professionLabel": "Profesión",
+    "experienceLabel": "Años de Experiencia",
+    "rateLabel": "Tarifa ($/hr)",
+    "bioLabel": "Biografía",
+    "mapTitle": "Zona de Cobertura (Obligatorio)",
+    "mapSubtitle": "Debes seleccionar una ubicación para aparecer en el mapa de clientes.",
+    "saveBtn": "Guardar Perfil Completo"
+  },
+  "locationPicker": {
+    "title": "Ubicación de Trabajo",
+    "useGps": "Usar mi ubicación GPS",
+    "hint": "Toca en el mapa para ajustar tu ubicación exacta.",
+    "gpsNotSupported": "La geolocalización no es soportada por este navegador."
+  },
+  "navbar": {
+    "logout": "Cerrar Sesión"
+  }
+}

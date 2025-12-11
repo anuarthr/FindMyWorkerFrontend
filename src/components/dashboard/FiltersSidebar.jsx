@@ -1,7 +1,9 @@
 import React from 'react';
 import { Star, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
+  const { t } = useTranslation();
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,7 +27,7 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
       `}>
         
         <div className="p-6 flex justify-between items-center border-b border-[#4A3B32]/10">
-          <h2 className="font-bold text-xl text-[#4A3B32]">Filtros</h2>
+          <h2 className="font-bold text-xl text-[#4A3B32]">{t('filtersSidebar.title')}</h2>
           <button onClick={toggleSidebar} className="lg:hidden text-[#4A3B32]">
             <X size={24} />
           </button>
@@ -35,7 +37,9 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
           
           {/* Categoría */}
           <div>
-            <h3 className="text-sm font-bold text-[#4A3B32] uppercase mb-3 tracking-wider">Profesión</h3>
+            <h3 className="text-sm font-bold text-[#4A3B32] uppercase mb-3 tracking-wider">
+                {t('filtersSidebar.profession')}
+            </h3>
             <div className="space-y-2">
               {categories.map(cat => (
                 <label key={cat} className="flex items-center space-x-3 cursor-pointer group">
@@ -44,7 +48,7 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
                     name="category" 
                     value={cat}
                     checked={filters.category === cat}
-                    onChange={handleChange} // IMPORTANTE: Usa onChange aquí
+                    onChange={handleChange}
                     className="accent-[#C04A3E] w-4 h-4"
                   />
                   <span className={`text-sm ${filters.category === cat ? 'text-[#C04A3E] font-bold' : 'text-gray-600'}`}>
@@ -58,7 +62,7 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
           {/* Precio Slider */}
           <div>
             <h3 className="text-sm font-bold text-[#4A3B32] uppercase mb-3 tracking-wider">
-              Precio Máximo
+              {t('filtersSidebar.maxPrice')}
             </h3>
             <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
               <span>$0</span>
@@ -78,7 +82,9 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
 
           {/* Rating */}
           <div>
-            <h3 className="text-sm font-bold text-[#4A3B32] uppercase mb-3 tracking-wider">Calificación</h3>
+            <h3 className="text-sm font-bold text-[#4A3B32] uppercase mb-3 tracking-wider">
+                {t('filtersSidebar.rating')}
+            </h3>
             <div className="flex flex-col gap-2">
               {[5, 4, 3, 2].map((stars) => (
                 <button
@@ -95,7 +101,7 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
                       <Star key={i} size={16} fill={i < stars ? "currentColor" : "none"} className={i >= stars ? "text-gray-300" : ""} />
                     ))}
                   </div>
-                  <span className="text-sm text-gray-600 font-medium">& más</span>
+                  <span className="text-sm text-gray-600 font-medium">{t('filtersSidebar.andMore')}</span>
                 </button>
               ))}
             </div>
@@ -108,7 +114,7 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
             onClick={() => setFilters({ category: '', minPrice: 0, maxPrice: 200000, minRating: 0, search: '' })}
             className="w-full py-2 text-sm font-bold text-[#C04A3E] hover:underline"
           >
-            Limpiar Filtros
+            {t('filtersSidebar.clear')}
           </button>
         </div>
       </aside>

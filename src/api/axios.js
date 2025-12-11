@@ -1,4 +1,5 @@
 import axios from 'axios';
+import i18n from '../i18n';
 
 const api = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/',
@@ -13,6 +14,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+    config.headers['Accept-Language'] = i18n.language; 
     return config;
   },
   (error) => Promise.reject(error)

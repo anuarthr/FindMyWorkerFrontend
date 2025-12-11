@@ -5,8 +5,10 @@ import {
   MessageSquare, CalendarCheck 
 } from 'lucide-react';
 import { getWorkerById } from '../../api/workers';
+import { useTranslation } from 'react-i18next';
 
 const WorkerPublicProfile = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [worker, setWorker] = useState(null);
@@ -30,15 +32,15 @@ const WorkerPublicProfile = () => {
 
   if (!worker) return (
     <div className="min-h-screen bg-[#EFE6DD] flex flex-col items-center justify-center text-[#4A3B32]">
-      <h2 className="text-2xl font-bold mb-2">Trabajador no encontrado</h2>
-      <button onClick={() => navigate(-1)} className="text-[#C04A3E] underline">Volver al mapa</button>
+      <h2 className="text-2xl font-bold mb-2">{t('workerPublicProfile.notFound')}</h2>
+      <button onClick={() => navigate(-1)} className="text-[#C04A3E] underline">{t('workerPublicProfile.backToMap')}</button>
     </div>
   );
 
   const userData = worker.user || worker;
   const firstName = userData.first_name || "Usuario";
   const lastName = userData.last_name || "";
-  const fullName = `${firstName} ${lastName}`.trim() || "Sin Nombre";
+  const fullName = `${firstName} ${lastName}`.trim() || t('workerCard.defaultName');
   const avatar = userData.avatar || "https://placehold.co/150x150";
   const hourlyRate = parseInt(worker.hourly_rate || 0).toLocaleString();
 
@@ -53,7 +55,7 @@ const WorkerPublicProfile = () => {
         >
           <ArrowLeft size={24} />
         </button>
-        <h1 className="font-bold text-lg hidden md:block">Volver a resultados</h1>
+        <h1 className="font-bold text-lg hidden md:block">{t('workerPublicProfile.backToResults')}</h1>
       </div>
 
       <div className="max-w-5xl mx-auto px-4 -mt-8 relative z-10">
@@ -85,11 +87,11 @@ const WorkerPublicProfile = () => {
                   <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
                       <MapPin size={16} />
-                      <span>Santa Marta, Magdalena</span>
+                      <span>{t('workerPublicProfile.location')}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <ShieldCheck size={16} className={worker.is_verified ? "text-green-600" : "text-gray-300"} />
-                      <span>{worker.is_verified ? "Verificado" : "No verificado"}</span>
+                      <span>{worker.is_verified ? t('workerPublicProfile.verified') : t('workerPublicProfile.unverified')}</span>
                     </div>
                   </div>
                 </div>
@@ -97,12 +99,12 @@ const WorkerPublicProfile = () => {
                 {/* Bloque de Precio y Rating */}
                 <div className="flex items-center gap-6 bg-[#EFE6DD]/50 p-4 rounded-xl border border-[#4A3B32]/10">
                   <div className="text-center">
-                    <p className="text-xs text-gray-500 uppercase font-bold">Tarifa</p>
-                    <p className="text-2xl font-bold text-[#C04A3E]">${hourlyRate}<span className="text-sm text-gray-400">/hr</span></p>
+                    <p className="text-xs text-gray-500 uppercase font-bold">{t('workerPublicProfile.rate')}</p>
+                    <p className="text-2xl font-bold text-[#C04A3E]">${hourlyRate}<span className="text-sm text-gray-400">{t('workerPublicProfile.perHour')}</span></p>
                   </div>
                   <div className="w-px h-10 bg-gray-300"></div>
                   <div className="text-center">
-                    <p className="text-xs text-gray-500 uppercase font-bold">Rating</p>
+                    <p className="text-xs text-gray-500 uppercase font-bold">{t('workerPublicProfile.rating')}</p>
                     <div className="flex items-center justify-center gap-1">
                       <span className="text-2xl font-bold text-[#4A3B32]">{worker.average_rating}</span>
                       <Star size={20} className="text-yellow-500 fill-current" />
@@ -122,19 +124,19 @@ const WorkerPublicProfile = () => {
             
             {/* Sobre Mí */}
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#4A3B32]/5">
-              <h3 className="font-bold text-xl text-[#4A3B32] mb-4">Sobre mí</h3>
+              <h3 className="font-bold text-xl text-[#4A3B32] mb-4">{t('workerPublicProfile.aboutMe')}</h3>
               <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                {worker.bio || "Este profesional no ha agregado una descripción detallada aún. Contacta para más información."}
+                {worker.bio || t('workerPublicProfile.noBio')}
               </p>
             </div>
 
             {/* (Placeholder) Reseñas */}
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#4A3B32]/5 opacity-60">
               <h3 className="font-bold text-xl text-[#4A3B32] mb-4 flex justify-between">
-                Reseñas de Clientes
-                <span className="text-xs bg-gray-100 px-2 py-1 rounded">Próximamente</span>
+                {t('workerPublicProfile.reviewsTitle')}
+                <span className="text-xs bg-gray-100 px-2 py-1 rounded">{t('workerPublicProfile.comingSoon')}</span>
               </h3>
-              <p className="text-gray-500 italic">El módulo de reseñas estará disponible pronto.</p>
+              <p className="text-gray-500 italic">{t('workerPublicProfile.reviewsPlaceholder')}</p>
             </div>
           </div>
 
@@ -142,22 +144,22 @@ const WorkerPublicProfile = () => {
           <div className="relative">
             <div className="sticky top-24 space-y-4">
               <div className="bg-white p-6 rounded-2xl shadow-md border border-[#C04A3E]/20">
-                <h3 className="font-bold text-lg text-[#4A3B32] mb-4">¿Te interesa este perfil?</h3>
+                <h3 className="font-bold text-lg text-[#4A3B32] mb-4">{t('workerPublicProfile.interestTitle')}</h3>
                 
                 <div className="space-y-3">
                   <button className="w-full flex items-center justify-center gap-2 bg-[#C04A3E] text-white py-3.5 rounded-xl font-bold hover:bg-[#A0382E] transition-all shadow-lg shadow-[#C04A3E]/20 active:scale-95">
                     <CalendarCheck size={20} />
-                    Contratar Ahora
+                    {t('workerPublicProfile.hireNow')}
                   </button>
                   
                   <button className="w-full flex items-center justify-center gap-2 bg-white border-2 border-[#4A3B32] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-gray-50 transition-all">
                     <MessageSquare size={20} />
-                    Enviar Mensaje
+                    {t('workerPublicProfile.sendMessage')}
                   </button>
                 </div>
                 
                 <p className="text-xs text-center text-gray-400 mt-4">
-                  Pagos protegidos por FindMyWorker Escrow.
+                  {t('workerPublicProfile.escrowNote')}
                 </p>
               </div>
             </div>

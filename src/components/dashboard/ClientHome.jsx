@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Search, List, Map as MapIcon, Filter, ArrowUpDown } from 'lucide-react';
+import { Search, List, Map as MapIcon, Filter } from 'lucide-react';
+import { useTranslation } from 'react-i18next'; // Import i18n
 import WorkerMap from './WorkerMap';       
 import FiltersSidebar from './FiltersSidebar'; 
 import WorkerCard from './WorkerCard';
 import { getWorkers } from '../../api/workers';
 
 const ClientHome = ({ user }) => {
+  const { t } = useTranslation(); // Hook initialization
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [viewMode, setViewMode] = useState('list');
   const [loading, setLoading] = useState(false);
@@ -33,7 +35,7 @@ const ClientHome = ({ user }) => {
         },
         (error) => {
           console.error("Error Geo:", error);
-          setUserLocation({ lat: 11.24079, lng: -74.19904 }); // Santa Marta Default
+          setUserLocation({ lat: 11.24079, lng: -74.19904 }); 
         }
       );
     } else {
@@ -41,7 +43,6 @@ const ClientHome = ({ user }) => {
     }
   }, []);
 
-  // 2. Cargar Workers
   useEffect(() => {
     const fetchWorkers = async () => {
       setLoading(true);
@@ -66,6 +67,9 @@ const ClientHome = ({ user }) => {
     }
   }, [filters, userLocation]);
 
+  // Dynamic name handling for translation
+  const userName = user?.first_name || t('clientHome.visitor');
+
   return (
     <div className="space-y-6 pb-10 bg-[#EFE6DD] min-h-screen">
       
@@ -74,14 +78,14 @@ const ClientHome = ({ user }) => {
         <div className="absolute top-0 right-0 w-32 h-32 bg-[#C04A3E]/20 rounded-full blur-2xl"></div>
         
         <h2 className="relative z-10 font-sans text-2xl md:text-3xl font-bold text-white mb-4">
-          ¿Qué necesitas hoy, {user?.first_name || 'Visitante'}?
+          {t('clientHome.greeting', { name: userName })}
         </h2>
         
         <div className="relative z-10 max-w-2xl mx-auto mt-6">
           <div className="relative">
             <input 
               type="text" 
-              placeholder="Ej. Plomero..." 
+              placeholder={t('clientHome.searchPlaceholder')} 
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               className="w-full py-3 pl-5 pr-12 rounded-full text-white bg-white/10 border border-white/20 placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#C04A3E]"
@@ -114,20 +118,20 @@ const ClientHome = ({ user }) => {
                  <Filter size={18} />
                </button>
                <span className="font-bold text-[#4A3B32] text-sm">
-                 {workers.length} Resultados
+                 {t('clientHome.resultsCount', { count: workers.length })}
                </span>
             </div>
 
             <div className="flex bg-gray-100 p-1 rounded-md">
                  <button 
-                    onClick={() => setViewMode('list')}
-                    className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
+                   onClick={() => setViewMode('list')}
+                   className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
                  >
                    <List size={18} />
                  </button>
                  <button 
-                    onClick={() => setViewMode('map')}
-                    className={`p-1.5 rounded ${viewMode === 'map' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
+                   onClick={() => setViewMode('map')}
+                   className={`p-1.5 rounded ${viewMode === 'map' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
                  >
                    <MapIcon size={18} />
                  </button>
@@ -144,7 +148,6 @@ const ClientHome = ({ user }) => {
 
             {viewMode === 'map' ? (
               <div className="h-[600px] rounded-xl overflow-hidden border border-[#4A3B32]/10 shadow-md bg-gray-100">
-                 {/* IMPORTANTE: Pasamos workers como prop */}
                  <WorkerMap workers={workers} userLocation={userLocation} />
               </div>
             ) : (
