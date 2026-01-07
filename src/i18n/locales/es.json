@@ -6,7 +6,8 @@
     "role_ADMIN": "ADMINISTRADOR",
     "role_CLIENT": "CLIENTE",
     "role_WORKER": "TRABAJADOR",
-    "role_COMPANY": "EMPRESA"
+    "role_COMPANY": "EMPRESA",
+    "close": "Cerrar"
   },
   "clientHome": {
     "greeting": "¿Qué necesitas hoy, {{name}}?",
@@ -45,7 +46,8 @@
     "interestTitle": "¿Te interesa este perfil?",
     "hireNow": "Contratar Ahora",
     "sendMessage": "Enviar Mensaje",
-    "escrowNote": "Pagos protegidos por FindMyWorker Escrow."
+    "notVerifiedWarning": "Este trabajador está pendiente de verificación. La contratación estará disponible una vez verificado.",
+    "escrowNote": "Tu pago está protegido hasta que confirmes que el trabajo está completo"
   },
   "filtersSidebar": {
     "title": "Filtros",
@@ -135,5 +137,25 @@
   },
   "navbar": {
     "logout": "Cerrar Sesión"
+  },
+  "hiringModal": {
+    "title": "Contratar a {{name}}",
+    "descriptionLabel": "Descripción del trabajo",
+    "descriptionPlaceholder": "Detalla qué necesitas. Ej: 'Instalar una nueva ducha en el baño principal y reparar la tubería de agua caliente...'",
+    "submitButton": "Enviar Solicitud",
+    "cancelButton": "Cancelar",
+    "sending": "Enviando...",
+    "successMessage": "¡Solicitud enviada con éxito!",
+    "successSubtext": "El trabajador recibirá tu solicitud",
+    "errorMessage": "Error al crear la solicitud. Intenta de nuevo.",
+    "descriptionTooShort": "La descripción debe tener al menos 10 caracteres",
+    "characters": "caracteres"
+  },
+  "worker": {
+    "verified": "Verificado",
+    "yearsExperience": "años de experiencia",
+    "hourlyRate": "Tarifa por hora",
+    "hireNow": "Contratar Ahora",
+    "notVerified": "Este trabajador aún no ha sido verificado por la plataforma"
   }
 }

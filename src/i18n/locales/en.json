@@ -6,7 +6,8 @@
     "role_ADMIN": "ADMIN",
     "role_CLIENT": "CLIENT",
     "role_WORKER": "WORKER",
-    "role_COMPANY": "COMPANY"
+    "role_COMPANY": "COMPANY",
+    "close": "Close"
   },
   "clientHome": {
     "greeting": "What do you need today, {{name}}?",
@@ -45,7 +46,8 @@
     "interestTitle": "Interested in this profile?",
     "hireNow": "Hire Now",
     "sendMessage": "Send Message",
-    "escrowNote": "Payments protected by FindMyWorker Escrow."
+    "notVerifiedWarning": "This worker is pending verification. Hiring will be available once verified.",
+    "escrowNote": "Your payment is protected until you confirm the work is complete"
   },
   "filtersSidebar": {
     "title": "Filters",
@@ -135,5 +137,25 @@
   },
   "navbar": {
     "logout": "Log Out"
+  },
+  "hiringModal": {
+    "title": "Hire {{name}}",
+    "descriptionLabel": "Job Description",
+    "descriptionPlaceholder": "Describe what you need done. E.g., 'Install a new shower in the main bathroom and fix the hot water pipe...'",
+    "submitButton": "Send Request",
+    "cancelButton": "Cancel",
+    "sending": "Sending...",
+    "successMessage": "Request sent successfully!",
+    "successSubtext": "The worker will receive your request",
+    "errorMessage": "Error sending request. Please try again.",
+    "descriptionTooShort": "Description must be at least 10 characters",
+    "characters": "characters"
+  },
+  "worker": {
+    "verified": "Verified",
+    "yearsExperience": "years of experience",
+    "hourlyRate": "Hourly rate",
+    "hireNow": "Hire Now",
+    "notVerified": "This worker has not been verified yet by the platform"
   }
 }
