@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Search, List, Map as MapIcon, Filter } from 'lucide-react';
-import { useTranslation } from 'react-i18next'; // Import i18n
+import { useTranslation } from 'react-i18next';
 import WorkerMap from './WorkerMap';       
 import FiltersSidebar from './FiltersSidebar'; 
 import WorkerCard from './WorkerCard';
+import ClientOrders from './ClientOrders';
 import { getWorkers } from '../../api/workers';
 
 const ClientHome = ({ user }) => {
-  const { t } = useTranslation(); // Hook initialization
+  const { t } = useTranslation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [viewMode, setViewMode] = useState('list');
   const [loading, setLoading] = useState(false);
@@ -67,7 +68,6 @@ const ClientHome = ({ user }) => {
     }
   }, [filters, userLocation]);
 
-  // Dynamic name handling for translation
   const userName = user?.first_name || t('clientHome.visitor');
 
   return (
@@ -159,6 +159,11 @@ const ClientHome = ({ user }) => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* ========== SECCIÓN DE ÓRDENES DEL CLIENTE (NUEVO) ========== */}
+      <div className="px-4 md:px-6 max-w-7xl mx-auto mt-12">
+        <ClientOrders />
       </div>
     </div>
   );

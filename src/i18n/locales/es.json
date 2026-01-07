@@ -157,5 +157,52 @@
     "hourlyRate": "Tarifa por hora",
     "hireNow": "Contratar Ahora",
     "notVerified": "Este trabajador aún no ha sido verificado por la plataforma"
+  },
+  "workerOrders": {
+    "title": "Mis Órdenes",
+    "subtitle": "Gestiona las solicitudes de clientes",
+    "filter": {
+      "all": "Todas",
+      "pending": "Pendientes",
+      "accepted": "Aceptadas",
+      "in_escrow": "En Progreso",
+      "completed": "Completadas"
+    },
+    "noOrders": "Aún no tienes órdenes",
+    "description": "Descripción del Trabajo",
+    "agreedPrice": "Precio Acordado",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "confirmReject": "¿Estás seguro de rechazar esta orden?",
+    "errorAccepting": "Error al aceptar la orden",
+    "errorRejecting": "Error al rechazar la orden",
+    "waitingPayment": "Esperando pago del cliente",
+    "inProgress": "Trabajo en progreso"
+  },
+  "clientOrders": {
+    "title": "Mis Solicitudes de Contratación",
+    "subtitle": "Rastrea y gestiona tus órdenes de servicio",
+    "filter": {
+      "all": "Todas",
+      "pending": "Pendientes",
+      "accepted": "Aceptadas",
+      "in_escrow": "En Progreso",
+      "completed": "Completadas"
+    },
+    "noOrders": "Aún no has contratado a nadie",
+    "description": "Descripción del Trabajo",
+    "agreedPrice": "Precio Acordado",
+    "simulatePayment": "Simular Pago",
+    "markCompleted": "Marcar como Completo",
+    "cancel": "Cancelar",
+    "waitingWorker": "Esperando respuesta del trabajador",
+    "completed": "Completada",
+    "cancelled": "Cancelada",
+    "confirmPayment": "¿Estás seguro de simular el pago? Los fondos se retendrán en garantía.",
+    "confirmComplete": "¿Estás seguro de que el trabajo está completo? Esto liberará el pago al trabajador.",
+    "confirmCancel": "¿Estás seguro de cancelar esta orden?",
+    "errorPayment": "Error al procesar el pago",
+    "errorComplete": "Error al marcar como completo",
+    "errorCancel": "Error al cancelar la orden"
   }
 }

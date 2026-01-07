@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { Clock, AlertTriangle, CheckCircle, Edit2, Briefcase, MapPin, Loader2 } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
+import WorkerOrders from './WorkerOrders';
 
 const WorkerHome = ({ user }) => {
   const { t } = useTranslation();
@@ -137,6 +138,10 @@ const WorkerHome = ({ user }) => {
           </div>
         </div>
       </div>
+        {isVerified && hasData && (
+          <WorkerOrders />
+        )}
+
     </div>
   );
 };
