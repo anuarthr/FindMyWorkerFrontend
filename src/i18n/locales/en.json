@@ -7,7 +7,8 @@
     "role_CLIENT": "CLIENT",
     "role_WORKER": "WORKER",
     "role_COMPANY": "COMPANY",
-    "close": "Close"
+    "close": "Close",
+    "cancel": "Cancel"
   },
   "clientHome": {
     "greeting": "What do you need today, {{name}}?",
@@ -168,6 +169,9 @@
       "in_escrow": "In Progress",
       "completed": "Completed"
     },
+    "confirmAcceptTitle": "Accept Order",
+    "confirmAccept": "Are you sure you want to accept this work request?",
+    "confirmRejectTitle": "Reject Order",
     "noOrders": "You have no orders yet",
     "description": "Job Description",
     "agreedPrice": "Agreed Price",
@@ -187,7 +191,13 @@
       "pending": "Pending",
       "accepted": "Accepted",
       "in_escrow": "In Progress",
-      "completed": "Completed"
+      "completed": "Completed",
+    "confirmPaymentTitle": "Confirm Payment",
+    "confirmPaymentButton": "Yes, Simulate Payment",
+    "confirmCompleteTitle": "Mark as Complete",
+    "confirmCompleteButton": "Yes, Mark Complete",
+    "confirmCancelTitle": "Cancel Order",
+    "confirmCancelButton": "Yes, Cancel"
     },
     "noOrders": "You haven't hired anyone yet",
     "description": "Job Description",
@@ -204,5 +214,12 @@
     "errorPayment": "Error processing payment",
     "errorComplete": "Error marking as completed",
     "errorCancel": "Error cancelling order"
+  },
+  "orderStatus": {
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "inEscrow": "In Progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
   }
 }
