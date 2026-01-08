@@ -6,7 +6,9 @@
     "role_ADMIN": "ADMIN",
     "role_CLIENT": "CLIENT",
     "role_WORKER": "WORKER",
-    "role_COMPANY": "COMPANY"
+    "role_COMPANY": "COMPANY",
+    "close": "Close",
+    "cancel": "Cancel"
   },
   "clientHome": {
     "greeting": "What do you need today, {{name}}?",
@@ -45,7 +47,8 @@
     "interestTitle": "Interested in this profile?",
     "hireNow": "Hire Now",
     "sendMessage": "Send Message",
-    "escrowNote": "Payments protected by FindMyWorker Escrow."
+    "notVerifiedWarning": "This worker is pending verification. Hiring will be available once verified.",
+    "escrowNote": "Your payment is protected until you confirm the work is complete"
   },
   "filtersSidebar": {
     "title": "Filters",
@@ -135,5 +138,88 @@
   },
   "navbar": {
     "logout": "Log Out"
+  },
+  "hiringModal": {
+    "title": "Hire {{name}}",
+    "descriptionLabel": "Job Description",
+    "descriptionPlaceholder": "Describe what you need done. E.g., 'Install a new shower in the main bathroom and fix the hot water pipe...'",
+    "submitButton": "Send Request",
+    "cancelButton": "Cancel",
+    "sending": "Sending...",
+    "successMessage": "Request sent successfully!",
+    "successSubtext": "The worker will receive your request",
+    "errorMessage": "Error sending request. Please try again.",
+    "descriptionTooShort": "Description must be at least 10 characters",
+    "characters": "characters"
+  },
+  "worker": {
+    "verified": "Verified",
+    "yearsExperience": "years of experience",
+    "hourlyRate": "Hourly rate",
+    "hireNow": "Hire Now",
+    "notVerified": "This worker has not been verified yet by the platform"
+  },
+  "workerOrders": {
+    "title": "My Orders",
+    "subtitle": "Manage requests from clients",
+    "filter": {
+      "all": "All",
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "in_escrow": "In Progress",
+      "completed": "Completed"
+    },
+    "confirmAcceptTitle": "Accept Order",
+    "confirmAccept": "Are you sure you want to accept this work request?",
+    "confirmRejectTitle": "Reject Order",
+    "noOrders": "You have no orders yet",
+    "description": "Job Description",
+    "agreedPrice": "Agreed Price",
+    "accept": "Accept",
+    "reject": "Reject",
+    "confirmReject": "Are you sure you want to reject this order?",
+    "errorAccepting": "Error accepting order",
+    "errorRejecting": "Error rejecting order",
+    "waitingPayment": "Waiting for client payment",
+    "inProgress": "Work in progress"
+  },
+  "clientOrders": {
+    "title": "My Hiring Requests",
+    "subtitle": "Track and manage your service orders",
+    "filter": {
+      "all": "All",
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "in_escrow": "In Progress",
+      "completed": "Completed",
+    "confirmPaymentTitle": "Confirm Payment",
+    "confirmPaymentButton": "Yes, Simulate Payment",
+    "confirmCompleteTitle": "Mark as Complete",
+    "confirmCompleteButton": "Yes, Mark Complete",
+    "confirmCancelTitle": "Cancel Order",
+    "confirmCancelButton": "Yes, Cancel"
+    },
+    "noOrders": "You haven't hired anyone yet",
+    "description": "Job Description",
+    "agreedPrice": "Agreed Price",
+    "simulatePayment": "Simulate Payment",
+    "markCompleted": "Mark as Complete",
+    "cancel": "Cancel",
+    "waitingWorker": "Waiting for worker response",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "confirmPayment": "Are you sure you want to simulate the payment? The funds will be held in escrow.",
+    "confirmComplete": "Are you sure the work is complete? This will release the payment to the worker.",
+    "confirmCancel": "Are you sure you want to cancel this order?",
+    "errorPayment": "Error processing payment",
+    "errorComplete": "Error marking as completed",
+    "errorCancel": "Error cancelling order"
+  },
+  "orderStatus": {
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "inEscrow": "In Progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
   }
 }

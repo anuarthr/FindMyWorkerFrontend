@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { getWorkerById } from '../../api/workers';
 import { useTranslation } from 'react-i18next';
+import HiringModal from '../modals/HiringModal';
 
 const WorkerPublicProfile = () => {
   const { t } = useTranslation();
@@ -13,6 +14,7 @@ const WorkerPublicProfile = () => {
   const navigate = useNavigate();
   const [worker, setWorker] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isHiringModalOpen, setIsHiringModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchWorker = async () => {
@@ -23,6 +25,10 @@ const WorkerPublicProfile = () => {
     };
     fetchWorker();
   }, [id]);
+
+  const handleOrderCreated = (order) => {
+    console.log('Order created successfully:', order);
+  };
 
   if (loading) return (
     <div className="min-h-screen bg-[#EFE6DD] flex items-center justify-center">
@@ -147,7 +153,15 @@ const WorkerPublicProfile = () => {
                 <h3 className="font-bold text-lg text-[#4A3B32] mb-4">{t('workerPublicProfile.interestTitle')}</h3>
                 
                 <div className="space-y-3">
-                  <button className="w-full flex items-center justify-center gap-2 bg-[#C04A3E] text-white py-3.5 rounded-xl font-bold hover:bg-[#A0382E] transition-all shadow-lg shadow-[#C04A3E]/20 active:scale-95">
+                  <button
+                    onClick={() => setIsHiringModalOpen(true)}
+                    disabled={!worker.is_verified}
+                    className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold transition-all shadow-sm ${
+                      worker.is_verified
+                        ? 'bg-[#C04A3E] text-white hover:bg-[#a83f34] hover:shadow-md'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
                     <CalendarCheck size={20} />
                     {t('workerPublicProfile.hireNow')}
                   </button>
@@ -157,6 +171,13 @@ const WorkerPublicProfile = () => {
                     {t('workerPublicProfile.sendMessage')}
                   </button>
                 </div>
+                {!worker.is_verified && (
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-xs text-yellow-800 text-center">
+                      {t('workerPublicProfile.notVerifiedWarning')}
+                    </p>
+                  </div>
+                )}
                 
                 <p className="text-xs text-center text-gray-400 mt-4">
                   {t('workerPublicProfile.escrowNote')}
@@ -167,6 +188,17 @@ const WorkerPublicProfile = () => {
 
         </div>
       </div>
+      <HiringModal 
+        isOpen={isHiringModalOpen}
+        onClose={(order) => {
+          setIsHiringModalOpen(false);
+          if (order) {
+            handleOrderCreated(order);
+          }
+        }}
+        workerProfileId={worker.id}
+        workerName={fullName}
+      />
     </div>
   );
 };
