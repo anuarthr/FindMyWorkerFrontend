@@ -101,7 +101,12 @@
     "loginLink": "Log In",
     "emailPlaceholder": "example@mail.com",
     "passwordPlaceholder": "••••••••",
-    "invalidCredentials": "Invalid credentials"
+    "invalidCredentials": "Invalid credentials",
+    "registerSuccess": "Account created successfully!",
+    "selectRole": "Select your account type",
+    "personalInfo": "Personal Information",
+    "accountCredentials": "Access Credentials",
+    "passwordHint": "Minimum 8 characters"
   },
   "admin": {
     "dashboardTitle": "Control Panel",
@@ -128,7 +133,13 @@
     "bioLabel": "Biography",
     "mapTitle": "Coverage Zone (Mandatory)",
     "mapSubtitle": "You must select a location to appear on the client map.",
-    "saveBtn": "Save Full Profile"
+    "saveBtn": "Save Full Profile",
+    "subtitle": "Update your professional information",
+    "bioPlaceholder": "Tell us about your experience and services...",
+    "saving": "Saving...",
+    "success": "Profile updated successfully",
+    "error": "Error saving profile",
+    "professionalInfoTitle": "Professional Information"
   },
   "locationPicker": {
     "title": "Work Location",
@@ -230,22 +241,5 @@
     "PAINTER": "Painter",
     "CARPENTER": "Carpenter",
     "OTHER": "Other"
-  },
-  "editProfile": {
-    "title": "Edit Profile",
-    "subtitle": "Update your professional information",
-    "backToDashboard": "Back to Dashboard",
-    "professionLabel": "Profession",
-    "experienceLabel": "Years of Experience",
-    "rateLabel": "Hourly Rate (COP)",
-    "bioLabel": "Professional Bio",
-    "bioPlaceholder": "Tell us about your experience and services...",
-    "mapTitle": "Work Location",
-    "mapSubtitle": "Click on the map to update your location",
-    "saveBtn": "Save Changes",
-    "saving": "Saving...",
-    "success": "Profile updated successfully",
-    "error": "Error saving profile",
-    "professionalInfoTitle": "Professional Information"
   }
 }

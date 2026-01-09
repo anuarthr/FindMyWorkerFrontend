@@ -101,7 +101,12 @@
     "loginLink": "Inicia Sesión",
     "emailPlaceholder": "ejemplo@correo.com",
     "passwordPlaceholder": "••••••••",
-    "invalidCredentials": "Credenciales inválidas"
+    "invalidCredentials": "Credenciales inválidas",
+    "registerSuccess": "¡Cuenta creada exitosamente!",
+    "selectRole": "Selecciona tu tipo de cuenta",
+    "personalInfo": "Información Personal",
+    "accountCredentials": "Credenciales de Acceso",
+    "passwordHint": "Mínimo 8 caracteres"
   },
   "admin": {
     "dashboardTitle": "Panel de Control",
@@ -128,7 +133,12 @@
     "bioLabel": "Biografía",
     "mapTitle": "Zona de Cobertura (Obligatorio)",
     "mapSubtitle": "Debes seleccionar una ubicación para aparecer en el mapa de clientes.",
-    "saveBtn": "Guardar Perfil Completo"
+    "saveBtn": "Guardar Perfil Completo",
+    "subtitle": "Actualiza tu información profesional",
+    "saving": "Guardando...",
+    "success": "Perfil actualizado correctamente",
+    "error": "Error al guardar el perfil",
+    "professionalInfoTitle": "Información Profesional"
   },
   "locationPicker": {
     "title": "Ubicación de Trabajo",
@@ -230,22 +240,5 @@
     "PAINTER": "Pintor",
     "CARPENTER": "Carpintero",
     "OTHER": "Otro"
-  },
-  "editProfile": {
-    "title": "Editar Perfil",
-    "subtitle": "Actualiza tu información profesional",
-    "backToDashboard": "Volver al Dashboard",
-    "professionLabel": "Profesión",
-    "experienceLabel": "Años de Experiencia",
-    "rateLabel": "Tarifa por Hora (COP)",
-    "bioLabel": "Descripción Profesional",
-    "bioPlaceholder": "Cuéntanos sobre tu experiencia y servicios...",
-    "mapTitle": "Ubicación de Trabajo",
-    "mapSubtitle": "Haz clic en el mapa para actualizar tu ubicación",
-    "saveBtn": "Guardar Cambios",
-    "saving": "Guardando...",
-    "success": "Perfil actualizado correctamente",
-    "error": "Error al guardar el perfil",
-    "professionalInfoTitle": "Información Profesional"
   }
 }

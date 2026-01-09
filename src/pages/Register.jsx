@@ -79,7 +79,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-light via-white to-primary/5 flex items-center justify-center p-4 py-10 relative">
+    <div className="min-h-screen bg-neutral-light flex items-center justify-center p-4 py-10 relative">
       
       {/* Language Switcher */}
       <div className="absolute top-6 right-6 z-10">
