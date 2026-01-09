@@ -221,5 +221,31 @@
     "inEscrow": "In Progress",
     "completed": "Completed",
     "cancelled": "Cancelled"
+  },
+  "professions": {
+    "select": "Select a profession",
+    "PLUMBER": "Plumber",
+    "ELECTRICIAN": "Electrician",
+    "MASON": "Mason",
+    "PAINTER": "Painter",
+    "CARPENTER": "Carpenter",
+    "OTHER": "Other"
+  },
+  "editProfile": {
+    "title": "Edit Profile",
+    "subtitle": "Update your professional information",
+    "backToDashboard": "Back to Dashboard",
+    "professionLabel": "Profession",
+    "experienceLabel": "Years of Experience",
+    "rateLabel": "Hourly Rate (COP)",
+    "bioLabel": "Professional Bio",
+    "bioPlaceholder": "Tell us about your experience and services...",
+    "mapTitle": "Work Location",
+    "mapSubtitle": "Click on the map to update your location",
+    "saveBtn": "Save Changes",
+    "saving": "Saving...",
+    "success": "Profile updated successfully",
+    "error": "Error saving profile",
+    "professionalInfoTitle": "Professional Information"
   }
 }
