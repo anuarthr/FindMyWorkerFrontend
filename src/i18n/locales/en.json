@@ -101,7 +101,12 @@
     "loginLink": "Log In",
     "emailPlaceholder": "example@mail.com",
     "passwordPlaceholder": "••••••••",
-    "invalidCredentials": "Invalid credentials"
+    "invalidCredentials": "Invalid credentials",
+    "registerSuccess": "Account created successfully!",
+    "selectRole": "Select your account type",
+    "personalInfo": "Personal Information",
+    "accountCredentials": "Access Credentials",
+    "passwordHint": "Minimum 8 characters"
   },
   "admin": {
     "dashboardTitle": "Control Panel",
@@ -128,7 +133,13 @@
     "bioLabel": "Biography",
     "mapTitle": "Coverage Zone (Mandatory)",
     "mapSubtitle": "You must select a location to appear on the client map.",
-    "saveBtn": "Save Full Profile"
+    "saveBtn": "Save Full Profile",
+    "subtitle": "Update your professional information",
+    "bioPlaceholder": "Tell us about your experience and services...",
+    "saving": "Saving...",
+    "success": "Profile updated successfully",
+    "error": "Error saving profile",
+    "professionalInfoTitle": "Professional Information"
   },
   "locationPicker": {
     "title": "Work Location",
@@ -221,5 +232,14 @@
     "inEscrow": "In Progress",
     "completed": "Completed",
     "cancelled": "Cancelled"
+  },
+  "professions": {
+    "select": "Select a profession",
+    "PLUMBER": "Plumber",
+    "ELECTRICIAN": "Electrician",
+    "MASON": "Mason",
+    "PAINTER": "Painter",
+    "CARPENTER": "Carpenter",
+    "OTHER": "Other"
   }
 }
