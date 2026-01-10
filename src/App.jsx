@@ -7,6 +7,7 @@ import EditProfile from './pages/worker/EditProfile';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import WorkerPublicProfile from './components/dashboard/WorkerPublicProfile';
+import OrderDetail from './pages/OrderDetail';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/orders/:orderId" element={<OrderDetail />} />
           
           <Route 
             path="/dashboard" 

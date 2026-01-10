@@ -23,13 +23,25 @@ export const useWorkHours = (orderId) => {
   };
 
   const registerHours = async (hoursData) => {
-    const { data } = await api.post(`/orders/${orderId}/work-hours/`, hoursData);
+    const payload = {
+      service_order: parseInt(orderId),
+      date: hoursData.date,
+      hours: hoursData.hours,
+      description: hoursData.description
+    };
+    
+    const { data } = await api.post(`/orders/${orderId}/work-hours/`, payload);
     await fetchHours();
     return data;
   };
 
   const updateHours = async (hourId, hoursData) => {
-    const { data } = await api.patch(`/orders/${orderId}/work-hours/${hourId}/`, hoursData);
+    const payload = {
+      hours: hoursData.hours,
+      description: hoursData.description
+    };
+    
+    const { data } = await api.patch(`/orders/${orderId}/work-hours/${hourId}/`, payload);
     await fetchHours();
     return data;
   };

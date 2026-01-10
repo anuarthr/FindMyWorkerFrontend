@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { X, Clock, Save, Loader2, DollarSign, Calendar, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const RegisterHoursModal = ({ orderId, workerRate, onClose, onSuccess, editData = null }) => {
+const RegisterHoursModal = ({ orderId, workerRate = 0, onClose, onSuccess, editData = null }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -13,7 +13,9 @@ const RegisterHoursModal = ({ orderId, workerRate, onClose, onSuccess, editData 
     description: editData?.description || ''
   });
 
-  const calculatedPayment = parseFloat(formData.hours || 0) * workerRate;
+  // Validar workerRate y convertir a número
+  const validWorkerRate = parseFloat(workerRate) || 0;
+  const calculatedPayment = parseFloat(formData.hours || 0) * validWorkerRate;
   const maxDate = new Date().toISOString().split('T')[0];
 
   const handleSubmit = async (e) => {
@@ -29,6 +31,7 @@ const RegisterHoursModal = ({ orderId, workerRate, onClose, onSuccess, editData 
       });
       onClose();
     } catch (err) {
+      console.error('Error submitting hours:', err);
       setError(err.response?.data?.detail || t('orders.errorRegisteringHours'));
     } finally {
       setLoading(false);
@@ -124,20 +127,29 @@ const RegisterHoursModal = ({ orderId, workerRate, onClose, onSuccess, editData 
           </div>
 
           {/* Cálculo de Pago */}
-          {formData.hours && (
+          {formData.hours && validWorkerRate > 0 && (
             <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl border border-green-200 animate-in fade-in slide-in-from-top-2">
               <div className="flex items-center gap-2 text-green-700 mb-2">
                 <DollarSign size={20} />
                 <p className="text-sm font-medium">{t('orders.calculatedPayment')}</p>
               </div>
               <p className="text-xs text-gray-600 mb-1">
-                {formData.hours}h × ${workerRate.toLocaleString('es-CO')}/h
+                {formData.hours}h × ${validWorkerRate.toLocaleString('es-CO')}/h
               </p>
               <p className="text-3xl font-bold text-primary">
                 ${calculatedPayment.toLocaleString('es-CO')}
               </p>
               <p className="text-xs text-gray-500 mt-2">
                 ⏳ {t('orders.pendingClientApproval')}
+              </p>
+            </div>
+          )}
+
+          {/* Warning si no hay tarifa */}
+          {validWorkerRate === 0 && (
+            <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-xl">
+              <p className="text-yellow-800 text-sm font-medium">
+                ⚠️ {t('orders.noHourlyRateSet')}
               </p>
             </div>
           )}

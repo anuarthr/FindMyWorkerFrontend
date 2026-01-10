@@ -198,6 +198,7 @@ const WorkerPublicProfile = () => {
         }}
         workerProfileId={worker.id}
         workerName={fullName}
+        workerHourlyRate={worker.hourly_rate}
       />
     </div>
   );

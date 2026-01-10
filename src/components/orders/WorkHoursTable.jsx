@@ -6,11 +6,11 @@ import RegisterHoursModal from './RegisterHoursModal';
 
 const WorkHoursTable = ({ orderId, workerRate, orderStatus }) => {
   const { t } = useTranslation();
-  const { hours, loading, registerHours, updateHours, deleteHours, refreshHours } = useWorkHours(orderId);
+  const { hours, loading, registerHours, updateHours, deleteHours } = useWorkHours(orderId);
   const [showModal, setShowModal] = useState(false);
   const [editingHour, setEditingHour] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
-
+  const validWorkerRate = parseFloat(workerRate) || 0;
   const canRegisterHours = ['ACCEPTED', 'IN_ESCROW'].includes(orderStatus);
 
   const handleEdit = (hour) => {
@@ -181,7 +181,7 @@ const WorkHoursTable = ({ orderId, workerRate, orderStatus }) => {
       {showModal && (
         <RegisterHoursModal
           orderId={orderId}
-          workerRate={workerRate}
+          workerRate={validWorkerRate}
           onClose={handleCloseModal}
           onSuccess={handleSubmit}
           editData={editingHour}

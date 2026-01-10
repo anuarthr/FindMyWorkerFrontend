@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, User, FileText, Clock, CheckCircle, 
-  XCircle, CreditCard, Loader2, AlertTriangle 
+  XCircle, CreditCard, Loader2, AlertTriangle, DollarSign 
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
@@ -56,23 +56,38 @@ const OrderDetail = () => {
   };
 
   const handleStatusChange = async (newStatus) => {
-    // Validación: No permitir completar sin precio acordado
-    if (newStatus === 'COMPLETED' && (!summary || summary.agreed_price === 0)) {
-      alert(t('orders.cannotCompleteWithoutApprovedHours'));
-      return;
-    }
-
-    setConfirmModal({ isOpen: false, action: null });
+  setConfirmModal({ isOpen: false, action: null });
+  
+  // Validación: No permitir completar sin precio acordado
+  if (newStatus === 'COMPLETED' && (!summary || parseFloat(summary.agreed_price) === 0)) {
+    alert(t('orders.cannotCompleteWithoutApprovedHours'));
+    return;
+  }
+  
+  try {
+    setActionLoading(true);
+    await api.patch(`/orders/${orderId}/status/`, { status: newStatus });
+    await fetchOrder();
+    await refreshSummary();
+  } catch (error) {
+    console.error('Error updating status:', error);
     
-    try {
-      setActionLoading(true);
-      await api.patch(`/orders/${orderId}/status/`, { status: newStatus });
-      await fetchOrder();
-      await refreshSummary();
-    } catch (err) {
-      alert(t('orders.errorUpdatingStatus'));
+    // Extraer mensaje de error
+    let errorMessage = t('orders.errorUpdatingStatus');
+    
+    if (error.response?.data) {
+      if (error.response.data.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.response.data.error) {
+        errorMessage = error.response.data.error;
+      } else if (typeof error.response.data === 'string') {
+        errorMessage = error.response.data;
+      }
+    }
+    
+        alert(errorMessage);
     } finally {
-      setActionLoading(false);
+        setActionLoading(false);
     }
   };
 
@@ -214,20 +229,39 @@ const OrderDetail = () => {
           </div>
         </div>
 
-        {/* Work Hours Component */}
-        {isWorker && (
-          <WorkHoursTable 
-            orderId={orderId} 
-            workerRate={order.worker_hourly_rate}
-            orderStatus={order.status}
-          />
-        )}
+        {/* Solo mostrar sistema de horas si es pago por horas */}
+        {(!order.agreed_price || order.agreed_price === 0) ? (
+          <>
+            {/* Sistema de Horas */}
+            {isWorker && (
+              <WorkHoursTable 
+                orderId={orderId} 
+                workerRate={parseFloat(order.worker_hourly_rate) || 0}
+                orderStatus={order.status}
+              />
+            )}
 
-        {isClient && (
-          <ApproveHoursTable 
-            orderId={orderId}
-            orderStatus={order.status}
-          />
+            {isClient && (
+              <ApproveHoursTable 
+                orderId={orderId}
+                orderStatus={order.status}
+              />
+            )}
+          </>
+        ) : (
+          /* Precio Fijo - Mostrar precio acordado */
+          <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
+            <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
+              <DollarSign className="text-primary" size={24} />
+              {t('orders.agreedPrice')}
+            </h2>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+              <p className="text-sm text-gray-600 mb-2">{t('orders.fixedPriceAgreement')}</p>
+              <p className="text-5xl font-bold text-primary">
+                ${parseFloat(order.agreed_price).toLocaleString('es-CO')}
+              </p>
+            </div>
+          </div>
         )}
 
         {/* Actions */}

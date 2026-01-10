@@ -55,23 +55,38 @@ const ClientOrders = () => {
   };
 
   const handleConfirmedAction = async () => {
-    const { action, orderId } = confirmModal;
+  const { action, orderId } = confirmModal;
+  
+  try {
+    setActionLoading(orderId);
     
-    try {
-      setActionLoading(orderId);
-      
-      if (action === 'payment') {
-        await updateOrderStatus(orderId, 'IN_ESCROW');
-      } else if (action === 'complete') {
-        await updateOrderStatus(orderId, 'COMPLETED');
-      } else if (action === 'cancel') {
-        await updateOrderStatus(orderId, 'CANCELLED');
+    if (action === 'payment') {
+      await updateOrderStatus(orderId, 'IN_ESCROW');
+    } else if (action === 'complete') {
+      await updateOrderStatus(orderId, 'COMPLETED');
+    } else if (action === 'cancel') {
+      await updateOrderStatus(orderId, 'CANCELLED');
+    }
+    
+    await fetchOrders();
+    closeConfirmModal();
+  } catch (error) {
+    console.error(`Error executing ${action}:`, error);
+    
+    let errorMessage = t(`clientOrders.error${action.charAt(0).toUpperCase() + action.slice(1)}`);
+    
+    if (error.response?.data) {
+      if (error.response.data.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.response.data.error) {
+        errorMessage = error.response.data.error;
+      } else if (typeof error.response.data === 'string') {
+        errorMessage = error.response.data;
       }
-      
-      await fetchOrders();
-    } catch (error) {
-      console.error(`Error executing ${action}:`, error);
-      alert(t(`clientOrders.error${action.charAt(0).toUpperCase() + action.slice(1)}`));
+    }
+    
+      alert(errorMessage);
+      closeConfirmModal();
     } finally {
       setActionLoading(null);
     }
