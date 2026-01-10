@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { listMyOrders, updateOrderStatus } from '../../api/orders';
-import { Clock, CheckCircle, XCircle, User, FileText } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, User, FileText, ArrowRight } from 'lucide-react';
 import ConfirmModal from '../modals/ConfirmModal'; // ← NUEVO IMPORT
 
 const WorkerOrders = () => {
@@ -11,7 +12,6 @@ const WorkerOrders = () => {
   const [filter, setFilter] = useState('ALL');
   const [actionLoading, setActionLoading] = useState(null);
   
-  // Estados para el modal de confirmación
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     action: null,
@@ -203,6 +203,19 @@ const WorkerOrders = () => {
                       <p className="text-sm text-gray-600">
                         <span className="font-medium">{t('workerOrders.agreedPrice')}:</span> ${Number(order.agreed_price).toLocaleString()}
                       </p>
+                    )}
+
+                    {order.status === 'IN_ESCROW' && (
+                      <div className="mt-3">
+                        <Link
+                          to={`/orders/${order.id}`}
+                          className="inline-flex items-center gap-2 text-primary hover:text-[#a83f34] font-medium text-sm transition-colors"
+                        >
+                          <Clock size={16} />
+                          {t('orders.registerHours')}
+                          <ArrowRight size={16} />
+                        </Link>
+                      </div>
                     )}
                   </div>
 
