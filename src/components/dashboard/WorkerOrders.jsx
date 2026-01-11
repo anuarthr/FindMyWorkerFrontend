@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';  // ← AGREGAR IMPORT
 import { listMyOrders, updateOrderStatus } from '../../api/orders';
-import { Clock, CheckCircle, XCircle, User, FileText } from 'lucide-react';
-import ConfirmModal from '../modals/ConfirmModal'; // ← NUEVO IMPORT
+import { Clock, CheckCircle, XCircle, User, FileText, ArrowRight } from 'lucide-react';  // ← AGREGAR ArrowRight
+import ConfirmModal from '../modals/ConfirmModal';
 
 const WorkerOrders = () => {
   const { t } = useTranslation();
@@ -11,7 +12,6 @@ const WorkerOrders = () => {
   const [filter, setFilter] = useState('ALL');
   const [actionLoading, setActionLoading] = useState(null);
   
-  // Estados para el modal de confirmación
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     action: null,
@@ -23,15 +23,15 @@ const WorkerOrders = () => {
   }, [filter]);
 
   const getStatusLabel = (status) => {
-  const statusMap = {
-    'PENDING': t('orderStatus.pending'),
-    'ACCEPTED': t('orderStatus.accepted'),
-    'IN_ESCROW': t('orderStatus.inEscrow'),
-    'COMPLETED': t('orderStatus.completed'),
-    'CANCELLED': t('orderStatus.cancelled')
+    const statusMap = {
+      'PENDING': t('orderStatus.pending'),
+      'ACCEPTED': t('orderStatus.accepted'),
+      'IN_ESCROW': t('orderStatus.inEscrow'),
+      'COMPLETED': t('orderStatus.completed'),
+      'CANCELLED': t('orderStatus.cancelled')
+    };
+    return statusMap[status] || status;
   };
-  return statusMap[status] || status;
-};
 
   const fetchOrders = async () => {
     try {
@@ -59,6 +59,7 @@ const WorkerOrders = () => {
     
     try {
       setActionLoading(orderId);
+      closeConfirmModal();  // ← Cerrar modal inmediatamente
       
       if (action === 'accept') {
         await updateOrderStatus(orderId, 'ACCEPTED');
@@ -99,19 +100,19 @@ const WorkerOrders = () => {
 
   const getStatusBadge = (status) => {
     const styles = {
-        PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-        ACCEPTED: 'bg-blue-100 text-blue-800 border-blue-300',
-        IN_ESCROW: 'bg-green-100 text-green-800 border-green-300',
-        COMPLETED: 'bg-gray-100 text-gray-800 border-gray-300',
-        CANCELLED: 'bg-red-100 text-red-800 border-red-300'
+      PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      ACCEPTED: 'bg-blue-100 text-blue-800 border-blue-300',
+      IN_ESCROW: 'bg-green-100 text-green-800 border-green-300',
+      COMPLETED: 'bg-gray-100 text-gray-800 border-gray-300',
+      CANCELLED: 'bg-red-100 text-red-800 border-red-300'
     };
 
     return (
-        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${styles[status] || 'bg-gray-100'}`}>
+      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${styles[status] || 'bg-gray-100'}`}>
         {getStatusLabel(status)}
-        </span>
+      </span>
     );
-    };
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -199,13 +200,16 @@ const WorkerOrders = () => {
                       <p className="text-gray-600 text-sm leading-relaxed">{order.description}</p>
                     </div>
 
-                    {order.agreed_price && (
+                    {order.agreed_price && parseFloat(order.agreed_price) > 0 && (
                       <p className="text-sm text-gray-600">
                         <span className="font-medium">{t('workerOrders.agreedPrice')}:</span> ${Number(order.agreed_price).toLocaleString()}
                       </p>
                     )}
                   </div>
 
+                  {/* ============= BOTONES DE ACCIÓN ============= */}
+                  
+                  {/* PENDING - Aceptar/Rechazar */}
                   {order.status === 'PENDING' && (
                     <div className="flex md:flex-col gap-2 md:w-40">
                       <button
@@ -233,18 +237,68 @@ const WorkerOrders = () => {
                     </div>
                   )}
 
+                  {/* ACCEPTED - Esperando pago + Link */}
                   {order.status === 'ACCEPTED' && (
-                    <div className="flex items-center justify-center md:w-40 text-center">
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <p className="text-xs text-blue-800 font-medium">{t('workerOrders.waitingPayment')} </p>
+                    <div className="flex flex-col gap-2 md:w-48">
+                      <div className="bg-blue-50 p-3 rounded-lg text-center">
+                        <p className="text-xs text-blue-800 font-medium">
+                          {t('workerOrders.waitingPayment')}
+                        </p>
                       </div>
+                      <Link
+                        to={`/orders/${order.id}`}
+                        className="flex items-center justify-center gap-2 text-white bg-[#C04A3E] hover:bg-[#a83f34] font-medium text-sm transition-all py-2.5 px-3 rounded-lg hover:shadow-md hover:scale-[1.02]"
+                      >
+                        <Clock size={16} />
+                        {t('workerOrders.registerHoursBtn')}
+                        <ArrowRight size={14} />
+                      </Link>
                     </div>
                   )}
 
+                  {/* IN_ESCROW*/}
                   {order.status === 'IN_ESCROW' && (
+                    <div className="flex flex-col gap-2 md:w-48">
+                      <div className="bg-green-50 p-3 rounded-lg text-center">
+                        <p className="text-xs text-green-800 font-medium">
+                          {t('workerOrders.inProgress')}
+                        </p>
+                      </div>
+                      <Link
+                        to={`/orders/${order.id}`}
+                        className="flex items-center justify-center gap-2 text-white bg-[#C04A3E] hover:bg-[#a83f34] font-medium text-sm transition-all py-2.5 px-3 rounded-lg hover:shadow-md hover:scale-[1.02]"
+                      >
+                        <Clock size={16} />
+                        {t('workerOrders.viewHoursBtn')}
+                        <ArrowRight size={14} />
+                      </Link>
+                    </div>
+                  )}
+
+                  {/* COMPLETED - Completado + Link */}
+                  {order.status === 'COMPLETED' && (
+                    <div className="flex flex-col gap-2 md:w-48">
+                      <div className="bg-gray-50 p-3 rounded-lg text-center">
+                        <p className="text-xs text-gray-800 font-medium">
+                          {t('workerOrders.completed')}
+                        </p>
+                      </div>
+                      <Link
+                        to={`/orders/${order.id}`}
+                        className="flex items-center justify-center gap-2 text-gray-700 hover:text-gray-900 border-2 border-gray-300 hover:border-gray-400 font-medium text-sm transition-all py-2.5 px-3 rounded-lg hover:bg-gray-50 hover:scale-[1.02]"
+                      >
+                        <FileText size={16} />
+                        {t('workerOrders.viewDetailBtn')}
+                        <ArrowRight size={14} />
+                      </Link>
+                    </div>
+                  )}
+
+                  {/* CANCELLED - Sin botón */}
+                  {order.status === 'CANCELLED' && (
                     <div className="flex items-center justify-center md:w-40 text-center">
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <p className="text-xs text-green-800 font-medium">{t('workerOrders.inProgress')}</p>
+                      <div className="bg-red-50 p-4 rounded-lg">
+                        <p className="text-xs text-red-800 font-medium">{t('workerOrders.cancelled')}</p>
                       </div>
                     </div>
                   )}

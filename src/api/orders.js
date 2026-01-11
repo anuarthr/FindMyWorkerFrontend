@@ -1,11 +1,17 @@
 import api from './axios';
 
-export const createServiceOrder = async ({ worker, description }) => {
+export const createServiceOrder = async ({ worker, description, agreed_price }) => {
   try {
-    const response = await api.post('/orders/', {
+    const payload = {
       worker,
       description
-    });
+    };
+    
+    if (agreed_price !== null && agreed_price !== undefined && agreed_price > 0) {
+      payload.agreed_price = agreed_price;
+    }
+    
+    const response = await api.post('/orders/', payload);
     return response.data;
   } catch (error) {
     if (error.response?.data) {
@@ -16,6 +22,9 @@ export const createServiceOrder = async ({ worker, description }) => {
       }
       if (errorData.description) {
         throw new Error(errorData.description[0]);
+      }
+      if (errorData.agreed_price) {
+        throw new Error(errorData.agreed_price[0]);
       }
       if (errorData.detail) {
         throw new Error(errorData.detail);

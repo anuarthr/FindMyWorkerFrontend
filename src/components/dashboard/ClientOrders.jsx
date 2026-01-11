@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { listMyOrders, updateOrderStatus } from '../../api/orders';
-import { Clock, CreditCard, CheckCircle, XCircle, User, FileText, Loader2 } from 'lucide-react';
+import { Clock, CreditCard, CheckCircle, XCircle, User, FileText, Loader2, ArrowRight } from 'lucide-react';
 import ConfirmModal from '../modals/ConfirmModal';
 
 const ClientOrders = () => {
@@ -54,29 +55,43 @@ const ClientOrders = () => {
   };
 
   const handleConfirmedAction = async () => {
-    const { action, orderId } = confirmModal;
+  const { action, orderId } = confirmModal;
+  
+  try {
+    setActionLoading(orderId);
     
-    try {
-      setActionLoading(orderId);
-      
-      if (action === 'payment') {
-        await updateOrderStatus(orderId, 'IN_ESCROW');
-      } else if (action === 'complete') {
-        await updateOrderStatus(orderId, 'COMPLETED');
-      } else if (action === 'cancel') {
-        await updateOrderStatus(orderId, 'CANCELLED');
+    if (action === 'payment') {
+      await updateOrderStatus(orderId, 'IN_ESCROW');
+    } else if (action === 'complete') {
+      await updateOrderStatus(orderId, 'COMPLETED');
+    } else if (action === 'cancel') {
+      await updateOrderStatus(orderId, 'CANCELLED');
+    }
+    
+    await fetchOrders();
+    closeConfirmModal();
+  } catch (error) {
+    console.error(`Error executing ${action}:`, error);
+    
+    let errorMessage = t(`clientOrders.error${action.charAt(0).toUpperCase() + action.slice(1)}`);
+    
+    if (error.response?.data) {
+      if (error.response.data.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.response.data.error) {
+        errorMessage = error.response.data.error;
+      } else if (typeof error.response.data === 'string') {
+        errorMessage = error.response.data;
       }
-      
-      await fetchOrders();
-    } catch (error) {
-      console.error(`Error executing ${action}:`, error);
-      alert(t(`clientOrders.error${action.charAt(0).toUpperCase() + action.slice(1)}`));
+    }
+    
+      alert(errorMessage);
+      closeConfirmModal();
     } finally {
       setActionLoading(null);
     }
   };
 
-  // ========== NUEVA FUNCIÓN: Traducir estados ==========
   const getStatusLabel = (status) => {
     const statusMap = {
       'PENDING': t('orderStatus.pending'),
@@ -99,7 +114,7 @@ const ClientOrders = () => {
 
     return (
       <span className={`px-3 py-1 rounded-full text-xs font-bold border ${styles[status] || 'bg-gray-100'}`}>
-        {getStatusLabel(status)} {/* ← USAR TRADUCCIÓN */}
+        {getStatusLabel(status)}
       </span>
     );
   };
@@ -219,6 +234,17 @@ const ClientOrders = () => {
                     <div className="bg-gray-50 rounded-lg p-4 mb-3">
                       <p className="text-sm font-medium text-gray-700 mb-1">{t('clientOrders.description')}:</p>
                       <p className="text-gray-600 text-sm leading-relaxed">{order.description}</p>
+                    </div>
+
+                    <div className="mt-3">
+                      <Link
+                        to={`/orders/${order.id}`}
+                        className="inline-flex items-center gap-2 text-primary hover:text-[#a83f34] font-medium text-sm transition-colors"
+                      >
+                        <Clock size={16} />
+                        {t('orders.viewHoursDetail')}
+                        <ArrowRight size={16} />
+                      </Link>
                     </div>
 
                     {order.agreed_price && (

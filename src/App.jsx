@@ -7,6 +7,7 @@ import EditProfile from './pages/worker/EditProfile';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import WorkerPublicProfile from './components/dashboard/WorkerPublicProfile';
+import OrderDetail from './pages/OrderDetail';
 
 function App() {
   return (
@@ -35,6 +36,15 @@ function App() {
           />
 
           <Route 
+            path="/orders/:orderId" 
+            element={
+              <ProtectedRoute>
+                <OrderDetail />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
             path="/worker/:id" 
             element={
               <WorkerPublicProfile />
@@ -42,13 +52,13 @@ function App() {
           />
 
           <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute requiredRole="ADMIN">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
+            path="/admin" 
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
 
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
