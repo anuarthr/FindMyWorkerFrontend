@@ -20,7 +20,7 @@ const OrderDetail = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [user, setUser] = useState(null);
-  const { summary, refreshSummary } = usePriceSummary(orderId);
+  const { summary, loading: summaryLoading, error: summaryError, refreshSummary } = usePriceSummary(orderId);
   
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -238,6 +238,7 @@ const OrderDetail = () => {
                 orderId={orderId} 
                 workerRate={parseFloat(order.worker_hourly_rate) || 0}
                 orderStatus={order.status}
+                onHoursChanged={refreshSummary}
               />
             )}
 
@@ -245,6 +246,7 @@ const OrderDetail = () => {
               <ApproveHoursTable 
                 orderId={orderId}
                 orderStatus={order.status}
+                refreshSummary={refreshSummary}
               />
             )}
           </>

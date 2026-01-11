@@ -82,7 +82,10 @@
     "edit": "Edit",
     "monthEarnings": "Month Earnings",
     "activeJobs": "Active Jobs",
-    "rating": "Rating"
+    "rating": "Rating",
+    "monthlyEarningsHint": "Approved hours this month",
+    "activeJobsHint": "Accepted or in-progress orders",
+    "completedJobsCount": "{{count}} completed jobs"
   },
   "auth": {
     "loginTitle": "Welcome to FindMy<1>Worker</1>",

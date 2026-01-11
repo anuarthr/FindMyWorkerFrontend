@@ -82,7 +82,10 @@
     "edit": "Editar",
     "monthEarnings": "Ganancias del Mes",
     "activeJobs": "Trabajos Activos",
-    "rating": "Calificación"
+    "rating": "Calificación",
+    "monthlyEarningsHint": "Horas aprobadas este mes",
+    "activeJobsHint": "Órdenes aceptadas o en proceso",
+    "completedJobsCount": "{{count}} trabajos completados"
   },
   "auth": {
     "loginTitle": "Bienvenido a FindMy<1>Worker</1>",

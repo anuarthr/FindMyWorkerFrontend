@@ -1,16 +1,27 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
-import { Clock, AlertTriangle, CheckCircle, Edit2, Briefcase, MapPin, Loader2 } from 'lucide-react';
+import { Clock, AlertTriangle, CheckCircle, Edit2, Briefcase, MapPin, Loader2, TrendingUp, DollarSign } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import WorkerOrders from './WorkerOrders';
+import { useWorkerStats } from '../../hooks/useWorkerStats';
 
 const WorkerHome = ({ user }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { stats, loading: statsLoading, error: statsError } = useWorkerStats();
   const hasData = Boolean(profile?.profession) && Boolean(profile?.latitude) && Boolean(profile?.longitude);
   const isVerified = Boolean(profile?.is_verified);
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat(i18n.language === 'es' ? 'es-CO' : 'en-US', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value || 0);
+  };
 
   useEffect(() => {
     const fetchFreshProfile = async () => {
@@ -121,26 +132,102 @@ const WorkerHome = ({ user }) => {
         </div>
       )}
 
+      {/* Stats Cards - ACTUALIZADO */}
+      {statsError && (
+        <div className="bg-red-50 border border-red-200 p-4 rounded-xl text-red-700 text-sm">
+          <p>{statsError}</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Monthly Earnings */}
         <div className="bg-surface p-6 rounded-xl shadow-sm border border-neutral-dark/5">
-          <p className="text-sm text-neutral-dark/60 font-bold uppercase mb-2">{t('workerHome.monthEarnings')}</p>
-          <p className="text-3xl font-heading font-bold text-primary">$0.00</p>
-        </div>
-        <div className="bg-surface p-6 rounded-xl shadow-sm border border-neutral-dark/5">
-          <p className="text-sm text-neutral-dark/60 font-bold uppercase mb-2">{t('workerHome.activeJobs')}</p>
-          <p className="text-3xl font-heading font-bold text-neutral-dark">0</p>
-        </div>
-        <div className="bg-surface p-6 rounded-xl shadow-sm border border-neutral-dark/5">
-          <p className="text-sm text-neutral-dark/60 font-bold uppercase mb-2">{t('workerHome.rating')}</p>
-          <div className="flex items-center gap-2">
-            <p className="text-3xl font-heading font-bold text-neutral-dark">5.0</p>
-            <CheckCircle size={24} className="text-green-500" />
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-neutral-dark/60 font-bold uppercase">
+              {t('workerHome.monthEarnings')}
+            </p>
+            <div className="bg-primary/10 p-2 rounded-lg">
+              <DollarSign className="text-primary" size={20} />
+            </div>
           </div>
+          {statsLoading ? (
+            <div className="h-9 w-32 bg-gray-200 animate-pulse rounded"></div>
+          ) : (
+            <p className="text-3xl font-heading font-bold text-primary">
+              {formatCurrency(stats.monthly_earnings)}
+            </p>
+          )}
+          <p className="text-xs text-neutral-dark/40 mt-2">
+            {t('workerHome.monthlyEarningsHint')}
+          </p>
+        </div>
+
+        {/* Active Jobs */}
+        <div className="bg-surface p-6 rounded-xl shadow-sm border border-neutral-dark/5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-neutral-dark/60 font-bold uppercase">
+              {t('workerHome.activeJobs')}
+            </p>
+            <div className="bg-blue-50 p-2 rounded-lg">
+              <Briefcase className="text-blue-600" size={20} />
+            </div>
+          </div>
+          {statsLoading ? (
+            <div className="h-9 w-16 bg-gray-200 animate-pulse rounded"></div>
+          ) : (
+            <p className="text-3xl font-heading font-bold text-neutral-dark">
+              {stats.active_jobs}
+            </p>
+          )}
+          <p className="text-xs text-neutral-dark/40 mt-2">
+            {t('workerHome.activeJobsHint')}
+          </p>
+        </div>
+
+        {/* Rating */}
+        <div className="bg-surface p-6 rounded-xl shadow-sm border border-neutral-dark/5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-neutral-dark/60 font-bold uppercase">
+              {t('workerHome.rating')}
+            </p>
+            <div className="bg-amber-50 p-2 rounded-lg">
+              <TrendingUp className="text-amber-600" size={20} />
+            </div>
+          </div>
+          {statsLoading ? (
+            <div className="h-9 w-20 bg-gray-200 animate-pulse rounded"></div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <p className="text-3xl font-heading font-bold text-neutral-dark">
+                {Number(stats.average_rating || 0).toFixed(1)}
+              </p>
+              <div className="flex">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <svg
+                    key={star}
+                    className={`w-5 h-5 ${
+                      star <= Math.round(stats.average_rating)
+                        ? 'text-amber-500'
+                        : 'text-gray-300'
+                    }`}
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="text-xs text-neutral-dark/40 mt-2">
+            {t('workerHome.completedJobsCount', { count: stats.completed_jobs })}
+          </p>
         </div>
       </div>
-        {isVerified && hasData && (
-          <WorkerOrders />
-        )}
+
+      {isVerified && hasData && (
+        <WorkerOrders />
+      )}
 
     </div>
   );
