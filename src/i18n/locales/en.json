@@ -187,7 +187,12 @@
     "errorAccepting": "Error accepting order",
     "errorRejecting": "Error rejecting order",
     "waitingPayment": "Waiting for client payment",
-    "inProgress": "Work in progress"
+    "inProgress": "Work in progress",
+    "registerHoursBtn": "Register hours",
+    "viewHoursBtn": "View hours",
+    "completed": "Completed ✓",
+    "viewDetailBtn": "View details",
+    "cancelled": "Cancelled"
   },
   "clientOrders": {
     "title": "My Hiring Requests",

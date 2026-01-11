@@ -23,16 +23,44 @@ export const useWorkHours = (orderId) => {
   };
 
   const registerHours = async (hoursData) => {
-    const payload = {
-      service_order: parseInt(orderId),
-      date: hoursData.date,
-      hours: hoursData.hours,
-      description: hoursData.description
-    };
-    
+  const payload = {
+    service_order: parseInt(orderId),
+    date: hoursData.date,
+    hours: hoursData.hours,
+    description: hoursData.description
+  };
+  
+  console.group('🔍 useWorkHours - registerHours');
+  console.log('📦 Payload:', payload);
+  console.log('🆔 Order ID:', orderId);
+  console.log('📅 Date:', payload.date, '(type:', typeof payload.date, ')');
+  console.log('⏰ Hours:', payload.hours, '(type:', typeof payload.hours, ')');
+  console.log('📝 Description:', payload.description);
+  
+  // ✅ NUEVO - Ver qué fecha se está generando
+  console.log('🗓️ Today:', new Date().toISOString().split('T')[0]);
+  console.log('🗓️ Date being sent:', payload.date);
+  console.log('🗓️ Are they equal?', payload.date === new Date().toISOString().split('T')[0]);
+  console.groupEnd();
+  
+  try {
     const { data } = await api.post(`/orders/${orderId}/work-hours/`, payload);
     await fetchHours();
     return data;
+  } catch (err) {
+    console.group('❌ useWorkHours - Error Detail');
+    console.error('Error Response:', err.response?.data);
+    console.error('Error Status:', err.response?.status);
+    
+    // ✅ NUEVO - Expandir el error de date
+    if (err.response?.data?.date) {
+      console.error('📅 Date Error:', err.response.data.date);
+      console.error('📅 Date Error Type:', typeof err.response.data.date);
+      console.error('📅 Date Error Content:', JSON.stringify(err.response.data.date));
+    }
+    console.groupEnd();
+    throw err;
+    }
   };
 
   const updateHours = async (hourId, hoursData) => {

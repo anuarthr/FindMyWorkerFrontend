@@ -16,7 +16,6 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/orders/:orderId" element={<OrderDetail />} />
           
           <Route 
             path="/dashboard" 
@@ -37,6 +36,15 @@ function App() {
           />
 
           <Route 
+            path="/orders/:orderId" 
+            element={
+              <ProtectedRoute>
+                <OrderDetail />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
             path="/worker/:id" 
             element={
               <WorkerPublicProfile />
@@ -44,13 +52,13 @@ function App() {
           />
 
           <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute requiredRole="ADMIN">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
+            path="/admin" 
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
 
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

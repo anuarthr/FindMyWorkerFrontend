@@ -186,7 +186,12 @@
     "errorAccepting": "Error al aceptar la orden",
     "errorRejecting": "Error al rechazar la orden",
     "waitingPayment": "Esperando pago del cliente",
-    "inProgress": "Trabajo en progreso"
+    "inProgress": "Trabajo en progreso",
+    "registerHoursBtn": "Registrar horas",
+    "viewHoursBtn": "Ver horas",
+    "completed": "Completado ✓",
+    "viewDetailBtn": "Ver detalle",
+    "cancelled": "Cancelada"
   },
   "clientOrders": {
     "title": "Mis Solicitudes de Contratación",

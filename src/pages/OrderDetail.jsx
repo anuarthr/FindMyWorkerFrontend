@@ -230,7 +230,7 @@ const OrderDetail = () => {
         </div>
 
         {/* Solo mostrar sistema de horas si es pago por horas */}
-        {(!order.agreed_price || order.agreed_price === 0) ? (
+        {(!order.agreed_price || parseFloat(order.agreed_price) === 0) ? (
           <>
             {/* Sistema de Horas */}
             {isWorker && (
