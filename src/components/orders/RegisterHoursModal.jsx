@@ -87,7 +87,7 @@ const RegisterHoursModal = ({ orderId, workerRate, onClose, onSuccess, editData 
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
           >
             <X size={24} />
           </button>
@@ -182,14 +182,14 @@ const RegisterHoursModal = ({ orderId, workerRate, onClose, onSuccess, editData 
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors cursor-pointer"
             >
               {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={loading || !formData.date || !formData.hours || !formData.description}
-              className="flex-1 py-3 px-4 bg-primary text-white rounded-xl font-bold hover:bg-[#a83f34] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="flex-1 py-3 px-4 bg-primary text-white rounded-xl font-bold hover:bg-[#a83f34] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl cursor-pointer"
             >
               {loading ? t('common.saving') : (editData ? t('common.update') : t('orders.registerHours'))}
             </button>

@@ -171,7 +171,7 @@ const OrderDetail = () => {
         <div>
           <Link
             to="/dashboard"
-            className="inline-flex items-center gap-2 text-neutral-dark/60 hover:text-primary mb-4 font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-neutral-dark/60 hover:text-primary mb-4 font-medium transition-colors cursor-pointer"
           >
             <ArrowLeft size={20} />
             {t('common.backToDashboard')}
@@ -311,7 +311,7 @@ const OrderDetail = () => {
                   <button
                     onClick={() => openConfirmModal('cancel', 'danger')}
                     disabled={actionLoading}
-                    className="w-full bg-white border-2 border-red-300 text-red-700 font-medium py-3 rounded-xl hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-white border-2 border-red-300 text-red-700 font-medium py-3 rounded-xl hover:bg-red-50 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <XCircle size={20} />
                     {t('clientOrders.cancel')}
@@ -324,7 +324,7 @@ const OrderDetail = () => {
                 <button
                   onClick={() => openConfirmModal('complete', 'success')}
                   disabled={actionLoading}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all cursor-pointer"
                 >
                   {actionLoading ? (
                     <Loader2 className="animate-spin" size={22} />

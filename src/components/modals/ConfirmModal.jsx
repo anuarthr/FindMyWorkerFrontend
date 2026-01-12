@@ -93,7 +93,7 @@ const ConfirmModal = ({
         <div className="p-6 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+            className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 cursor-pointer"
           >
             {cancelText}
           </button>
@@ -102,7 +102,7 @@ const ConfirmModal = ({
               onConfirm();
               onClose();
             }}
-            className={`flex-1 px-4 py-3 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${style.buttonBg}`}
+            className={`flex-1 px-4 py-3 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${style.buttonBg}`}
           >
             {confirmText}
           </button>

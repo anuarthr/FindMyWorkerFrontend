@@ -133,7 +133,7 @@ const AdminDashboard = () => {
                       <td className="p-4 text-right">
                         <button
                           onClick={() => handleApprove(worker.id)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center gap-2 ml-auto"
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center gap-2 ml-auto cursor-pointer"
                         >
                           <CheckCircle size={16} />
                           {t('admin.approveBtn')}

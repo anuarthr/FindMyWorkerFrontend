@@ -71,7 +71,7 @@ const WorkerHome = ({ user }) => {
             </p>
             <Link 
               to="/profile/edit" 
-              className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-md"
+              className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-md cursor-pointer"
             >
               {t('workerHome.completeProfileBtn')} <span className="text-lg">→</span>
             </Link>
@@ -96,7 +96,7 @@ const WorkerHome = ({ user }) => {
           </div>
           <Link 
             to="/profile/edit" 
-            className="self-center md:self-start px-4 py-2 text-blue-700 font-bold hover:bg-blue-100 rounded-lg transition-colors"
+            className="self-center md:self-start px-4 py-2 text-blue-700 font-bold hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
           >
             {t('workerHome.editData')}
           </Link>
@@ -124,7 +124,7 @@ const WorkerHome = ({ user }) => {
           
           <Link 
             to="/profile/edit" 
-            className="w-full md:w-auto flex justify-center items-center gap-2 border border-neutral-dark/20 hover:border-primary text-neutral-dark hover:text-primary px-4 py-2 rounded-lg font-bold text-sm transition-colors"
+            className="w-full md:w-auto flex justify-center items-center gap-2 border border-neutral-dark/20 hover:border-primary text-neutral-dark hover:text-primary px-4 py-2 rounded-lg font-bold text-sm transition-colors cursor-pointer"
           >
             <Edit2 size={16} />
             {t('workerHome.edit')}

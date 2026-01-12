@@ -138,7 +138,7 @@ const Register = () => {
                     key={value}
                     type="button"
                     onClick={() => handleRoleSelect(value)}
-                    className={`group relative p-5 rounded-2xl border-2 transition-all text-center overflow-hidden ${
+                    className={`group relative p-5 rounded-2xl border-2 transition-all text-center overflow-hidden cursor-pointer ${
                       formData.role === value
                         ? 'border-primary shadow-lg scale-105'
                         : 'border-neutral-dark/10 hover:border-primary/30 hover:shadow-md'
@@ -274,7 +274,7 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading || success}
-              className="w-full bg-gradient-to-r from-primary to-[#a83f34] hover:from-[#a83f34] hover:to-primary text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed group flex items-center justify-center gap-3"
+              className="w-full bg-gradient-to-r from-primary to-[#a83f34] hover:from-[#a83f34] hover:to-primary text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed group flex items-center justify-center gap-3 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -301,7 +301,7 @@ const Register = () => {
               {t('auth.alreadyHaveAccount')}{' '}
               <Link 
                 to="/login" 
-                className="text-primary font-bold hover:underline hover:text-[#a83f34] transition-colors"
+                className="text-primary font-bold hover:underline hover:text-[#a83f34] transition-colors cursor-pointer"
               >
                 {t('auth.loginLink')}
               </Link>

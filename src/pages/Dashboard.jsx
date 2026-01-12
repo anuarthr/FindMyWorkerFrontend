@@ -44,7 +44,7 @@ const Dashboard = () => {
             </div>
             <button 
               onClick={logout}
-              className="p-2 text-neutral-dark/60 hover:text-primary hover:bg-primary/5 rounded-full transition-colors"
+              className="p-2 text-neutral-dark/60 hover:text-primary hover:bg-primary/5 rounded-full transition-colors cursor-pointer"
               title={t('navbar.logout')}
             >
               <LogOut size={20} />

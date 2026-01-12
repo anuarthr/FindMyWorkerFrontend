@@ -125,7 +125,7 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
           {!isLoading && status !== 'success' && (
             <button
               onClick={onClose}
-              className="text-[#EFE6DD] hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#C04A3E] rounded"
+              className="text-[#EFE6DD] hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#C04A3E] rounded cursor-pointer"
               aria-label={t('common.close', 'Cerrar')}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,7 +163,7 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
                   <button
                     type="button"
                     onClick={() => setPaymentType('HOURLY')}
-                    className={`p-4 rounded-lg border-2 transition-all text-left ${
+                    className={`p-4 rounded-lg border-2 transition-all text-left cursor-pointer ${
                       paymentType === 'HOURLY'
                         ? 'border-[#C04A3E] bg-[#C04A3E]/5 shadow-md'
                         : 'border-gray-300 hover:border-[#C04A3E]/30 bg-white'
@@ -192,7 +192,7 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
                   <button
                     type="button"
                     onClick={() => setPaymentType('FIXED')}
-                    className={`p-4 rounded-lg border-2 transition-all text-left ${
+                    className={`p-4 rounded-lg border-2 transition-all text-left cursor-pointer ${
                       paymentType === 'FIXED'
                         ? 'border-[#C04A3E] bg-[#C04A3E]/5 shadow-md'
                         : 'border-gray-300 hover:border-[#C04A3E]/30 bg-white'
@@ -329,7 +329,7 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2 text-sm font-medium text-[#4A3B32] bg-gray-100 hover:bg-gray-200 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-[#4A3B32] focus:ring-offset-2"
+                  className="px-5 py-2 text-sm font-medium text-[#4A3B32] bg-gray-100 hover:bg-gray-200 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-[#4A3B32] focus:ring-offset-2 cursor-pointer"
                   disabled={isLoading}
                 >
                   {t('hiringModal.cancelButton')}
@@ -348,7 +348,7 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
                     description.length < 10 ||
                     (paymentType === 'FIXED' && (!agreedPrice || parseFloat(agreedPrice) <= 0))
                       ? 'bg-gray-400 cursor-not-allowed' 
-                      : 'bg-[#C04A3E] hover:bg-[#a83f34] shadow-sm'
+                      : 'bg-[#C04A3E] hover:bg-[#a83f34] shadow-sm cursor-pointer'
                   }`}
                 >
                   {isLoading ? (

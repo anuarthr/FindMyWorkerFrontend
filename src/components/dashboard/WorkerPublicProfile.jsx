@@ -57,7 +57,7 @@ const WorkerPublicProfile = () => {
       <div className="bg-[#4A3B32] text-white px-6 py-4 flex items-center gap-4 sticky top-0 z-50 shadow-md">
         <button 
           onClick={() => navigate(-1)} 
-          className="p-2 hover:bg-white/10 rounded-full transition-colors"
+          className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
         >
           <ArrowLeft size={24} />
         </button>
@@ -158,7 +158,7 @@ const WorkerPublicProfile = () => {
                     disabled={!worker.is_verified}
                     className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold transition-all shadow-sm ${
                       worker.is_verified
-                        ? 'bg-[#C04A3E] text-white hover:bg-[#a83f34] hover:shadow-md'
+                        ? 'bg-[#C04A3E] text-white hover:bg-[#a83f34] hover:shadow-md cursor-pointer'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                   >
@@ -166,7 +166,7 @@ const WorkerPublicProfile = () => {
                     {t('workerPublicProfile.hireNow')}
                   </button>
                   
-                  <button className="w-full flex items-center justify-center gap-2 bg-white border-2 border-[#4A3B32] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-gray-50 transition-all">
+                  <button className="w-full flex items-center justify-center gap-2 bg-white border-2 border-[#4A3B32] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-gray-50 transition-all cursor-pointer">
                     <MessageSquare size={20} />
                     {t('workerPublicProfile.sendMessage')}
                   </button>

@@ -114,7 +114,7 @@ const ClientHome = ({ user }) => {
           {/* Toolbar */}
           <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm">
             <div className="flex items-center gap-2">
-               <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-gray-100 rounded">
+               <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-gray-100 rounded cursor-pointer">
                  <Filter size={18} />
                </button>
                <span className="font-bold text-[#4A3B32] text-sm">
@@ -125,13 +125,13 @@ const ClientHome = ({ user }) => {
             <div className="flex bg-gray-100 p-1 rounded-md">
                  <button 
                    onClick={() => setViewMode('list')}
-                   className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
+                   className={`p-1.5 rounded cursor-pointer ${viewMode === 'list' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
                  >
                    <List size={18} />
                  </button>
                  <button 
                    onClick={() => setViewMode('map')}
-                   className={`p-1.5 rounded ${viewMode === 'map' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
+                   className={`p-1.5 rounded cursor-pointer ${viewMode === 'map' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
                  >
                    <MapIcon size={18} />
                  </button>

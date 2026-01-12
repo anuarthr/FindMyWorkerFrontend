@@ -124,7 +124,7 @@ const ApproveHoursTable = ({ orderId, orderStatus }) => {
                           <button
                             onClick={() => handleApprove(log.id, false)}
                             disabled={approvingId === log.id}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 font-medium text-sm transition-all disabled:opacity-50"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 font-medium text-sm transition-all disabled:opacity-50 cursor-pointer"
                           >
                             {approvingId === log.id ? (
                               <Loader2 size={16} className="animate-spin" />
@@ -137,7 +137,7 @@ const ApproveHoursTable = ({ orderId, orderStatus }) => {
                           <button
                             onClick={() => handleApprove(log.id, true)}
                             disabled={approvingId === log.id}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm transition-all disabled:opacity-50 shadow-sm hover:shadow-md"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm transition-all disabled:opacity-50 shadow-sm hover:shadow-md cursor-pointer"
                           >
                             {approvingId === log.id ? (
                               <Loader2 size={16} className="animate-spin" />

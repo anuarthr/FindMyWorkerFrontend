@@ -70,7 +70,7 @@ const WorkerCard = ({ worker }) => {
             ${hourlyRate}
           </span>
         </div>
-        <button className="px-4 py-2 bg-[#4A3B32] text-white text-sm font-medium rounded-lg hover:bg-[#2A211C] transition-colors"
+        <button className="px-4 py-2 bg-[#4A3B32] text-white text-sm font-medium rounded-lg hover:bg-[#2A211C] transition-colors cursor-pointer"
             onClick={() => navigate(`/worker/${worker.id}`)}>
           {t('workerCard.viewProfile')}
         </button>

@@ -28,7 +28,7 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
         
         <div className="p-6 flex justify-between items-center border-b border-[#4A3B32]/10">
           <h2 className="font-bold text-xl text-[#4A3B32]">{t('filtersSidebar.title')}</h2>
-          <button onClick={toggleSidebar} className="lg:hidden text-[#4A3B32]">
+          <button onClick={toggleSidebar} className="lg:hidden text-[#4A3B32] cursor-pointer">
             <X size={24} />
           </button>
         </div>
@@ -90,7 +90,7 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
                 <button
                   key={stars}
                   onClick={() => setFilters(prev => ({ ...prev, minRating: stars }))}
-                  className={`flex items-center px-3 py-2 rounded-lg border transition-all ${
+                  className={`flex items-center px-3 py-2 rounded-lg border transition-all cursor-pointer ${
                     filters.minRating === stars 
                       ? 'border-[#C04A3E] bg-[#C04A3E]/5' 
                       : 'border-transparent hover:bg-gray-50'
@@ -112,7 +112,7 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
         <div className="p-6 border-t border-[#4A3B32]/10 bg-gray-50">
           <button 
             onClick={() => setFilters({ category: '', minPrice: 0, maxPrice: 200000, minRating: 0, search: '' })}
-            className="w-full py-2 text-sm font-bold text-[#C04A3E] hover:underline"
+            className="w-full py-2 text-sm font-bold text-[#C04A3E] hover:underline cursor-pointer"
           >
             {t('filtersSidebar.clear')}
           </button>

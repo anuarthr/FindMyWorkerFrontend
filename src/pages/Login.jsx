@@ -92,7 +92,7 @@ const Login = () => {
 
         <div className="mt-6 text-center text-sm text-neutral-dark/70">
           {t('auth.noAccount')}{' '}
-          <Link to="/register" className="text-primary font-semibold hover:underline">
+          <Link to="/register" className="text-primary font-semibold hover:underline cursor-pointer">
             {t('auth.registerLink')}
           </Link>
         </div>
