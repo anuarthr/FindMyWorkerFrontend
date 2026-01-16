@@ -1,15 +1,6 @@
-// src/hooks/useWebSocketChat.js
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { buildWebSocketURL, WEBSOCKET_CONFIG, CLOSE_CODES, ERROR_MESSAGES } from '../utils/websocket';
 
-/**
- * Hook personalizado para gestionar WebSocket del chat con reconexión automática
- * @param {number} orderId - ID de la orden
- * @param {string} token - Token JWT de autenticación
- * @param {boolean} enabled - Si el chat está habilitado (depende del estado de la orden)
- * @param {Array} initialMessages - Mensajes iniciales del historial
- * @returns {Object}
- */
 export const useWebSocketChat = (orderId, token, enabled = true, initialMessages = []) => {
   const [messages, setMessages] = useState(initialMessages);
   const [isConnected, setIsConnected] = useState(false);
@@ -19,7 +10,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
 
   const socketRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
-  const pingIntervalRef = useRef(null);
   const isConnectingRef = useRef(false);
 
   useEffect(() => {
@@ -120,7 +110,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
     ws.onclose = (event) => {
       console.log(`🔌 WebSocket cerrado. Código: ${event.code}`);
       setIsConnected(false);
-      clearInterval(pingIntervalRef.current);
       isConnectingRef.current = false;
 
       if (ERROR_MESSAGES[event.code]) {
@@ -153,7 +142,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
       socketRef.current = null;
     }
     clearTimeout(reconnectTimeoutRef.current);
-    clearInterval(pingIntervalRef.current);
     isConnectingRef.current = false;
     setIsConnected(false);
   }, []);
@@ -164,7 +152,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
 
   useEffect(() => {
     connect();
-
     return () => {
       disconnect();
     };

@@ -350,6 +350,10 @@
     "errorLoadingHistory": "Error loading message history",
     "openChat": "Open Chat",
     "closeChat": "Close Chat",
+    "minimize": "Minimize",
+    "communication": "Communication",
+    "communicationDescription": "Chat in real-time with the other party to coordinate work details",
+    "startChat": "Start Chat",
     "noPermission": "You don't have permission to access this chat",
     "orderNotFound": "Order not found",
     "chatInactive": "Chat is inactive"

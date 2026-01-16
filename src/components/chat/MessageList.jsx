@@ -18,7 +18,7 @@ const MessageList = ({ messages, currentUserId, currentUserRole, loading }) => {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex items-center justify-center min-h-[300px]">
         <Loader2 className="animate-spin text-primary" size={32} />
         <span className="ml-3 text-neutral-dark/60">{t('chat.loadingMessages')}</span>
       </div>
@@ -27,7 +27,7 @@ const MessageList = ({ messages, currentUserId, currentUserRole, loading }) => {
 
   if (!messages || messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex items-center justify-center min-h-[300px]">
         <div className="text-center">
           <div className="w-16 h-16 bg-neutral-light rounded-full flex items-center justify-center mx-auto mb-3">
             <span className="text-3xl">💬</span>
@@ -47,7 +47,7 @@ const MessageList = ({ messages, currentUserId, currentUserRole, loading }) => {
     <div 
       ref={containerRef}
       className="flex-1 overflow-y-auto px-4 py-6 space-y-2"
-      style={{ maxHeight: 'calc(100vh - 400px)' }}
+      style={{ maxHeight: '400px', minHeight: '300px' }}
     >
       {messages.map((message) => (
         <MessageBubble

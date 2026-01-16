@@ -349,6 +349,10 @@
     "errorLoadingHistory": "Error al cargar el historial de mensajes",
     "openChat": "Abrir Chat",
     "closeChat": "Cerrar Chat",
+    "minimize": "Minimizar",
+    "communication": "Comunicación",
+    "communicationDescription": "Chatea en tiempo real con la otra parte para coordinar detalles del trabajo",
+    "startChat": "Iniciar Chat",
     "noPermission": "No tienes permisos para acceder a este chat",
     "orderNotFound": "Orden no encontrada",
     "chatInactive": "El chat está inactivo"

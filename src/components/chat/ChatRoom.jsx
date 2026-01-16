@@ -1,4 +1,3 @@
-// src/components/chat/ChatRoom.jsx
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageSquare, X, AlertTriangle } from 'lucide-react';
@@ -11,14 +10,13 @@ import ChatInput from './ChatInput';
 
 const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
   const { t } = useTranslation();
-  const [historyMessages, setHistoryMessages] = useState([]); // ✅ NUEVO
+  const [historyMessages, setHistoryMessages] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [historyError, setHistoryError] = useState(null);
 
   const token = localStorage.getItem('access_token');
   const isChatEnabled = canChatInStatus(orderStatus);
 
-  // ✅ Cargar historial ANTES de conectar WebSocket
   useEffect(() => {
     const loadHistory = async () => {
       try {
@@ -27,14 +25,14 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
         
         if (data.messages && data.messages.length > 0) {
           console.log(`✅ Historial cargado: ${data.total_messages} mensajes`);
-          setHistoryMessages(data.messages); // ✅ GUARDAR historial
+          setHistoryMessages(data.messages);
         } else {
-          setHistoryMessages([]); // ✅ Lista vacía si no hay mensajes
+          setHistoryMessages([]);
         }
       } catch (err) {
         console.error('Error cargando historial:', err);
         setHistoryError(t('chat.errorLoadingHistory'));
-        setHistoryMessages([]); // ✅ Lista vacía en caso de error
+        setHistoryMessages([]);
       } finally {
         setHistoryLoading(false);
       }
@@ -45,7 +43,6 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
     }
   }, [orderId, token, t]);
 
-  // ✅ Hook de WebSocket CON mensajes iniciales
   const {
     messages,
     isConnected,
@@ -58,7 +55,7 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-neutral-dark/10 flex flex-col h-[600px] max-h-[80vh]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-[#a83f34] text-white px-6 py-4 rounded-t-2xl flex items-center justify-between">
+      <div className="bg-linear-to-r from-primary to-[#a83f34] text-white px-6 py-4 rounded-t-2xl flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 p-2 rounded-lg">
             <MessageSquare size={24} />

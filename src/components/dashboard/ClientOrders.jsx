@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { listMyOrders, updateOrderStatus } from '../../api/orders';
-import { Clock, CreditCard, CheckCircle, XCircle, User, FileText, Loader2, ArrowRight } from 'lucide-react';
+import { Clock, CreditCard, CheckCircle, XCircle, User, FileText, Loader2, ArrowRight, MessageSquare } from 'lucide-react';
 import ConfirmModal from '../modals/ConfirmModal';
+import { useChat } from '../../context/ChatContext';
 
 const ClientOrders = () => {
   const { t } = useTranslation();
+  const { openChat } = useChat();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
@@ -277,6 +279,15 @@ const ClientOrders = () => {
                     {/* ACCEPTED */}
                     {order.status === 'ACCEPTED' && (
                       <>
+                        {/* Botón de Chat */}
+                        <button
+                          onClick={() => openChat(order.id, order.status)}
+                          className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 hover:scale-[1.02] transition-all cursor-pointer"
+                        >
+                          <MessageSquare size={18} />
+                          {t('chat.openChat')}
+                        </button>
+                        
                         <button
                           onClick={() => openConfirmModal('payment', order.id, 'success')}
                           disabled={actionLoading === order.id}
@@ -291,6 +302,7 @@ const ClientOrders = () => {
                             </>
                           )}
                         </button>
+                        
                         <button
                           onClick={() => openConfirmModal('cancel', order.id, 'danger')}
                           disabled={actionLoading === order.id}
@@ -304,20 +316,31 @@ const ClientOrders = () => {
 
                     {/* IN_ESCROW */}
                     {order.status === 'IN_ESCROW' && (
-                      <button
-                        onClick={() => openConfirmModal('complete', order.id, 'success')}
-                        disabled={actionLoading === order.id}
-                        className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 hover:scale-[1.02] transition-all disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer disabled:hover:scale-100"
-                      >
-                        {actionLoading === order.id ? (
-                          <Loader2 className="animate-spin h-4 w-4" />
-                        ) : (
-                          <>
-                            <CheckCircle size={18} />
-                            {t('clientOrders.markCompleted')}
-                          </>
-                        )}
-                      </button>
+                      <>
+                        {/* Botón de Chat */}
+                        <button
+                          onClick={() => openChat(order.id, order.status)}
+                          className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 hover:scale-[1.02] transition-all cursor-pointer"
+                        >
+                          <MessageSquare size={18} />
+                          {t('chat.openChat')}
+                        </button>
+                        
+                        <button
+                          onClick={() => openConfirmModal('complete', order.id, 'success')}
+                          disabled={actionLoading === order.id}
+                          className="flex-1 flex items-center justify-center gap-2 bg-[#C04A3E] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#a83f34] hover:scale-[1.02] transition-all disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer disabled:hover:scale-100"
+                        >
+                          {actionLoading === order.id ? (
+                            <Loader2 className="animate-spin h-4 w-4" />
+                          ) : (
+                            <>
+                              <CheckCircle size={18} />
+                              {t('clientOrders.markCompleted')}
+                            </>
+                          )}
+                        </button>
+                      </>
                     )}
 
                     {/* COMPLETED */}

@@ -10,19 +10,19 @@ import WorkHoursTable from '../components/orders/WorkHoursTable';
 import ApproveHoursTable from '../components/orders/ApproveHoursTable';
 import { usePriceSummary } from '../hooks/usePriceSummary';
 import ConfirmModal from '../components/modals/ConfirmModal';
-import ChatRoom from '../components/chat/ChatRoom';
+import { useChat } from '../context/ChatContext';
 
 const OrderDetail = () => {
   const { t } = useTranslation();
   const { orderId } = useParams();
   const navigate = useNavigate();
+  const { openChat } = useChat();
   
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [user, setUser] = useState(null);
   const { summary, loading: summaryLoading, error: summaryError, refreshSummary } = usePriceSummary(orderId);
-  const [showChat, setShowChat] = useState(false);
   
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -58,38 +58,38 @@ const OrderDetail = () => {
   };
 
   const handleStatusChange = async (newStatus) => {
-  setConfirmModal({ isOpen: false, action: null });
-  
-  // Validación: No permitir completar sin precio acordado
-  if (newStatus === 'COMPLETED' && (!summary || parseFloat(summary.agreed_price) === 0)) {
-    alert(t('orders.cannotCompleteWithoutApprovedHours'));
-    return;
-  }
-  
-  try {
-    setActionLoading(true);
-    await api.patch(`/orders/${orderId}/status/`, { status: newStatus });
-    await fetchOrder();
-    await refreshSummary();
-  } catch (error) {
-    console.error('Error updating status:', error);
+    setConfirmModal({ isOpen: false, action: null });
     
-    // Extraer mensaje de error
-    let errorMessage = t('orders.errorUpdatingStatus');
-    
-    if (error.response?.data) {
-      if (error.response.data.detail) {
-        errorMessage = error.response.data.detail;
-      } else if (error.response.data.error) {
-        errorMessage = error.response.data.error;
-      } else if (typeof error.response.data === 'string') {
-        errorMessage = error.response.data;
-      }
+    // Validación: No permitir completar sin precio acordado
+    if (newStatus === 'COMPLETED' && (!summary || parseFloat(summary.agreed_price) === 0)) {
+      alert(t('orders.cannotCompleteWithoutApprovedHours'));
+      return;
     }
     
-        alert(errorMessage);
+    try {
+      setActionLoading(true);
+      await api.patch(`/orders/${orderId}/status/`, { status: newStatus });
+      await fetchOrder();
+      await refreshSummary();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      
+      // Extraer mensaje de error
+      let errorMessage = t('orders.errorUpdatingStatus');
+      
+      if (error.response?.data) {
+        if (error.response.data.detail) {
+          errorMessage = error.response.data.detail;
+        } else if (error.response.data.error) {
+          errorMessage = error.response.data.error;
+        } else if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        }
+      }
+      
+      alert(errorMessage);
     } finally {
-        setActionLoading(false);
+      setActionLoading(false);
     }
   };
 
@@ -259,12 +259,32 @@ const OrderDetail = () => {
               <DollarSign className="text-primary" size={24} />
               {t('orders.agreedPrice')}
             </h2>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+            <div className="bg-linear-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
               <p className="text-sm text-gray-600 mb-2">{t('orders.fixedPriceAgreement')}</p>
               <p className="text-5xl font-bold text-primary">
                 ${parseFloat(order.agreed_price).toLocaleString('es-CO')}
               </p>
             </div>
+          </div>
+        )}
+
+        {/* ========== SECCIÓN DE COMUNICACIÓN (NUEVO) ========== */}
+        {order && ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'].includes(order.status) && (
+          <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
+            <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
+              <MessageSquare className="text-primary" size={24} />
+              {t('chat.communication')}
+            </h2>
+            <p className="text-neutral-dark/60 text-sm mb-4">
+              {t('chat.communicationDescription')}
+            </p>
+            <button
+              onClick={() => openChat(order.id, order.status)}
+              className="w-full md:w-auto bg-primary hover:bg-[#a83f34] text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+            >
+              <MessageSquare size={20} />
+              {t('chat.startChat')}
+            </button>
           </div>
         )}
 
@@ -283,7 +303,7 @@ const OrderDetail = () => {
                     <button
                       onClick={() => openConfirmModal('payment', 'success')}
                       disabled={actionLoading}
-                      className="w-full bg-primary hover:bg-[#a83f34] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                      className="w-full bg-primary hover:bg-[#a83f34] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 cursor-pointer"
                     >
                       {actionLoading ? (
                         <Loader2 className="animate-spin" size={22} />
@@ -338,35 +358,6 @@ const OrderDetail = () => {
                   )}
                 </button>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* Botón de Chat */}
-        {order && ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'].includes(order.status) && (
-          <div className="fixed bottom-6 right-6 z-50">
-            <button
-              onClick={() => setShowChat(!showChat)}
-              className="bg-primary hover:bg-[#a83f34] text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all flex items-center gap-2 group"
-            >
-              <MessageSquare size={24} />
-              <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap font-bold">
-                {showChat ? t('chat.closeChat') : t('chat.openChat')}
-              </span>
-            </button>
-          </div>
-        )}
-
-        {/* Modal de Chat */}
-        {showChat && order && user && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="w-full max-w-2xl">
-              <ChatRoom
-                orderId={order.id}
-                orderStatus={order.status}
-                currentUser={user}
-                onClose={() => setShowChat(false)}
-              />
             </div>
           </div>
         )}
