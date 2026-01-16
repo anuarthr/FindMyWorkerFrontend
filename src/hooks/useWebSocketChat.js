@@ -11,6 +11,7 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
   const socketRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
   const isConnectingRef = useRef(false);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
     if (initialMessages.length > 0) {
@@ -36,12 +37,16 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
       return true;
     } catch (err) {
       console.error('Error al enviar mensaje:', err);
-      setError('Error al enviar el mensaje');
+      if (isMountedRef.current) {
+        setError('Error al enviar el mensaje');
+      }
       return false;
     }
   }, []);
 
   const addMessage = useCallback((message) => {
+    if (!isMountedRef.current) return;
+    
     setMessages(prev => {
       if (prev.some(m => m.id === message.id)) {
         return prev;
@@ -56,12 +61,16 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
       return;
     }
 
-    if (!enabled || !orderId || !token) {
-      console.log('Chat no habilitado o faltan parámetros');
+    if (!enabled || !orderId || !token || !isMountedRef.current) {
       return;
     }
 
     if (socketRef.current) {
+      socketRef.current.onopen = null;
+      socketRef.current.onmessage = null;
+      socketRef.current.onerror = null;
+      socketRef.current.onclose = null;
+      
       socketRef.current.close(CLOSE_CODES.NORMAL_CLOSURE);
       socketRef.current = null;
     }
@@ -74,6 +83,11 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
+      if (!isMountedRef.current) {
+        ws.close(CLOSE_CODES.NORMAL_CLOSURE);
+        return;
+      }
+      
       console.log('✅ WebSocket conectado');
       setIsConnected(true);
       setIsReconnecting(false);
@@ -83,6 +97,8 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
     };
 
     ws.onmessage = (event) => {
+      if (!isMountedRef.current) return;
+      
       try {
         const data = JSON.parse(event.data);
 
@@ -102,12 +118,16 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
     };
 
     ws.onerror = (event) => {
+      if (!isMountedRef.current) return;
+      
       console.error('❌ Error en WebSocket:', event);
       setError('Error de conexión');
       isConnectingRef.current = false;
     };
 
     ws.onclose = (event) => {
+      if (!isMountedRef.current) return;
+      
       console.log(`🔌 WebSocket cerrado. Código: ${event.code}`);
       setIsConnected(false);
       isConnectingRef.current = false;
@@ -117,6 +137,7 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
       }
 
       if (
+        isMountedRef.current &&
         event.code !== CLOSE_CODES.NORMAL_CLOSURE &&
         event.code !== CLOSE_CODES.CHAT_INACTIVE &&
         connectionAttempts < WEBSOCKET_CONFIG.MAX_RETRIES
@@ -125,8 +146,10 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
         setConnectionAttempts(prev => prev + 1);
 
         reconnectTimeoutRef.current = setTimeout(() => {
-          console.log(`🔄 Reintentando conexión... (${connectionAttempts + 1}/${WEBSOCKET_CONFIG.MAX_RETRIES})`);
-          connect();
+          if (isMountedRef.current) {
+            console.log(`🔄 Reintentando conexión... (${connectionAttempts + 1}/${WEBSOCKET_CONFIG.MAX_RETRIES})`);
+            connect();
+          }
         }, WEBSOCKET_CONFIG.RECONNECT_DELAY);
       } else if (connectionAttempts >= WEBSOCKET_CONFIG.MAX_RETRIES) {
         setError('No se pudo conectar al chat. Recarga la página.');
@@ -137,10 +160,18 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
   }, [orderId, token, enabled, connectionAttempts, addMessage]);
 
   const disconnect = useCallback(() => {
+    isMountedRef.current = false;
+    
     if (socketRef.current) {
+      socketRef.current.onopen = null;
+      socketRef.current.onmessage = null;
+      socketRef.current.onerror = null;
+      socketRef.current.onclose = null;
+      
       socketRef.current.close(CLOSE_CODES.NORMAL_CLOSURE);
       socketRef.current = null;
     }
+    
     clearTimeout(reconnectTimeoutRef.current);
     isConnectingRef.current = false;
     setIsConnected(false);
@@ -151,8 +182,11 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
   }, []);
 
   useEffect(() => {
+    isMountedRef.current = true;
     connect();
+
     return () => {
+      console.log('🧹 Limpiando WebSocket...');
       disconnect();
     };
   }, [orderId, token, enabled]);
