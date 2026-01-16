@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, User, FileText, Clock, CheckCircle, 
-  XCircle, CreditCard, Loader2, AlertTriangle, DollarSign 
+  XCircle, CreditCard, Loader2, AlertTriangle, DollarSign, MessageSquare 
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
@@ -10,6 +10,7 @@ import WorkHoursTable from '../components/orders/WorkHoursTable';
 import ApproveHoursTable from '../components/orders/ApproveHoursTable';
 import { usePriceSummary } from '../hooks/usePriceSummary';
 import ConfirmModal from '../components/modals/ConfirmModal';
+import ChatRoom from '../components/chat/ChatRoom';
 
 const OrderDetail = () => {
   const { t } = useTranslation();
@@ -21,6 +22,7 @@ const OrderDetail = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [user, setUser] = useState(null);
   const { summary, loading: summaryLoading, error: summaryError, refreshSummary } = usePriceSummary(orderId);
+  const [showChat, setShowChat] = useState(false);
   
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -336,6 +338,35 @@ const OrderDetail = () => {
                   )}
                 </button>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Botón de Chat */}
+        {order && ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'].includes(order.status) && (
+          <div className="fixed bottom-6 right-6 z-50">
+            <button
+              onClick={() => setShowChat(!showChat)}
+              className="bg-primary hover:bg-[#a83f34] text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all flex items-center gap-2 group"
+            >
+              <MessageSquare size={24} />
+              <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap font-bold">
+                {showChat ? t('chat.closeChat') : t('chat.openChat')}
+              </span>
+            </button>
+          </div>
+        )}
+
+        {/* Modal de Chat */}
+        {showChat && order && user && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-2xl">
+              <ChatRoom
+                orderId={order.id}
+                orderStatus={order.status}
+                currentUser={user}
+                onClose={() => setShowChat(false)}
+              />
             </div>
           </div>
         )}
