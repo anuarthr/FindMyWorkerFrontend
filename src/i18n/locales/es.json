@@ -327,5 +327,35 @@
     "approveHoursBeforeCompleting": "Aprueba las horas trabajadas primero",
     "mustBeInEscrowToComplete": "La orden debe estar en estado 'En Progreso' para completarla",
     "noHourlyRateSet": "No se ha configurado una tarifa por hora para este trabajo"
+  },
+  "chat": {
+    "title": "Chat en Vivo",
+    "orderNumber": "Orden #{{number}}",
+    "connected": "Conectado",
+    "disconnected": "Desconectado",
+    "reconnecting": "Reconectando...",
+    "retry": "Reintentar",
+    "loadingMessages": "Cargando mensajes...",
+    "noMessages": "No hay mensajes aún",
+    "startConversation": "Inicia la conversación",
+    "typeMessage": "Escribe un mensaje...",
+    "send": "Enviar",
+    "chatClosed": "Chat cerrado",
+    "chatClosedReason": "El chat se cierra cuando la orden está completada o cancelada",
+    "waitingConnection": "Esperando conexión...",
+    "chatNotAvailable": "Chat no disponible",
+    "waitForAcceptance": "El chat se habilitará cuando el trabajador acepte la orden",
+    "orderClosed": "El chat está cerrado porque la orden está finalizada",
+    "errorLoadingHistory": "Error al cargar el historial de mensajes",
+    "openChat": "Abrir Chat",
+    "closeChat": "Cerrar Chat",
+    "noPermission": "No tienes permisos para acceder a este chat",
+    "orderNotFound": "Orden no encontrada",
+    "chatInactive": "El chat está inactivo"
+  },
+  "roles": {
+    "client": "Cliente",
+    "worker": "Trabajador",
+    "admin": "Admin"
   }
 }

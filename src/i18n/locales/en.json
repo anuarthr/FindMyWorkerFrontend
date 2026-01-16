@@ -328,5 +328,35 @@
     "approveHoursBeforeCompleting": "Approve worked hours first",
     "mustBeInEscrowToComplete": "Order must be 'In Progress' to complete it",
     "noHourlyRateSet": "No hourly rate has been set for this job"
+  },
+  "chat": {
+    "title": "Live Chat",
+    "orderNumber": "Order #{{number}}",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "reconnecting": "Reconnecting...",
+    "retry": "Retry",
+    "loadingMessages": "Loading messages...",
+    "noMessages": "No messages yet",
+    "startConversation": "Start the conversation",
+    "typeMessage": "Type a message...",
+    "send": "Send",
+    "chatClosed": "Chat closed",
+    "chatClosedReason": "Chat closes when order is completed or cancelled",
+    "waitingConnection": "Waiting for connection...",
+    "chatNotAvailable": "Chat not available",
+    "waitForAcceptance": "Chat will be enabled when worker accepts the order",
+    "orderClosed": "Chat is closed because order is finalized",
+    "errorLoadingHistory": "Error loading message history",
+    "openChat": "Open Chat",
+    "closeChat": "Close Chat",
+    "noPermission": "You don't have permission to access this chat",
+    "orderNotFound": "Order not found",
+    "chatInactive": "Chat is inactive"
+  },
+  "roles": {
+    "client": "Client",
+    "worker": "Worker",
+    "admin": "Admin"
   }
 }
