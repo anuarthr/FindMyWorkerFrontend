@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';  // ← AGREGAR IMPORT
 import { listMyOrders, updateOrderStatus } from '../../api/orders';
-import { Clock, CheckCircle, XCircle, User, FileText, ArrowRight } from 'lucide-react';  // ← AGREGAR ArrowRight
+import { Clock, CheckCircle, XCircle, User, FileText, ArrowRight, MessageSquare } from 'lucide-react';  // ← AGREGAR ArrowRight
 import ConfirmModal from '../modals/ConfirmModal';
+import { useChat } from '../../context/ChatContext';
 
 const WorkerOrders = () => {
   const { t } = useTranslation();
+  const { openChat } = useChat();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
@@ -237,7 +239,7 @@ const WorkerOrders = () => {
                     </div>
                   )}
 
-                  {/* ACCEPTED - Esperando pago + Link */}
+                  {/* ACCEPTED - Esperando pago + Link + Chat */}
                   {order.status === 'ACCEPTED' && (
                     <div className="flex flex-col gap-2 md:w-48">
                       <div className="bg-blue-50 p-3 rounded-lg text-center">
@@ -245,6 +247,16 @@ const WorkerOrders = () => {
                           {t('workerOrders.waitingPayment')}
                         </p>
                       </div>
+                      
+                      {/* Botón de Chat */}
+                      <button
+                        onClick={() => openChat(order.id, order.status)}
+                        className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium text-sm transition-all py-2.5 px-3 rounded-lg hover:shadow-md hover:scale-[1.02]"
+                      >
+                        <MessageSquare size={16} />
+                        {t('chat.openChat')}
+                      </button>
+                      
                       <Link
                         to={`/orders/${order.id}`}
                         className="flex items-center justify-center gap-2 text-white bg-[#C04A3E] hover:bg-[#a83f34] font-medium text-sm transition-all py-2.5 px-3 rounded-lg hover:shadow-md hover:scale-[1.02]"

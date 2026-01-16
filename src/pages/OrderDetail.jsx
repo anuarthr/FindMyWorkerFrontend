@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, User, FileText, Clock, CheckCircle, 
-  XCircle, CreditCard, Loader2, AlertTriangle, DollarSign 
+  XCircle, CreditCard, Loader2, AlertTriangle, DollarSign, MessageSquare 
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
@@ -10,11 +10,13 @@ import WorkHoursTable from '../components/orders/WorkHoursTable';
 import ApproveHoursTable from '../components/orders/ApproveHoursTable';
 import { usePriceSummary } from '../hooks/usePriceSummary';
 import ConfirmModal from '../components/modals/ConfirmModal';
+import { useChat } from '../context/ChatContext';
 
 const OrderDetail = () => {
   const { t } = useTranslation();
   const { orderId } = useParams();
   const navigate = useNavigate();
+  const { openChat } = useChat();
   
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -56,38 +58,38 @@ const OrderDetail = () => {
   };
 
   const handleStatusChange = async (newStatus) => {
-  setConfirmModal({ isOpen: false, action: null });
-  
-  // Validación: No permitir completar sin precio acordado
-  if (newStatus === 'COMPLETED' && (!summary || parseFloat(summary.agreed_price) === 0)) {
-    alert(t('orders.cannotCompleteWithoutApprovedHours'));
-    return;
-  }
-  
-  try {
-    setActionLoading(true);
-    await api.patch(`/orders/${orderId}/status/`, { status: newStatus });
-    await fetchOrder();
-    await refreshSummary();
-  } catch (error) {
-    console.error('Error updating status:', error);
+    setConfirmModal({ isOpen: false, action: null });
     
-    // Extraer mensaje de error
-    let errorMessage = t('orders.errorUpdatingStatus');
-    
-    if (error.response?.data) {
-      if (error.response.data.detail) {
-        errorMessage = error.response.data.detail;
-      } else if (error.response.data.error) {
-        errorMessage = error.response.data.error;
-      } else if (typeof error.response.data === 'string') {
-        errorMessage = error.response.data;
-      }
+    // Validación: No permitir completar sin precio acordado
+    if (newStatus === 'COMPLETED' && (!summary || parseFloat(summary.agreed_price) === 0)) {
+      alert(t('orders.cannotCompleteWithoutApprovedHours'));
+      return;
     }
     
-        alert(errorMessage);
+    try {
+      setActionLoading(true);
+      await api.patch(`/orders/${orderId}/status/`, { status: newStatus });
+      await fetchOrder();
+      await refreshSummary();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      
+      // Extraer mensaje de error
+      let errorMessage = t('orders.errorUpdatingStatus');
+      
+      if (error.response?.data) {
+        if (error.response.data.detail) {
+          errorMessage = error.response.data.detail;
+        } else if (error.response.data.error) {
+          errorMessage = error.response.data.error;
+        } else if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        }
+      }
+      
+      alert(errorMessage);
     } finally {
-        setActionLoading(false);
+      setActionLoading(false);
     }
   };
 
@@ -257,12 +259,32 @@ const OrderDetail = () => {
               <DollarSign className="text-primary" size={24} />
               {t('orders.agreedPrice')}
             </h2>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+            <div className="bg-linear-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
               <p className="text-sm text-gray-600 mb-2">{t('orders.fixedPriceAgreement')}</p>
               <p className="text-5xl font-bold text-primary">
                 ${parseFloat(order.agreed_price).toLocaleString('es-CO')}
               </p>
             </div>
+          </div>
+        )}
+
+        {/* ========== SECCIÓN DE COMUNICACIÓN (NUEVO) ========== */}
+        {order && ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'].includes(order.status) && (
+          <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
+            <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
+              <MessageSquare className="text-primary" size={24} />
+              {t('chat.communication')}
+            </h2>
+            <p className="text-neutral-dark/60 text-sm mb-4">
+              {t('chat.communicationDescription')}
+            </p>
+            <button
+              onClick={() => openChat(order.id, order.status)}
+              className="w-full md:w-auto bg-primary hover:bg-[#a83f34] text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+            >
+              <MessageSquare size={20} />
+              {t('chat.startChat')}
+            </button>
           </div>
         )}
 
@@ -281,7 +303,7 @@ const OrderDetail = () => {
                     <button
                       onClick={() => openConfirmModal('payment', 'success')}
                       disabled={actionLoading}
-                      className="w-full bg-primary hover:bg-[#a83f34] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                      className="w-full bg-primary hover:bg-[#a83f34] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 cursor-pointer"
                     >
                       {actionLoading ? (
                         <Loader2 className="animate-spin" size={22} />
