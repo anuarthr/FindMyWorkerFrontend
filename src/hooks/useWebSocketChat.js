@@ -1,3 +1,4 @@
+// src/hooks/useWebSocketChat.js
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { buildWebSocketURL, WEBSOCKET_CONFIG, CLOSE_CODES, ERROR_MESSAGES } from '../utils/websocket';
 
@@ -6,10 +7,11 @@ import { buildWebSocketURL, WEBSOCKET_CONFIG, CLOSE_CODES, ERROR_MESSAGES } from
  * @param {number} orderId - ID de la orden
  * @param {string} token - Token JWT de autenticación
  * @param {boolean} enabled - Si el chat está habilitado (depende del estado de la orden)
+ * @param {Array} initialMessages - Mensajes iniciales del historial
  * @returns {Object}
  */
-export const useWebSocketChat = (orderId, token, enabled = true) => {
-  const [messages, setMessages] = useState([]);
+export const useWebSocketChat = (orderId, token, enabled = true, initialMessages = []) => {
+  const [messages, setMessages] = useState(initialMessages);
   const [isConnected, setIsConnected] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
   const [error, setError] = useState(null);
@@ -18,6 +20,13 @@ export const useWebSocketChat = (orderId, token, enabled = true) => {
   const socketRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
   const pingIntervalRef = useRef(null);
+  const isConnectingRef = useRef(false);
+
+  useEffect(() => {
+    if (initialMessages.length > 0) {
+      setMessages(initialMessages);
+    }
+  }, [initialMessages]);
 
   const sendMessage = useCallback((messageText) => {
     if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
@@ -52,6 +61,11 @@ export const useWebSocketChat = (orderId, token, enabled = true) => {
   }, []);
 
   const connect = useCallback(() => {
+    if (isConnectingRef.current) {
+      console.log('⚠️ Conexión ya en progreso, omitiendo...');
+      return;
+    }
+
     if (!enabled || !orderId || !token) {
       console.log('Chat no habilitado o faltan parámetros');
       return;
@@ -59,7 +73,10 @@ export const useWebSocketChat = (orderId, token, enabled = true) => {
 
     if (socketRef.current) {
       socketRef.current.close(CLOSE_CODES.NORMAL_CLOSURE);
+      socketRef.current = null;
     }
+
+    isConnectingRef.current = true;
 
     const wsUrl = buildWebSocketURL(orderId, token);
     console.log(`🔌 Conectando a: ${wsUrl}`);
@@ -72,13 +89,7 @@ export const useWebSocketChat = (orderId, token, enabled = true) => {
       setIsReconnecting(false);
       setError(null);
       setConnectionAttempts(0);
-
-      // Ping cada 30s para mantener conexión viva
-      pingIntervalRef.current = setInterval(() => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: 'ping' }));
-        }
-      }, WEBSOCKET_CONFIG.PING_INTERVAL);
+      isConnectingRef.current = false;
     };
 
     ws.onmessage = (event) => {
@@ -92,7 +103,6 @@ export const useWebSocketChat = (orderId, token, enabled = true) => {
         } else if (data.type === 'error') {
           console.error('❌ Error del servidor:', data.message);
           setError(data.message);
-        } else if (data.type === 'pong') {
         } else {
           console.log('📨 Mensaje desconocido:', data);
         }
@@ -104,12 +114,14 @@ export const useWebSocketChat = (orderId, token, enabled = true) => {
     ws.onerror = (event) => {
       console.error('❌ Error en WebSocket:', event);
       setError('Error de conexión');
+      isConnectingRef.current = false;
     };
 
     ws.onclose = (event) => {
       console.log(`🔌 WebSocket cerrado. Código: ${event.code}`);
       setIsConnected(false);
       clearInterval(pingIntervalRef.current);
+      isConnectingRef.current = false;
 
       if (ERROR_MESSAGES[event.code]) {
         setError(ERROR_MESSAGES[event.code]);
@@ -138,9 +150,11 @@ export const useWebSocketChat = (orderId, token, enabled = true) => {
   const disconnect = useCallback(() => {
     if (socketRef.current) {
       socketRef.current.close(CLOSE_CODES.NORMAL_CLOSURE);
+      socketRef.current = null;
     }
     clearTimeout(reconnectTimeoutRef.current);
     clearInterval(pingIntervalRef.current);
+    isConnectingRef.current = false;
     setIsConnected(false);
   }, []);
 
