@@ -32,7 +32,7 @@ const MessageBubble = ({ message, isOwn, currentUserRole }) => {
       )}
 
       <div className={`px-4 py-2 rounded-2xl shadow-sm ${bubbleStyle} ${isOwn ? 'rounded-tr-sm' : 'rounded-tl-sm'}`}>
-        <p className="text-sm whitespace-pre-wrap wrap-break-word">
+        <p className="text-sm whitespace-pre-wrap break-words">
           {message.content}
         </p>
       </div>

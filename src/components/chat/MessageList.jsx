@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import MessageBubble from './MessageBubble';
@@ -16,6 +16,8 @@ const MessageList = ({ messages, currentUserId, currentUserRole, loading }) => {
     scrollToBottom();
   }, [messages]);
 
+  const hasMessages = useMemo(() => messages && messages.length > 0, [messages]);
+
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[300px]">
@@ -25,7 +27,7 @@ const MessageList = ({ messages, currentUserId, currentUserRole, loading }) => {
     );
   }
 
-  if (!messages || messages.length === 0) {
+  if (!hasMessages) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[300px]">
         <div className="text-center">

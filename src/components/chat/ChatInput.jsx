@@ -48,14 +48,14 @@ const ChatInput = ({ onSendMessage, disabled, isConnected, placeholder }) => {
         <button
           type="submit"
           disabled={disabled || !isConnected || !inputValue.trim()}
-          className="bg-primary hover:bg-[#a83f34] text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-primary"
+          className="bg-primary hover:bg-[#a83f34] text-white p-3 rounded-xl font-bold flex items-center justify-center shrink-0 transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-primary"
+          title={t('chat.send')}
         >
           {disabled ? (
             <Lock size={20} />
           ) : (
             <Send size={20} />
           )}
-          <span className="hidden sm:inline">{t('chat.send')}</span>
         </button>
       </div>
 

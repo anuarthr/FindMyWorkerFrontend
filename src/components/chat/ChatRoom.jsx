@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageSquare, X, AlertTriangle } from 'lucide-react';
 import api from '../../api/axios';
@@ -15,7 +15,7 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
   const [historyError, setHistoryError] = useState(null);
 
   const token = localStorage.getItem('access_token');
-  const isChatEnabled = canChatInStatus(orderStatus);
+  const isChatEnabled = useMemo(() => canChatInStatus(orderStatus), [orderStatus]);
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -47,7 +47,7 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-neutral-dark/10 flex flex-col h-[600px] max-h-[80vh]">
-      <div className="bg-linear-to-r from-primary to-[#a83f34] text-white px-6 py-4 rounded-t-2xl flex items-center justify-between">
+      <div className="bg-gradient-to-r from-primary to-[#a83f34] text-white px-6 py-4 rounded-t-2xl flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 p-2 rounded-lg">
             <MessageSquare size={24} />

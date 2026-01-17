@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { MessageSquare, Minimize2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
@@ -15,7 +15,7 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
   const [historyLoading, setHistoryLoading] = useState(true);
 
   const token = localStorage.getItem('access_token');
-  const isChatEnabled = canChatInStatus(orderStatus);
+  const isChatEnabled = useMemo(() => canChatInStatus(orderStatus), [orderStatus]);
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -64,7 +64,7 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50 w-[420px] max-h-[600px] flex flex-col bg-white rounded-2xl shadow-2xl border border-neutral-dark/10 animate-in slide-in-from-bottom-5">
-      <div className="bg-linear-to-r from-primary to-[#a83f34] text-white px-4 py-3 rounded-t-2xl flex items-center justify-between">
+      <div className="bg-gradient-to-r from-primary to-[#a83f34] text-white px-4 py-3 rounded-t-2xl flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MessageSquare size={20} />
           <div>
