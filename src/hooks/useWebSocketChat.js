@@ -26,7 +26,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
     }
 
     if (!messageText || !messageText.trim()) {
-      console.warn('Mensaje vacío, no se envía');
       return false;
     }
 
@@ -36,7 +35,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
       }));
       return true;
     } catch (err) {
-      console.error('Error al enviar mensaje:', err);
       if (isMountedRef.current) {
         setError('Error al enviar el mensaje');
       }
@@ -57,7 +55,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
 
   const connect = useCallback(() => {
     if (isConnectingRef.current) {
-      console.log('⚠️ Conexión ya en progreso, omitiendo...');
       return;
     }
 
@@ -78,8 +75,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
     isConnectingRef.current = true;
 
     const wsUrl = buildWebSocketURL(orderId, token);
-    console.log(`🔌 Conectando a: ${wsUrl}`);
-
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -88,7 +83,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
         return;
       }
       
-      console.log('✅ WebSocket conectado');
       setIsConnected(true);
       setIsReconnecting(false);
       setError(null);
@@ -102,25 +96,18 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
       try {
         const data = JSON.parse(event.data);
 
-        if (data.type === 'connection_established') {
-          console.log('📡', data.message);
-        } else if (data.type === 'chat_message') {
+        if (data.type === 'chat_message') {
           addMessage(data);
         } else if (data.type === 'error') {
-          console.error('❌ Error del servidor:', data.message);
           setError(data.message);
-        } else {
-          console.log('📨 Mensaje desconocido:', data);
         }
       } catch (err) {
-        console.error('Error al parsear mensaje:', err);
       }
     };
 
     ws.onerror = (event) => {
       if (!isMountedRef.current) return;
       
-      console.error('❌ Error en WebSocket:', event);
       setError('Error de conexión');
       isConnectingRef.current = false;
     };
@@ -128,7 +115,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
     ws.onclose = (event) => {
       if (!isMountedRef.current) return;
       
-      console.log(`🔌 WebSocket cerrado. Código: ${event.code}`);
       setIsConnected(false);
       isConnectingRef.current = false;
 
@@ -147,7 +133,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
 
         reconnectTimeoutRef.current = setTimeout(() => {
           if (isMountedRef.current) {
-            console.log(`🔄 Reintentando conexión... (${connectionAttempts + 1}/${WEBSOCKET_CONFIG.MAX_RETRIES})`);
             connect();
           }
         }, WEBSOCKET_CONFIG.RECONNECT_DELAY);
@@ -186,7 +171,6 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
     connect();
 
     return () => {
-      console.log('🧹 Limpiando WebSocket...');
       disconnect();
     };
   }, [orderId, token, enabled]);

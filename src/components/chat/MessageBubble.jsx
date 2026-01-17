@@ -16,8 +16,7 @@ const MessageBubble = ({ message, isOwn, currentUserRole }) => {
   };
 
   return (
-    <div className={`flex flex-col max-w-[75%] ${isOwn ? 'items-end' : 'items-start'} mb-4`}>
-      {/* Header del mensaje */}
+    <div className={`flex flex-col max-w-[85%] ${isOwn ? 'items-end ml-auto' : 'items-start mr-auto'} mb-4`}>
       {!isOwn && (
         <div className="flex items-center gap-2 mb-1 px-2">
           <div className="w-6 h-6 rounded-full bg-neutral-dark/10 flex items-center justify-center">
@@ -32,14 +31,12 @@ const MessageBubble = ({ message, isOwn, currentUserRole }) => {
         </div>
       )}
 
-      {/* Burbuja del mensaje */}
       <div className={`px-4 py-2 rounded-2xl shadow-sm ${bubbleStyle} ${isOwn ? 'rounded-tr-sm' : 'rounded-tl-sm'}`}>
         <p className="text-sm whitespace-pre-wrap wrap-break-word">
           {message.content}
         </p>
       </div>
 
-      {/* Timestamp */}
       <span className="text-[11px] text-neutral-dark/40 mt-1 px-2">
         {formatMessageTime(message.timestamp, i18n.language)}
       </span>

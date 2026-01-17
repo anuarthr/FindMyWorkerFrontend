@@ -23,9 +23,7 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
         setHistoryLoading(true);
         const { data } = await api.get(`/orders/${orderId}/messages/`);
         setHistoryMessages(data.messages || []);
-        console.log(`✅ Historial cargado: ${data.total_messages || 0} mensajes`);
       } catch (err) {
-        console.error('Error cargando historial:', err);
         setHistoryMessages([]);
       } finally {
         setHistoryLoading(false);
@@ -65,8 +63,7 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-[380px] max-h-[600px] flex flex-col bg-white rounded-2xl shadow-2xl border border-neutral-dark/10 animate-in slide-in-from-bottom-5">
-      {/* Header */}
+    <div className="fixed bottom-6 right-6 z-50 w-[420px] max-h-[600px] flex flex-col bg-white rounded-2xl shadow-2xl border border-neutral-dark/10 animate-in slide-in-from-bottom-5">
       <div className="bg-linear-to-r from-primary to-[#a83f34] text-white px-4 py-3 rounded-t-2xl flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MessageSquare size={20} />
@@ -102,14 +99,12 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
         </div>
       </div>
 
-      {/* Error de WebSocket */}
       {wsError && (
         <div className="bg-red-50 border-b border-red-200 px-4 py-2 text-xs text-red-700">
           {t(wsError) || wsError}
         </div>
       )}
 
-      {/* Chat deshabilitado */}
       {!isChatEnabled && (
         <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
           {orderStatus === 'PENDING' && t('chat.waitForAcceptance')}
@@ -117,7 +112,6 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
         </div>
       )}
 
-      {/* Mensajes */}
       <div className="flex-1 overflow-hidden">
         <MessageList
           messages={messages}
@@ -127,7 +121,6 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
         />
       </div>
 
-      {/* Input */}
       <ChatInput
         onSendMessage={sendMessage}
         disabled={!isChatEnabled}

@@ -22,15 +22,8 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
       try {
         setHistoryLoading(true);
         const { data } = await api.get(`/orders/${orderId}/messages/`);
-        
-        if (data.messages && data.messages.length > 0) {
-          console.log(`✅ Historial cargado: ${data.total_messages} mensajes`);
-          setHistoryMessages(data.messages);
-        } else {
-          setHistoryMessages([]);
-        }
+        setHistoryMessages(data.messages || []);
       } catch (err) {
-        console.error('Error cargando historial:', err);
         setHistoryError(t('chat.errorLoadingHistory'));
         setHistoryMessages([]);
       } finally {
@@ -54,7 +47,6 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-neutral-dark/10 flex flex-col h-[600px] max-h-[80vh]">
-      {/* Header */}
       <div className="bg-linear-to-r from-primary to-[#a83f34] text-white px-6 py-4 rounded-t-2xl flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 p-2 rounded-lg">
@@ -89,7 +81,6 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
         </div>
       </div>
 
-      {/* Alert de estado de orden */}
       {!isChatEnabled && (
         <div className="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-3">
           <AlertTriangle className="text-amber-600 shrink-0 mt-0.5" size={18} />
@@ -105,7 +96,6 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
         </div>
       )}
 
-      {/* Error de WebSocket */}
       {wsError && (
         <div className="bg-red-50 border-b border-red-200 px-6 py-3 flex items-start gap-3">
           <AlertTriangle className="text-red-600 shrink-0 mt-0.5" size={18} />
@@ -115,14 +105,12 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
         </div>
       )}
 
-      {/* Error de historial */}
       {historyError && (
         <div className="bg-yellow-50 border-b border-yellow-200 px-6 py-3">
           <p className="text-yellow-700 text-sm">{historyError}</p>
         </div>
       )}
 
-      {/* Lista de mensajes */}
       <MessageList
         messages={messages}
         currentUserId={currentUser?.id}
@@ -130,7 +118,6 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
         loading={historyLoading}
       />
 
-      {/* Input de mensaje */}
       <ChatInput
         onSendMessage={sendMessage}
         disabled={!isChatEnabled}
