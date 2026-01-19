@@ -241,6 +241,7 @@ const Register = () => {
                   <input
                     type="email"
                     name="email"
+                    autoComplete="email"
                     value={formData.email}
                     required
                     placeholder="tu@email.com"
@@ -257,6 +258,7 @@ const Register = () => {
                   <input
                     type="password"
                     name="password"
+                    autoComplete="new-password"
                     value={formData.password}
                     required
                     placeholder="••••••••"

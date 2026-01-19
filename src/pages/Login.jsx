@@ -60,6 +60,7 @@ const Login = () => {
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-dark/40" size={18} />
               <input
                 type="email"
+                autoComplete="email"
                 required
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-neutral-dark/20 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-neutral-dark/30 text-neutral-dark"
                 placeholder={t('auth.emailPlaceholder')}
@@ -74,6 +75,7 @@ const Login = () => {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-dark/40" size={18} />
               <input
                 type="password"
+                autoComplete="current-password"
                 required
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-neutral-dark/20 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-neutral-dark/30 text-neutral-dark"
                 placeholder={t('auth.passwordPlaceholder')}

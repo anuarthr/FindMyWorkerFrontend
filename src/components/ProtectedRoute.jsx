@@ -1,6 +1,11 @@
 import { Navigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 
+/**
+ * Componente de ruta protegida que requiere autenticación
+ * Opcionalmente puede requerir un rol específico (ej: ADMIN)
+ */
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user, isAuthenticated, loading } = useAuth();
 
@@ -19,6 +24,11 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   }
 
   return children;
+};
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+  requiredRole: PropTypes.oneOf(['ADMIN', 'CLIENT', 'WORKER']),
 };
 
 export default ProtectedRoute;

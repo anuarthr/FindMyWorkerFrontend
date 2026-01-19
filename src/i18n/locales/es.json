@@ -361,5 +361,12 @@
     "client": "Cliente",
     "worker": "Trabajador",
     "admin": "Admin"
+  },
+  "validation": {
+    "minLength": "Debe tener al menos {{count}} caracteres",
+    "requireUppercase": "Debe contener al menos una mayúscula",
+    "requireLowercase": "Debe contener al menos una minúscula",
+    "requireNumber": "Debe contener al menos un número",
+    "invalidEmail": "Email inválido"
   }
 }
