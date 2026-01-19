@@ -160,13 +160,6 @@ La aplicación es completamente responsive y funciona en:
 
 Este proyecto es privado y confidencial.
 
-## 👥 Autores
+## 👥 Autor
 
-- Tu nombre - Desarrollo inicial
-
-## 🙏 Agradecimientos
-
-- React team por React 19
-- Vite team por la increíble experiencia de desarrollo
-- Leaflet por los mapas
-- Todos los contribuidores del proyecto
+- Anuarth Rincón
