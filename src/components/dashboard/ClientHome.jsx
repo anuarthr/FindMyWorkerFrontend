@@ -55,9 +55,13 @@ const ClientHome = ({ user }) => {
       
       try {
         const data = await getWorkers(activeFilters);
-        setWorkers(data || []);
+        
+        // Handle paginated response
+        const workersArray = data?.results || data?.data || data;
+        setWorkers(Array.isArray(workersArray) ? workersArray : []);
       } catch (error) {
         console.error("Error fetching:", error);
+        setWorkers([]);
       } finally {
         setLoading(false);
       }

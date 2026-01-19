@@ -16,7 +16,10 @@ const AdminDashboard = () => {
     const fetchPendingWorkers = async () => {
       try {
         const { data } = await api.get('/admin/workers/pending/');
-        setWorkers(data);
+        
+        // Handle paginated response or direct array
+        const workersArray = data?.results || data?.data || data;
+        setWorkers(Array.isArray(workersArray) ? workersArray : []);
       } catch (err) {
         console.error("Error fetching admin data:", err);
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
@@ -24,6 +27,7 @@ const AdminDashboard = () => {
         } else {
           setError('No se pudo conectar con el servidor de administración.');
         }
+        setWorkers([]);
       } finally {
         setLoading(false);
       }

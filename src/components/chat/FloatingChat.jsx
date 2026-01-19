@@ -22,7 +22,10 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
       try {
         setHistoryLoading(true);
         const { data } = await api.get(`/orders/${orderId}/messages/`);
-        setHistoryMessages(data.messages || []);
+        
+        // Handle different response structures
+        const messagesArray = data?.messages || data?.results || data?.data || data;
+        setHistoryMessages(Array.isArray(messagesArray) ? messagesArray : []);
       } catch (err) {
         setHistoryMessages([]);
       } finally {
