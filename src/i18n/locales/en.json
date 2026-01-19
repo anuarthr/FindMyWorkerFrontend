@@ -362,5 +362,12 @@
     "client": "Client",
     "worker": "Worker",
     "admin": "Admin"
+  },
+  "validation": {
+    "minLength": "Must be at least {{count}} characters",
+    "requireUppercase": "Must contain at least one uppercase letter",
+    "requireLowercase": "Must contain at least one lowercase letter",
+    "requireNumber": "Must contain at least one number",
+    "invalidEmail": "Invalid email"
   }
 }
