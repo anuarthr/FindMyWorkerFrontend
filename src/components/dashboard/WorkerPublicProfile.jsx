@@ -7,6 +7,8 @@ import {
 import { getWorkerById } from '../../api/workers';
 import { useTranslation } from 'react-i18next';
 import HiringModal from '../modals/HiringModal';
+import ReviewsList from '../reviews/ReviewsList';
+import ReviewSummary from '../reviews/ReviewSummary';
 
 const WorkerPublicProfile = () => {
   const { t } = useTranslation();
@@ -136,13 +138,14 @@ const WorkerPublicProfile = () => {
               </p>
             </div>
 
-            {/* (Placeholder) Reseñas */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#4A3B32]/5 opacity-60">
-              <h3 className="font-bold text-xl text-[#4A3B32] mb-4 flex justify-between">
+            {/* Sección de Reviews */}
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#4A3B32]/5">
+              <h3 className="font-bold text-xl text-[#4A3B32] mb-6">
                 {t('workerPublicProfile.reviewsTitle')}
-                <span className="text-xs bg-gray-100 px-2 py-1 rounded">{t('workerPublicProfile.comingSoon')}</span>
               </h3>
-              <p className="text-gray-500 italic">{t('workerPublicProfile.reviewsPlaceholder')}</p>
+
+              {/* Reviews List */}
+              <ReviewsList workerId={worker.id} pageSize={10} showSummary />
             </div>
           </div>
 
