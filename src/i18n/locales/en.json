@@ -401,5 +401,11 @@
     "duplicateReview": "You've already reviewed this order",
     "orderNotCompleted": "You can only review completed orders",
     "notAuthorized": "You don't have permission to review this order"
+  "validation": {
+    "minLength": "Must be at least {{count}} characters",
+    "requireUppercase": "Must contain at least one uppercase letter",
+    "requireLowercase": "Must contain at least one lowercase letter",
+    "requireNumber": "Must contain at least one number",
+    "invalidEmail": "Invalid email"
   }
 }

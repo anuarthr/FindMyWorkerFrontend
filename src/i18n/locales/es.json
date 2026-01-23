@@ -400,5 +400,11 @@
     "duplicateReview": "Ya has evaluado esta orden anteriormente",
     "orderNotCompleted": "Solo puedes evaluar órdenes completadas",
     "notAuthorized": "No tienes permisos para evaluar esta orden"
+  "validation": {
+    "minLength": "Debe tener al menos {{count}} caracteres",
+    "requireUppercase": "Debe contener al menos una mayúscula",
+    "requireLowercase": "Debe contener al menos una minúscula",
+    "requireNumber": "Debe contener al menos un número",
+    "invalidEmail": "Email inválido"
   }
 }

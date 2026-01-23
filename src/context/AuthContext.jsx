@@ -1,27 +1,40 @@
 import { createContext, useState, useEffect, useContext } from 'react';
+import PropTypes from 'prop-types';
 import api from '../api/axios';
 import { jwtDecode } from 'jwt-decode';
+import { STORAGE_KEYS } from '../config/constants';
 
+/**
+ * Contexto de autenticación - maneja el estado del usuario y sesión
+ */
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
+/**
+ * Provider de autenticación que envuelve la aplicación
+ */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  /**
+   * Verifica si el usuario está autenticado al cargar la aplicación
+   */
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
       if (token) {
         try {
           const decoded = jwtDecode(token);
+          // Verificar si el token no ha expirado
           if (decoded.exp * 1000 > Date.now()) {
             const res = await api.get('users/me/');
             setUser(res.data);
             setIsAuthenticated(true);
           } else {
+            console.warn('Token expirado, cerrando sesión...');
             logout();
           }
         } catch (error) {
@@ -34,19 +47,28 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  /**
+   * Inicia sesión con email y contraseña
+   * @param {string} email - Email del usuario
+   * @param {string} password - Contraseña del usuario
+   * @returns {Object} Resultado de la operación {success: boolean, error?: string}
+   */
   const login = async (email, password) => {
     try {
       const res = await api.post('auth/login/', { email, password });
-      localStorage.setItem('access_token', res.data.access);
-      localStorage.setItem('refresh_token', res.data.refresh);
+      // Guardar tokens en localStorage usando constantes
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, res.data.access);
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, res.data.refresh);
       
       setIsAuthenticated(true);
       
+      // Obtener datos completos del usuario
       const userRes = await api.get('users/me/');
       setUser(userRes.data);
       
       return { success: true };
     } catch (error) {
+      console.error('Error en login:', error);
       return { 
         success: false, 
         error: error.response?.data?.detail || "Credenciales inválidas" 
@@ -54,9 +76,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Cierra la sesión del usuario y limpia el localStorage
+   */
   const logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     setUser(null);
     setIsAuthenticated(false);
   };
@@ -66,4 +91,8 @@ export const AuthProvider = ({ children }) => {
       {!loading && children}
     </AuthContext.Provider>
   );
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

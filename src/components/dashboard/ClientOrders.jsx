@@ -30,7 +30,10 @@ const ClientOrders = () => {
       setLoading(true);
       const statusFilter = filter === 'ALL' ? null : filter;
       const data = await listMyOrders(statusFilter);
-      setOrders(Array.isArray(data) ? data : data.results || []);
+      
+      // Handle paginated response
+      const ordersArray = data?.results || data?.data || data;
+      setOrders(Array.isArray(ordersArray) ? ordersArray : []);
     } catch (error) {
       console.error('Error fetching orders:', error);
       setOrders([]);
