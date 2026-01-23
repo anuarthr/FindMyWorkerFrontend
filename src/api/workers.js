@@ -19,7 +19,8 @@ export const getWorkers = async (filters) => {
 
   try {
     const response = await api.get('/workers/', { params });
-    return response.data;
+    const data = response.data;
+    return Array.isArray(data) ? data : data.results || [];
   } catch (error) {
     console.error("❌ Error fetching workers:", error);
     return [];

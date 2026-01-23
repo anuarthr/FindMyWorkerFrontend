@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, User, FileText, Clock, CheckCircle, 
-  XCircle, CreditCard, Loader2, AlertTriangle, DollarSign, MessageSquare 
+  XCircle, CreditCard, Loader2, AlertTriangle, DollarSign, MessageSquare, Star 
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
@@ -10,6 +10,8 @@ import WorkHoursTable from '../components/orders/WorkHoursTable';
 import ApproveHoursTable from '../components/orders/ApproveHoursTable';
 import { usePriceSummary } from '../hooks/usePriceSummary';
 import ConfirmModal from '../components/modals/ConfirmModal';
+import ReviewModal from '../components/modals/ReviewModal';
+import ReviewCard from '../components/reviews/ReviewCard';
 import { useChat } from '../context/ChatContext';
 
 const OrderDetail = () => {
@@ -22,7 +24,9 @@ const OrderDetail = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [orderReview, setOrderReview] = useState(null);
   const { summary, loading: summaryLoading, error: summaryError, refreshSummary } = usePriceSummary(orderId);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -33,6 +37,7 @@ const OrderDetail = () => {
   useEffect(() => {
     fetchOrder();
     fetchUser();
+    fetchOrderReview();
   }, [orderId]);
 
   const fetchUser = async () => {
@@ -41,6 +46,17 @@ const OrderDetail = () => {
       setUser(data);
     } catch (err) {
       console.error('Error fetching user:', err);
+    }
+  };
+
+  const fetchOrderReview = async () => {
+    try {
+      const { data } = await api.get(`/orders/${orderId}/review/`);
+      setOrderReview(data);
+    } catch (err) {
+      if (err.response?.status !== 404 && err.response?.status !== 405) {
+        console.error('Error fetching review:', err);
+      }
     }
   };
 
@@ -91,6 +107,13 @@ const OrderDetail = () => {
     } finally {
       setActionLoading(false);
     }
+  };
+
+  const handleReviewSuccess = async (createdReview) => {
+    console.log('✅ Review creada:', createdReview);
+    setOrderReview(createdReview);
+    await fetchOrder();
+    setIsReviewModalOpen(false);
   };
 
   const openConfirmModal = (action, variant = 'warning') => {
@@ -268,7 +291,6 @@ const OrderDetail = () => {
           </div>
         )}
 
-        {/* ========== SECCIÓN DE COMUNICACIÓN (NUEVO) ========== */}
         {order && ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'].includes(order.status) && (
           <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
             <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
@@ -285,6 +307,39 @@ const OrderDetail = () => {
               <MessageSquare size={20} />
               {t('chat.startChat')}
             </button>
+          </div>
+        )}
+
+        {order && order.status === 'COMPLETED' && (
+          <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
+            <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
+              <Star className="text-[#C04A3E]" size={24} />
+              {isClient 
+                ? (orderReview ? t('reviews.yourReview') : t('reviews.evaluateWorker'))
+                : t('reviews.clientReview')
+              }
+            </h2>
+            
+            {orderReview ? (
+              <ReviewCard review={orderReview} />
+            ) : isClient ? (
+              <>
+                <p className="text-neutral-dark/60 text-sm mb-4">
+                  Comparte tu experiencia con {order.worker_name}. Tu opinión ayuda a otros usuarios.
+                </p>
+                <button
+                  onClick={() => setIsReviewModalOpen(true)}
+                  className="w-full md:w-auto bg-[#C04A3E] hover:bg-[#a83f34] text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+                >
+                  <Star size={20} />
+                  {t('reviews.writeReview')}
+                </button>
+              </>
+            ) : (
+              <p className="text-neutral-dark/60 text-sm">
+                El cliente aún no ha dejado una evaluación.
+              </p>
+            )}
           </div>
         )}
 
@@ -378,6 +433,17 @@ const OrderDetail = () => {
         cancelText={t('common.cancel')}
         variant={modalData.variant}
       />
+
+      {/* Review Modal */}
+      {isReviewModalOpen && order && (
+        <ReviewModal
+          isOpen={isReviewModalOpen}
+          onClose={() => setIsReviewModalOpen(false)}
+          orderId={order.id}
+          workerName={order.worker_name}
+          onSuccess={handleReviewSuccess}
+        />
+      )}
     </div>
   );
 };

@@ -13,10 +13,11 @@ export const useWorkHours = (orderId) => {
       setLoading(true);
       setError(null);
       const { data } = await api.get(`/orders/${orderId}/work-hours/`);
-      setHours(data);
+      setHours(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
       console.error('Error fetching work hours:', err);
       setError(err.response?.data?.detail || 'Error al cargar las horas');
+      setHours([]);
     } finally {
       setLoading(false);
     }

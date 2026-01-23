@@ -40,9 +40,10 @@ const WorkerOrders = () => {
       setLoading(true);
       const statusFilter = filter === 'ALL' ? null : filter;
       const data = await listMyOrders(statusFilter);
-      setOrders(data);
+      setOrders(Array.isArray(data) ? data : data.results || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
