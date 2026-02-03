@@ -38,8 +38,15 @@ export const AuthProvider = ({ children }) => {
             logout();
           }
         } catch (error) {
-          console.error("Error de autenticación:", error);
-          logout();
+          // No hacer logout si es timeout - el backend puede estar lento
+          if (error.code !== 'ECONNABORTED' && error.response?.status === 401) {
+            console.error("Error de autenticación:", error);
+            logout();
+          } else {
+            console.warn('Error al verificar sesión (backend lento):', error.message);
+            // Mantener sesión si el token aún es válido
+            setIsAuthenticated(true);
+          }
         }
       }
       setLoading(false);

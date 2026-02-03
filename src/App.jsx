@@ -4,6 +4,7 @@ import { ChatProvider } from './context/ChatContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import SearchWorkers from './pages/SearchWorkers';
 import EditProfile from './pages/worker/EditProfile';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -25,6 +26,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/search-workers" 
+              element={
+                <ProtectedRoute requiredRole="CLIENT">
+                  <SearchWorkers />
                 </ProtectedRoute>
               } 
             />
