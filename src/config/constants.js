@@ -12,8 +12,8 @@ export const API_CONFIG = {
   BASE_URL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/',
   // URL base del WebSocket
   WS_URL: import.meta.env.VITE_WS_URL || 'ws://localhost:8000',
-  // Timeout para requests HTTP (ms)
-  TIMEOUT: 10000,
+  // Timeout para requests HTTP (ms) - 30s para backend lento
+  TIMEOUT: 30000,
 };
 
 /**
@@ -42,6 +42,48 @@ export const ORDER_STATUS = {
  * Estados en los que el chat está activo
  */
 export const CHAT_ACTIVE_STATUSES = ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'];
+
+/**
+ * Mapeo de profesiones backend → UI (bilingüe)
+ */
+export const PROFESSION_TRANSLATIONS = {
+  es: {
+    'PLUMBER': 'Plomero',
+    'ELECTRICIAN': 'Electricista',
+    'CARPENTER': 'Carpintero',
+    'PAINTER': 'Pintor',
+    'GARDENER': 'Jardinero',
+    'CLEANER': 'Limpieza',
+    'MECHANIC': 'Mecánico',
+    'WELDER': 'Soldador',
+    'MASON': 'Albañil',
+    'ROOFER': 'Techador',
+    'LOCKSMITH': 'Cerrajero',
+    'GLAZIER': 'Vidriero',
+    'TILER': 'Azulejero',
+    'PLASTERER': 'Yesero',
+    'HANDYMAN': 'Manitas',
+    'OTHER': 'Otro'
+  },
+  en: {
+    'PLUMBER': 'Plumber',
+    'ELECTRICIAN': 'Electrician',
+    'CARPENTER': 'Carpenter',
+    'PAINTER': 'Painter',
+    'GARDENER': 'Gardener',
+    'CLEANER': 'Cleaner',
+    'MECHANIC': 'Mechanic',
+    'WELDER': 'Welder',
+    'MASON': 'Mason',
+    'ROOFER': 'Roofer',
+    'LOCKSMITH': 'Locksmith',
+    'GLAZIER': 'Glazier',
+    'TILER': 'Tiler',
+    'PLASTERER': 'Plasterer',
+    'HANDYMAN': 'Handyman',
+    'OTHER': 'Other'
+  }
+};
 
 /**
  * Configuración de paginación
@@ -99,6 +141,7 @@ export default {
   USER_ROLES,
   ORDER_STATUS,
   CHAT_ACTIVE_STATUSES,
+  PROFESSION_TRANSLATIONS,
   PAGINATION,
   MAP_CONFIG,
   VALIDATION,
