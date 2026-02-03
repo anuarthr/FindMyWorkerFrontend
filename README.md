@@ -1,29 +1,74 @@
 # FindMyWorker Frontend
 
-Aplicación web frontend para FindMyWorker - una plataforma de conexión entre clientes y trabajadores de servicios.
+Aplicación web moderna para FindMyWorker - plataforma de conexión inteligente entre clientes y trabajadores de servicios con búsqueda semántica impulsada por IA.
 
-## 🚀 Características
+## ✨ Características Principales
 
-- **Sistema de autenticación** con JWT
-- **Chat en tiempo real** mediante WebSocket
-- **Búsqueda de trabajadores** con filtros avanzados
-- **Gestión de órdenes** con seguimiento de estado
-- **Mapa interactivo** para visualización de trabajadores cercanos
-- **Internacionalización** (Español/Inglés)
-- **Perfiles de usuario** para clientes y trabajadores
-- **Sistema de calificaciones** y reviews
+### 🤖 Búsqueda Inteligente con IA
+- **Motor de búsqueda semántica** usando TF-IDF
+- Consultas en **lenguaje natural** (ej: "necesito un plomero urgente para reparar fuga")
+- Sistema híbrido: **50% similitud semántica + 30% rating + 20% proximidad**
+- Estrategia automática (TF-IDF solo o híbrida con geolocalización)
+- Ubicación **opcional** - funciona con o sin GPS
+- Traducción automática de profesiones (español/inglés)
+- Keywords coincidentes destacados en resultados
 
-## 🛠️ Tecnologías
+### 💬 Chat en Tiempo Real
+- Conexión WebSocket persistente con reconexión automática
+- Estado de conexión visible (online/offline)
+- Sistema de salas por orden
+- Notificaciones en tiempo real
+- Indicador de estado activo solo en órdenes válidas
 
-- **React 19** - Framework de UI
-- **Vite** - Build tool y dev server
-- **React Router** - Navegación
-- **Axios** - Cliente HTTP
-- **WebSocket** - Chat en tiempo real
-- **Leaflet** - Mapas interactivos
-- **i18next** - Internacionalización
-- **Tailwind CSS** - Estilos
-- **Lucide React** - Iconos
+### 📦 Gestión de Órdenes
+- Creación y seguimiento de órdenes de servicio
+- Estados: Pendiente → Aceptada → En Progreso → Completada
+- Sistema de **pago en garantía** (escrow)
+- Registro y aprobación de horas trabajadas
+- Resumen de precios con desglose transparente
+
+### ⭐ Sistema de Reviews
+- Calificación por estrellas (1-5)
+- Reviews con comentarios detallados
+- Estadísticas de rating promedio
+- Historial completo de valoraciones
+
+### 🗺️ Mapas Interactivos
+- Visualización de trabajadores en mapa (Leaflet)
+- Selector de ubicación con GPS o click en mapa
+- Radio de búsqueda ajustable (5-100 km)
+- Marcadores personalizados por profesión
+
+### 🔐 Autenticación & Roles
+- Sistema JWT con tokens de acceso/refresco
+- Roles: Admin, Cliente, Trabajador
+- Rutas protegidas por permisos
+- Timeout inteligente (30s) para backends lentos
+
+### 🌍 Internacionalización
+- Soporte multi-idioma (Español/Inglés)
+- Detección automática de idioma
+- 70+ claves de traducción
+- Cambio de idioma en tiempo real
+
+## 🛠️ Stack Tecnológico
+
+### Core
+- **React 19.2.0** - Framework de UI moderno
+- **Vite 7.2.4** - Build tool ultrarrápido
+- **React Router 7.9.6** - Enrutamiento con rutas protegidas
+- **Axios 1.13.2** - Cliente HTTP con interceptores
+
+### UI/UX
+- **Tailwind CSS 4.1.17** - Estilos utility-first
+- **Lucide React** - Iconos SVG optimizados
+- **Leaflet 1.9.4 + React Leaflet 5.0.0** - Mapas interactivos
+- **React i18next 16.4.0** - Internacionalización
+
+### Estado & Comunicación
+- **Context API** - Estado global (Auth, Chat)
+- **WebSocket** - Comunicación en tiempo real
+- **Custom Hooks** - Lógica reutilizable
 
 ## 📋 Requisitos previos
 
@@ -64,97 +109,336 @@ Aplicación web frontend para FindMyWorker - una plataforma de conexión entre c
 
    La aplicación estará disponible en `http://localhost:5173`
 
-## 📦 Scripts disponibles
+## 📦 Scripts Disponibles
 
-- `npm run dev` - Inicia el servidor de desarrollo
-- `npm run build` - Construye la aplicación para producción
-- `npm run preview` - Vista previa de la build de producción
-- `npm run lint` - Ejecuta el linter (ESLint)
+```bash
+npm run dev       # Servidor de desarrollo (localhost:5173)
+npm run build     # Build para producción
+npm run preview   # Preview de build de producción
+npm run lint      # Linter (ESLint)
+```
 
-## 📁 Estructura del proyecto
+## 📁 Estructura del Proyecto
 
 ```
 src/
-├── api/              # Servicios de API (axios, orders, workers)
-├── assets/           # Recursos estáticos (imágenes, iconos)
-├── components/       # Componentes React reutilizables
-│   ├── chat/        # Componentes del sistema de chat
-│   ├── common/      # Componentes comunes
-│   ├── dashboard/   # Componentes del dashboard
-│   ├── modals/      # Modales
-│   └── orders/      # Componentes de órdenes
-├── config/          # Archivos de configuración
-├── context/         # Context API (Auth, Chat)
-├── hooks/           # Custom React hooks
-├── i18n/            # Configuración de internacionalización
-│   └── locales/    # Archivos de traducción
-├── pages/           # Páginas principales
-│   ├── admin/      # Páginas de administrador
-│   └── worker/     # Páginas de trabajador
-└── utils/           # Utilidades y helpers
+├── api/                          # Servicios de API
+│   ├── axios.js                 # Instancia configurada de Axios
+│   ├── orders.js                # API de órdenes
+│   ├── reviews.js               # API de reviews
+│   ├── workers.js               # API de trabajadores
+│   └── recommendations.js       # API de búsqueda con IA
+├── components/
+│   ├── chat/                    # Sistema de chat WebSocket
+│   │   ├── ChatRoom.jsx
+│   │   ├── MessageList.jsx
+│   │   ├── FloatingChat.jsx
+│   │   └── ConnectionStatus.jsx
+│   ├── common/
+│   │   └── LanguageSwitcher.jsx # Selector de idioma
+│   ├── dashboard/
+│   │   ├── ClientHome.jsx
+│   │   ├── WorkerHome.jsx
+│   │   ├── WorkerCard.jsx
+│   │   └── WorkerMap.jsx
+│   ├── recommendations/         # Búsqueda semántica IA
+│   │   ├── SearchBar.jsx       # Barra con mapa + filtros
+│   │   ├── WorkerRecommendationCard.jsx
+│   │   └── WorkerRecommendationList.jsx
+│   ├── modals/
+│   │   ├── HiringModal.jsx
+│   │   ├── ReviewModal.jsx
+│   │   └── ConfirmModal.jsx
+│   ├── orders/
+│   │   ├── RegisterHoursModal.jsx
+│   │   ├── ApproveHoursTable.jsx
+│   │   └── PriceSummaryCard.jsx
+│   └── reviews/
+│       ├── ReviewCard.jsx
+│       ├── StarRating.jsx
+│       └── ReviewSummary.jsx
+├── config/
+│   └── constants.js             # Configuración centralizada
+├── context/
+│   ├── AuthContext.jsx          # Estado de autenticación
+│   └── ChatContext.jsx          # Estado de chat WebSocket
+├── hooks/
+│   ├── useRecommendationSearch.js  # Hook de búsqueda IA
+│   ├── useWebSocketChat.js
+│   ├── useWorkerReviews.js
+│   └── useWorkHours.js
+├── i18n/
+│   ├── index.js
+│   └── locales/
+│       ├── es.json              # Español (70+ claves)
+│       └── en.json              # Inglés
+├── pages/
+│   ├── Login.jsx
+│   ├── Register.jsx
+│   ├── Dashboard.jsx
+│   ├── OrderDetail.jsx
+│   ├── SearchWorkers.jsx        # Página de búsqueda IA
+│   ├── admin/
+│   │   └── AdminDashboard.jsx
+│   └── worker/
+│       └── EditProfile.jsx
+└── utils/
+    ├── dateFormatters.js
+    ├── mapIcons.js
+    ├── reviewHelpers.js
+    └── websocket.js
 ```
 
-## 🔑 Características principales
+## 🔑 Funcionalidades Detalladas
+
+### 🔍 Búsqueda Semántica con IA
+
+**Endpoint:** `POST /api/users/workers/recommend/`
+
+**Características:**
+- Motor TF-IDF (Term Frequency-Inverse Document Frequency)
+- Búsqueda en lenguaje natural sin necesidad de palabras clave exactas
+- Ubicación **opcional**: funciona con o sin GPS
+- Keywords coincidentes mostrados en cada tarjeta
+- Sin porcentajes ni badges técnicos - UX limpia y natural
+
+**Estrategias:**
+- `tfidf`: Solo similitud semántica + rating (sin ubicación)
+- `hybrid`: 50% TF-IDF + 30% rating + 20% proximidad (con ubicación)
+
+**Ejemplo de uso:**
+```javascript
+// Búsqueda sin ubicación (solo similitud)
+{
+  "query": "electricista para instalar lámparas",
+  "language": "es",
+  "top_n": 10
+}
+
+// Búsqueda con ubicación (híbrida)
+{
+  "query": "plomero urgente",
+  "language": "es",
+  "latitude": 11.2403,
+  "longitude": -74.2110,
+  "max_distance_km": 20,
+  "top_n": 5
+}
+```
+
+**Estado del backend:**
+- 🟢 Modelo entrenado → Banner azul + búsqueda habilitada
+- 🟡 Modelo entrenando → Banner ámbar + polling cada 30s
+- 🟠 Backend no disponible → Banner naranja + polling detenido
+
+### 💬 Sistema de Chat
+
+**Tecnología:** WebSocket con reconexión automática
+
+**Estados:**
+- 🟢 Conectado (verde)
+- 🟡 Conectando (amarillo)
+- 🔴 Desconectado (rojo)
+
+**Funcionalidades:**
+- Salas privadas por orden
+- Mensajes en tiempo real
+- Persistencia de mensajes
+- Auto-scroll a último mensaje
+- Solo activo en órdenes válidas (ACCEPTED, IN_ESCROW, IN_PROGRESS)
+
+### 📦 Gestión de Órdenes
+
+**Flujo de estados:**
+```
+PENDING → ACCEPTED → IN_ESCROW → IN_PROGRESS → COMPLETED
+                   ↘ REJECTED
+```
+
+**Features:**
+- Registro de horas trabajadas por día
+- Aprobación de horas por el cliente
+- Cálculo automático de precio total
+- Sistema de pago en garantía
+- Resumen detallado con desglose
+
+### ⭐ Sistema de Reviews
+
+**Validación:**
+- Solo clientes pueden dejar reviews
+- Una review por orden completada
+- Calificación 1-5 estrellas requerida
+- Comentario opcional
+
+**Visualización:**
+- Rating promedio en perfil del trabajador
+- Lista completa de reviews
+- Estadísticas de distribución
+- Orden cronológico (más recientes primero)
+
+## 🌍 Configuración i18n
+
+**Idiomas soportados:**
+- 🇪🇸 Español (es)
+- 🇬🇧 Inglés (en)
+
+**Características:**
+- Detección automática del navegador
+- Cambio en tiempo real sin recargar
+- 70+ claves de traducción
+- Profesiones traducidas automáticamente
+- Parámetro `language` enviado al backend
+
+**Agregar nuevas traducciones:**
+```json
+// src/i18n/locales/es.json
+{
+  "common": {
+    "newKey": "Nuevo texto"
+  }
+}
+
+// Usar en componente
+const { t } = useTranslation();
+<p>{t('common.newKey')}</p>
+```
+
+## 🔐 Seguridad & Performance
 
 ### Autenticación
-- Login/registro de usuarios
-- Gestión de tokens JWT
-- Rutas protegidas por rol (Admin, Cliente, Trabajador)
+- Tokens JWT (access + refresh)
+- Interceptores de Axios para tokens automáticos
+- Logout automático en 401
+- Timeout de 30s para backends lentos
+- Validación de token expirado antes de requests
 
-### Chat en tiempo real
-- Conexión WebSocket persistente
-- Reconexión automática
-- Estado de conexión visible
-- Notificaciones en tiempo real
+### Protección de Rutas
+```javascript
+// Solo clientes
+<Route path="/search-workers" element={
+  <ProtectedRoute allowedRoles={['CLIENT']}>
+    <SearchWorkers />
+  </ProtectedRoute>
+} />
 
-### Sistema de órdenes
-- Creación de órdenes de servicio
-- Seguimiento de estado
-- Sistema de pago en garantía
-- Registro de horas trabajadas
-- Aprobación de horas
+// Solo trabajadores
+<Route path="/worker/edit-profile" element={
+  <ProtectedRoute allowedRoles={['WORKER']}>
+    <EditProfile />
+  </ProtectedRoute>
+} />
+```
 
-### Búsqueda de trabajadores
-- Filtros por precio, rating, categoría
-- Búsqueda por ubicación y radio
-- Visualización en mapa
-- Perfiles detallados
+### Performance
+- Code splitting por ruta
+- Lazy loading de componentes pesados
+- Debounce en búsquedas (300ms)
+- Caché de imágenes del navegador
+- Polling inteligente (se detiene en errores)
 
-## 🌍 Internacionalización
+### Best Practices
+- Clean Code sin comentarios obvios
+- JSDoc solo en funciones públicas
+- Variables auto-explicativas
+- Validación client-side + server-side
+- Manejo de errores con mensajes claros
 
-La aplicación soporta múltiples idiomas (actualmente ES y EN). Los archivos de traducción se encuentran en:
-- `src/i18n/locales/es.json` - Español
-- `src/i18n/locales/en.json` - Inglés
+## 🎨 Diseño & UX
 
-## 🔐 Seguridad
+### Sistema de Colores
+```css
+--primary: #C04A3E      /* Coral */
+--secondary: #E37B5B    /* Naranja claro */
+--neutral-dark: #4A3B32 /* Marrón oscuro */
+--neutral-light: #EFE6DD /* Beige */
+```
 
-- Tokens JWT para autenticación
-- Validación de permisos por rol
-- Protección de rutas sensibles
-- Sanitización de inputs
-- Timeout en requests HTTP
+### Responsive Breakpoints
+- Mobile: < 768px
+- Tablet: 768px - 1023px
+- Desktop: ≥ 1024px
 
-## 🐛 Depuración
+### Componentes Reutilizables
+- `LanguageSwitcher` - Selector de idioma con banderas
+- `ProtectedRoute` - HOC para rutas protegidas
+- `LocationPicker` - Mapa + GPS + selector manual
+- `StarRating` - Rating de 1-5 estrellas
+- `ConnectionStatus` - Indicador de estado WebSocket
 
-Para depuración en desarrollo:
-1. Abre las DevTools del navegador (F12)
-2. La consola mostrará logs detallados
-3. Los errores de red se pueden ver en la pestaña Network
+## 🐛 Debugging & Logs
 
-## 📱 Responsive Design
+### Logs del Navegador
+```javascript
+// Autenticación
+"Token expirado, cerrando sesión..."
+"Error de autenticación: AxiosError"
 
-La aplicación es completamente responsive y funciona en:
-- Desktop (1024px+)
-- Tablet (768px - 1023px)
-- Mobile (< 768px)
+// Chat WebSocket
+"WebSocket conectado"
+"WebSocket desconectado, intentando reconectar..."
+
+// Búsqueda IA
+"Error en búsqueda de recomendaciones: AxiosError"
+"Error al verificar salud del modelo: AxiosError"
+```
+
+### DevTools Tips
+1. **Network Tab**: Ver requests/responses del backend
+2. **Console**: Logs detallados de errores
+3. **React DevTools**: Inspeccionar estado de contextos
+4. **Sources**: Breakpoints en código
+
+##  API Backend Requerida
+
+### Endpoints Esenciales
+
+**Autenticación:**
+- `POST /auth/login/` - Login con email/password
+- `POST /auth/register/` - Registro de usuario
+- `GET /users/me/` - Datos del usuario actual
+
+**Búsqueda IA:**
+- `POST /users/workers/recommend/` - Búsqueda semántica
+- `GET /users/workers/recommendation-health/` - Estado del modelo
+
+**Órdenes:**
+- `GET /orders/` - Listar órdenes
+- `POST /orders/` - Crear orden
+- `GET /orders/{id}/` - Detalle de orden
+- `PATCH /orders/{id}/` - Actualizar estado
+
+**Chat:**
+- WebSocket `/ws/chat/{order_id}/` - Conexión de chat
+
+**Reviews:**
+- `GET /orders/reviews/` - Listar reviews
+- `POST /orders/reviews/` - Crear review
 
 ## 🤝 Contribución
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+### Workflow
+1. Fork del proyecto
+2. Crear rama: `git checkout -b feature/nueva-funcionalidad`
+3. Commit: `git commit -m 'feat: agregar nueva funcionalidad'`
+4. Push: `git push origin feature/nueva-funcionalidad`
+5. Abrir Pull Request
+
+### Convenciones de Código
+- **Nombres**: camelCase para variables, PascalCase para componentes
+- **Imports**: ordenar por terceros → locales → estilos
+- **Comentarios**: solo JSDoc en funciones públicas
+- **Traducciones**: todas las cadenas en i18n, nada hardcodeado
+
+### Commits Semánticos
+```
+feat: nueva funcionalidad
+fix: corrección de bug
+refactor: refactorización sin cambio funcional
+docs: cambios en documentación
+style: cambios de formato (no código)
+test: agregar o modificar tests
+chore: tareas de mantenimiento
+```
 
 ## 📄 Licencia
 
