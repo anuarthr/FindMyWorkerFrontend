@@ -17,11 +17,12 @@ export const formatPrice = (amount, locale = 'es') => {
 };
 
 /**
- * Formatea una fecha a formato legible según el locale
- * @param {string|Date} date - Fecha a formatear
- * @param {boolean} includeTime - Si incluir la hora
- * @param {string} locale - Locale ('es' o 'en')
+ * Formatea una fecha a formato legible según el locale con opción de incluir hora
+ * @param {string|Date} date - Fecha a formatear (string ISO 8601 o objeto Date)
+ * @param {boolean} [includeTime=false] - Si incluir la hora en el formato
+ * @param {string} [locale='es'] - Locale ('es' o 'en')
  * @returns {string} Fecha formateada
+ * @example formatDate('2026-01-20T10:30:00Z', true, 'es') // "20 de enero de 2026, 10:30"
  */
 export const formatDate = (date, includeTime = false, locale = 'es') => {
   if (!date) return '';
@@ -96,26 +97,32 @@ export const isValidEmail = (email) => {
 };
 
 /**
- * Valida si una contraseña cumple los requisitos mínimos
+ * Valida si una contraseña cumple los requisitos mínimos de seguridad
+ * Verifica: longitud mínima, mayúsculas, minúsculas y números
  * @param {string} password - Contraseña a validar
- * @param {Function} t - Función de traducción de i18next (opcional)
- * @returns {Object} {isValid: boolean, errors: string[]}
+ * @param {Function} [t=null] - Función de traducción de i18next (opcional)
+ * @returns {Object} {isValid: boolean, errors: string[]} - Resultado de validación con lista de errores
+ * @example validatePassword('Abc123', null) // {isValid: false, errors: ['Debe tener al menos 8 caracteres']}
  */
 export const validatePassword = (password, t = null) => {
   const errors = [];
   
+  // Verificar longitud mínima
   if (password.length < 8) {
     errors.push(t ? t('validation.minLength', { count: 8 }) : 'Debe tener al menos 8 caracteres');
   }
   
+  // Verificar mayúsculas
   if (!/[A-Z]/.test(password)) {
     errors.push(t ? t('validation.requireUppercase') : 'Debe contener al menos una mayúscula');
   }
   
+  // Verificar minúsculas
   if (!/[a-z]/.test(password)) {
     errors.push(t ? t('validation.requireLowercase') : 'Debe contener al menos una minúscula');
   }
   
+  // Verificar números
   if (!/[0-9]/.test(password)) {
     errors.push(t ? t('validation.requireNumber') : 'Debe contener al menos un número');
   }
@@ -127,10 +134,14 @@ export const validatePassword = (password, t = null) => {
 };
 
 /**
- * Debounce - retrasa la ejecución de una función
+ * Debounce - retrasa la ejecución de una función hasta que pase cierto tiempo sin llamadas
+ * Útil para optimizar eventos frecuentes como input, scroll, resize
  * @param {Function} func - Función a ejecutar
- * @param {number} wait - Tiempo de espera en ms
- * @returns {Function} Función con debounce
+ * @param {number} [wait=300] - Tiempo de espera en ms
+ * @returns {Function} Función con debounce aplicado
+ * @example
+ * const searchDebounced = debounce((query) => fetchResults(query), 500);
+ * searchDebounced('busqueda'); // Se ejecuta después de 500ms sin nuevas llamadas
  */
 export const debounce = (func, wait = 300) => {
   let timeout;
@@ -165,8 +176,13 @@ export const getOrderStatusColor = (status) => {
 
 /**
  * Genera iniciales a partir de un nombre completo
+ * Toma la primera letra del primer nombre y del último apellido
  * @param {string} name - Nombre completo
- * @returns {string} Iniciales (máximo 2 caracteres)
+ * @returns {string} Iniciales en mayúsculas (máximo 2 caracteres)
+ * @example
+ * getInitials('Juan Pérez') // "JP"
+ * getInitials('Ana María López García') // "AG"
+ * getInitials('Carlos') // "CA"
  */
 export const getInitials = (name) => {
   if (!name) return '';
@@ -195,8 +211,10 @@ export const copyToClipboard = async (text) => {
 };
 
 /**
- * Genera un ID único simple
- * @returns {string} ID único
+ * Genera un ID único simple basado en timestamp y aleatorio
+ * No es criptográficamente seguro, solo para uso en UI/frontend
+ * @returns {string} ID único con formato "timestamp-randomstring"
+ * @example generateId() // "1706189234567-a8h3k9p2q"
  */
 export const generateId = () => {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

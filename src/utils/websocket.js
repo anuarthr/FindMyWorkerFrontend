@@ -67,9 +67,18 @@ export const canChatInStatus = (status) => {
 
 /**
  * Formatea la marca de tiempo de un mensaje relativa al tiempo actual
+ * Retorna formato adaptativo según el tiempo transcurrido:
+ * - Menos de 1 minuto: "Ahora" / "Now"
+ * - Menos de 1 hora: "Hace Xm" / "Xm ago"
+ * - Menos de 24 horas: "Hace Xh" / "Xh ago"
+ * - Menos de 7 días: "Hace Xd" / "Xd ago"
+ * - Más de 7 días: fecha corta ("15 ene")
+ * 
  * @param {string|Date} timestamp - Marca de tiempo del mensaje
- * @param {string} locale - Idioma para el formato ('es' o 'en')
- * @returns {string} Tiempo formateado (ej: "Hace 5m", "Hace 2h", "15 ene")
+ * @param {string} [locale='es'] - Idioma para el formato ('es' o 'en')
+ * @returns {string} Tiempo formateado de forma legible
+ * @example formatMessageTime(new Date(), 'es') // "Ahora"
+ * @example formatMessageTime('2026-01-20T10:00:00Z', 'es') // "Hace 2d" o "20 ene"
  */
 export const formatMessageTime = (timestamp, locale = 'es') => {
   const date = new Date(timestamp);
@@ -81,14 +90,17 @@ export const formatMessageTime = (timestamp, locale = 'es') => {
 
   // Menos de 1 minuto
   if (diffMins < 1) return locale === 'es' ? 'Ahora' : 'Now';
-  // Menos de 1 hora
+  
+  // Menos de 1 hora - mostrar minutos
   if (diffMins < 60) return locale === 'es' ? `Hace ${diffMins}m` : `${diffMins}m ago`;
-  // Menos de 24 horas
+  
+  // Menos de 24 horas - mostrar horas
   if (diffHours < 24) return locale === 'es' ? `Hace ${diffHours}h` : `${diffHours}h ago`;
-  // Menos de 7 días
+  
+  // Menos de 7 días - mostrar días
   if (diffDays < 7) return locale === 'es' ? `Hace ${diffDays}d` : `${diffDays}d ago`;
 
-  // Más de 7 días: mostrar fecha
+  // Más de 7 días: mostrar fecha corta
   return date.toLocaleDateString(locale === 'es' ? 'es-CO' : 'en-US', {
     month: 'short',
     day: 'numeric',
