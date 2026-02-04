@@ -1,4 +1,13 @@
-import { useState, useEffect } from 'react';
+/**
+ * Hook personalizado para gestionar horas de trabajo de una orden
+ * Maneja registro, actualización, eliminación y aprobación de horas trabajadas
+ * @module hooks/useWorkHours
+ * 
+ * @param {number} orderId - ID de la orden
+ * @returns {Object} Estado y funciones {hours, loading, error, registerHours, updateHours, deleteHours, approveHours, refreshHours}
+ */
+
+import { useState, useEffect, useCallback } from 'react';
 import api from '../api/axios';
 
 export const useWorkHours = (orderId) => {
@@ -6,7 +15,7 @@ export const useWorkHours = (orderId) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchHours = async () => {
+  const fetchHours = useCallback(async () => {
     if (!orderId) return;
     
     try {
@@ -24,50 +33,27 @@ export const useWorkHours = (orderId) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]);
 
-  const registerHours = async (hoursData) => {
-  const payload = {
-    service_order: parseInt(orderId),
-    date: hoursData.date,
-    hours: hoursData.hours,
-    description: hoursData.description
-  };
-  
-  console.group('🔍 useWorkHours - registerHours');
-  console.log('📦 Payload:', payload);
-  console.log('🆔 Order ID:', orderId);
-  console.log('📅 Date:', payload.date, '(type:', typeof payload.date, ')');
-  console.log('⏰ Hours:', payload.hours, '(type:', typeof payload.hours, ')');
-  console.log('📝 Description:', payload.description);
-  
-  // ✅ NUEVO - Ver qué fecha se está generando
-  console.log('🗓️ Today:', new Date().toISOString().split('T')[0]);
-  console.log('🗓️ Date being sent:', payload.date);
-  console.log('🗓️ Are they equal?', payload.date === new Date().toISOString().split('T')[0]);
-  console.groupEnd();
-  
-  try {
-    const { data } = await api.post(`/orders/${orderId}/work-hours/`, payload);
-    await fetchHours();
-    return data;
-  } catch (err) {
-    console.group('❌ useWorkHours - Error Detail');
-    console.error('Error Response:', err.response?.data);
-    console.error('Error Status:', err.response?.status);
+  const registerHours = useCallback(async (hoursData) => {
+    const payload = {
+      service_order: parseInt(orderId),
+      date: hoursData.date,
+      hours: hoursData.hours,
+      description: hoursData.description
+    };
     
-    // ✅ NUEVO - Expandir el error de date
-    if (err.response?.data?.date) {
-      console.error('📅 Date Error:', err.response.data.date);
-      console.error('📅 Date Error Type:', typeof err.response.data.date);
-      console.error('📅 Date Error Content:', JSON.stringify(err.response.data.date));
+    try {
+      const { data } = await api.post(`/orders/${orderId}/work-hours/`, payload);
+      await fetchHours();
+      return data;
+    } catch (err) {
+      console.error('Error registrando horas:', err.response?.data);
+      throw err;
     }
-    console.groupEnd();
-    throw err;
-    }
-  };
+  }, [orderId, fetchHours]);
 
-  const updateHours = async (hourId, hoursData) => {
+  const updateHours = useCallback(async (hourId, hoursData) => {
     const payload = {
       hours: hoursData.hours,
       description: hoursData.description
@@ -76,24 +62,24 @@ export const useWorkHours = (orderId) => {
     const { data } = await api.patch(`/orders/${orderId}/work-hours/${hourId}/`, payload);
     await fetchHours();
     return data;
-  };
+  }, [orderId, fetchHours]);
 
-  const deleteHours = async (hourId) => {
+  const deleteHours = useCallback(async (hourId) => {
     await api.delete(`/orders/${orderId}/work-hours/${hourId}/`);
     await fetchHours();
-  };
+  }, [orderId, fetchHours]);
 
-  const approveHours = async (hourId, approved) => {
+  const approveHours = useCallback(async (hourId, approved) => {
     const { data } = await api.post(`/orders/${orderId}/work-hours/${hourId}/approve/`, {
       approved
     });
     await fetchHours();
     return data;
-  };
+  }, [orderId, fetchHours]);
 
   useEffect(() => {
     fetchHours();
-  }, [orderId]);
+  }, [fetchHours]);
 
   return {
     hours,

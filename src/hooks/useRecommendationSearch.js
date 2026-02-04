@@ -4,7 +4,19 @@ import { searchWorkers, getRecommendationHealth } from '../api/recommendations';
 
 /**
  * Hook personalizado para búsqueda semántica de trabajadores
- * Maneja estado, loading, errores, health check del modelo y detección automática de idioma
+ * Maneja el estado de resultados, paginación, health check del modelo y detección automática de idioma
+ * @module hooks/useRecommendationSearch
+ * 
+ * @returns {Object} Estado y funciones de búsqueda
+ * @returns {Array} results - Lista de trabajadores encontrados
+ * @returns {boolean} loading - Estado de carga
+ * @returns {string|null} error - Mensaje de error
+ * @returns {Object} modelStatus - Estado del modelo de recomendación
+ * @returns {Object} pagination - Información de paginación
+ * @returns {Function} search - Función para ejecutar búsqueda
+ * @returns {Function} clearResults - Limpia resultados y errores
+ * @returns {Function} checkModelHealth - Verifica salud del modelo
+ * @returns {string} currentLanguage - Idioma actual detectado (es/en)
  */
 export const useRecommendationSearch = () => {
   const { i18n } = useTranslation();

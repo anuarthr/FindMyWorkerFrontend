@@ -4,6 +4,7 @@ import { buildWebSocketURL, WEBSOCKET_CONFIG, CLOSE_CODES, ERROR_MESSAGES } from
 /**
  * Hook personalizado para manejar la conexión WebSocket del chat
  * Proporciona gestión automática de conexión, reconexión y mensajes
+ * @module hooks/useWebSocketChat
  * 
  * @param {number} orderId - ID de la orden para el chat
  * @param {string} token - Token JWT de autenticación
@@ -141,6 +142,7 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
           setError(data.message);
         }
       } catch (err) {
+        // Error al parsear JSON, ignorar mensaje mal formado
       }
     };
 

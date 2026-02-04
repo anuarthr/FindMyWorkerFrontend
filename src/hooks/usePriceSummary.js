@@ -1,12 +1,24 @@
-import { useState, useEffect } from 'react';
+/**
+ * Hook personalizado para obtener resumen de precios de una orden
+ * Maneja el estado, carga automática y refrescado manual del resumen
+ * @module hooks/usePriceSummary
+ */
+
+import { useState, useEffect, useCallback } from 'react';
 import api from '../api/axios';
+
+/**
+ * Hook para obtener el resumen de precios de una orden
+ * @param {number} orderId - ID de la orden
+ * @returns {Object} Estado del resumen {summary, loading, error, refreshSummary}
+ */
 
 export const usePriceSummary = (orderId) => {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     if (!orderId) return;
     
     try {
@@ -20,11 +32,11 @@ export const usePriceSummary = (orderId) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]);
 
   useEffect(() => {
     fetchSummary();
-  }, [orderId]);
+  }, [fetchSummary]);
 
   return {
     summary,
