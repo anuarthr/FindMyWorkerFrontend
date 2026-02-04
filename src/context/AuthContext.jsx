@@ -1,13 +1,21 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import api from '../api/axios';
 import { jwtDecode } from 'jwt-decode';
 import { STORAGE_KEYS } from '../config/constants';
 
 /**
- * Contexto de autenticación - maneja el estado del usuario y sesión
+ * Contexto de autenticación
+ * Proporciona estado global de autenticación, información del usuario y funciones de login/logout
+ * @module context/AuthContext
  */
 const AuthContext = createContext();
+
+/**
+ * Hook para acceder al contexto de autenticación
+ * @returns {Object} Estado y métodos de autenticación {user, login, logout, isAuthenticated, loading}
+ * @throws {Error} Si se usa fuera del AuthProvider
+ */
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -18,6 +26,16 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  /**
+   * Cierra la sesión del usuario y limpia el localStorage
+   */
+  const logout = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+    setUser(null);
+    setIsAuthenticated(false);
+  }, []);
 
   /**
    * Verifica si el usuario está autenticado al cargar la aplicación
@@ -52,15 +70,15 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     };
     checkAuth();
-  }, []);
+  }, [logout]);
 
   /**
    * Inicia sesión con email y contraseña
    * @param {string} email - Email del usuario
    * @param {string} password - Contraseña del usuario
-   * @returns {Object} Resultado de la operación {success: boolean, error?: string}
+   * @returns {Promise<Object>} Resultado de la operación {success: boolean, error?: string}
    */
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     try {
       const res = await api.post('auth/login/', { email, password });
       // Guardar tokens en localStorage usando constantes
@@ -81,17 +99,7 @@ export const AuthProvider = ({ children }) => {
         error: error.response?.data?.detail || "Credenciales inválidas" 
       };
     }
-  };
-
-  /**
-   * Cierra la sesión del usuario y limpia el localStorage
-   */
-  const logout = () => {
-    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-    setUser(null);
-    setIsAuthenticated(false);
-  };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading }}>
