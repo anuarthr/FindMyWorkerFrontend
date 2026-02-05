@@ -25,14 +25,15 @@ export const searchWorkers = async ({
 }) => {
   try {
     const normalizedLanguage = language.startsWith('es') ? 'es' : 'en';
+    const hasLocation = lat != null && lon != null;
 
     const body = {
       query: searchQuery,
       language: normalizedLanguage,
-      strategy: lat && lon ? 'hybrid' : 'tfidf',
+      strategy: hasLocation ? 'hybrid' : 'tfidf',
       top_n: Math.min(pageSize, 20),
       ...(serviceCategory && { profession: serviceCategory }),
-      ...(lat && lon && {
+      ...(hasLocation && {
         latitude: lat,
         longitude: lon,
         max_distance_km: maxDistanceKm
@@ -53,14 +54,18 @@ export const searchWorkers = async ({
   } catch (error) {
     console.error('Error en búsqueda de recomendaciones:', error);
     
-    if (error.response?.status === 400) {
-      const errorMsg = error.response.data.language?.[0] || 
-                       error.response.data.query?.[0] ||
-                       error.response.data.error || 
+    const status = error.response?.status;
+    
+    if (status === 400) {
+      const data = error.response.data;
+      const errorMsg = data.language?.[0] || 
+                       data.query?.[0] ||
+                       data.error || 
                        'Parámetros de búsqueda inválidos';
       throw new Error(errorMsg);
     }
-    if (error.response?.status === 503) {
+    
+    if (status === 503) {
       throw new Error('El modelo de ML aún no está entrenado. Intenta en 1-2 minutos.');
     }
     

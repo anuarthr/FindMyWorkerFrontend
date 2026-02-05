@@ -1,3 +1,11 @@
+/**
+ * Componente de resumen de costos de orden
+ * Muestra horas aprobadas, horas pendientes y precio total acordado
+ * 
+ * @param {Object} summary - Resumen de costos con horas y pagos
+ * @param {boolean} loading - Estado de carga del resumen
+ */
+
 import { DollarSign, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 

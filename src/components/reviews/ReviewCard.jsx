@@ -5,6 +5,7 @@
 
 import { Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import StarRating from './StarRating';
 import { formatRelativeDate } from '../../utils/dateFormatters';
@@ -18,9 +19,20 @@ import { formatRelativeDate } from '../../utils/dateFormatters';
 const ReviewCard = ({ review }) => {
   const { t, i18n } = useTranslation();
 
-  const reviewerName = `${review.reviewer.first_name} ${review.reviewer.last_name}`;
-  const initials = `${review.reviewer.first_name[0]}${review.reviewer.last_name[0]}`.toUpperCase();
-  const relativeDate = formatRelativeDate(review.created_at, i18n.language);
+  const reviewerName = useMemo(() => 
+    `${review.reviewer.first_name} ${review.reviewer.last_name}`,
+    [review.reviewer.first_name, review.reviewer.last_name]
+  );
+  
+  const initials = useMemo(() => 
+    `${review.reviewer.first_name[0]}${review.reviewer.last_name[0]}`.toUpperCase(),
+    [review.reviewer.first_name, review.reviewer.last_name]
+  );
+  
+  const relativeDate = useMemo(() => 
+    formatRelativeDate(review.created_at, i18n.language),
+    [review.created_at, i18n.language]
+  );
 
   return (
     <div className="bg-white rounded-xl border border-[#4A3B32]/10 p-5 hover:shadow-md transition-shadow">

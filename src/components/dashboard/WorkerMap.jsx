@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { userIcon, workerIcon } from '../../utils/mapIcons';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // Import i18n
+import { useTranslation } from 'react-i18next';
+import { getFullName, getAvatarUrl } from '../../utils/profileHelpers';
 import 'leaflet/dist/leaflet.css';
 
 function RecenterMap({ lat, lng }) {
@@ -16,7 +17,7 @@ function RecenterMap({ lat, lng }) {
 }
 
 export default function WorkerMap({ workers = [], userLocation }) {
-  const { t } = useTranslation(); // Hook initialization
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const center = userLocation ? [userLocation.lat, userLocation.lng] : [11.24079, -74.19904];
 
@@ -43,12 +44,8 @@ export default function WorkerMap({ workers = [], userLocation }) {
           if (!lat || !lng) return null;
 
           const userData = worker.user || worker;
-          const firstName = userData.first_name || "";
-          const lastName = userData.last_name || "";
-          let fullName = `${firstName} ${lastName}`.trim();
-          if (!fullName) fullName = t('workerCard.defaultName'); // Reutilizamos clave común
-          
-          const avatar = userData.avatar || "https://placehold.co/50x50";
+          const fullName = getFullName(userData, t('workerCard.defaultName'));
+          const avatar = getAvatarUrl(userData, '50x50');
 
           return (
             <Marker key={worker.id} position={[lat, lng]} icon={workerIcon}>

@@ -1,11 +1,16 @@
 /**
- * Constantes de configuración de la aplicación
- * Centraliza URLs, configuraciones y valores constantes
+ * Constantes de configuración de la aplicación FindMyWorker
+ * Centraliza URLs, configuraciones, roles, estados y valores constantes
+ * utilizados a lo largo de toda la aplicación.
  * @module config/constants
  */
 
 /**
- * URLs de la API
+ * Configuración de la API
+ * @constant {Object}
+ * @property {string} BASE_URL - URL base de la API REST
+ * @property {string} WS_URL - URL base del WebSocket para chat en tiempo real
+ * @property {number} TIMEOUT - Timeout para requests HTTP en milisegundos (30s para backend lento)
  */
 export const API_CONFIG = {
   // URL base de la API REST
@@ -18,6 +23,10 @@ export const API_CONFIG = {
 
 /**
  * Roles de usuario disponibles en el sistema
+ * @constant {Object}
+ * @property {string} ADMIN - Administrador con acceso completo
+ * @property {string} CLIENT - Cliente que contrata servicios
+ * @property {string} WORKER - Trabajador que ofrece servicios
  */
 export const USER_ROLES = {
   ADMIN: 'ADMIN',
@@ -26,7 +35,9 @@ export const USER_ROLES = {
 };
 
 /**
- * Estados posibles de una orden
+ * Estados posibles de una orden de servicio
+ * Representa el ciclo de vida completo de una orden desde su creación hasta su finalización
+ * @constant {Object}
  */
 export const ORDER_STATUS = {
   PENDING: 'PENDING',           // Pendiente de aceptación
@@ -39,7 +50,9 @@ export const ORDER_STATUS = {
 };
 
 /**
- * Estados en los que el chat está activo
+ * Estados en los que el chat está activo y disponible
+ * El chat solo está disponible cuando la orden ha sido aceptada y no ha sido completada/cancelada
+ * @constant {string[]}
  */
 export const CHAT_ACTIVE_STATUSES = ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'];
 
@@ -128,7 +141,12 @@ export const VALIDATION = {
 export const NOTIFICATION_DURATION = 5000;
 
 /**
- * Claves de almacenamiento local
+ * Claves de almacenamiento local (localStorage)
+ * Centraliza las claves para evitar errores de typos
+ * @constant {Object}
+ * @property {string} ACCESS_TOKEN - Token JWT de acceso
+ * @property {string} REFRESH_TOKEN - Token JWT de refresco
+ * @property {string} USER_LANGUAGE - Idioma preferido del usuario (es/en)
  */
 export const STORAGE_KEYS = {
   ACCESS_TOKEN: 'access_token',

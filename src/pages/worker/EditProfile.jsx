@@ -1,4 +1,10 @@
-import { useState, useEffect } from 'react';
+/**
+ * Página de edición de perfil de trabajador
+ * Permite actualizar profesión, experiencia, tarifa, biografía y ubicación
+ * @module pages/worker/EditProfile
+ */
+
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import LocationPicker from '../../components/LocationPicker';
@@ -8,6 +14,10 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+/**
+ * Componente de edición de perfil de trabajador
+ * Permite modificar información profesional y ubicación en el mapa
+ */
 const EditProfile = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -56,15 +66,21 @@ const EditProfile = () => {
     fetchWorkerProfile();
   }, [t]);
 
-  const handleLocationChange = (lat, lng) => {
+  /**
+   * Maneja cambio de ubicación desde el mapa
+   */
+  const handleLocationChange = useCallback((lat, lng) => {
     setFormData(prev => ({
       ...prev,
       latitude: lat,
       longitude: lng
     }));
-  };
+  }, []);
 
-  const handleSubmit = async (e) => {
+  /**
+   * Maneja envío del formulario de edición
+   */
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -94,7 +110,7 @@ const EditProfile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, navigate, t]);
 
   if (fetching) {
     return (

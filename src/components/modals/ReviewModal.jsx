@@ -4,11 +4,13 @@
  */
 
 import { useState, useEffect } from 'react';
-import { X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import StarRatingInput from '../reviews/StarRatingInput';
 import useCreateReview from '../../hooks/useCreateReview';
+import { useModalBehavior } from '../../hooks/useModalBehavior';
+import { ModalBackdrop, ModalContent, SuccessMessage, ErrorAlert, ModalCloseButton } from '../common/ModalComponents';
 
 /**
  * ReviewModal - Diálogo modal para crear evaluaciones de trabajadores
@@ -41,6 +43,8 @@ const ReviewModal = ({
     createdReview,
     reset 
   } = useCreateReview(orderId);
+
+  const { handleBackdropClick } = useModalBehavior(isOpen, handleClose, !submitting);
 
   useEffect(() => {
     if (isOpen) {
@@ -82,21 +86,14 @@ const ReviewModal = ({
   const canSubmit = rating > 0 && isCommentValid && !submitting;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <ModalBackdrop onClick={handleBackdropClick}>
+      <ModalContent maxWidth="max-w-lg" className="rounded-2xl max-h-[90vh] overflow-y-auto">
         
         {showSuccess ? (
-          <div className="p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="text-green-600" size={32} />
-            </div>
-            <h3 className="text-2xl font-bold text-[#4A3B32] mb-2">
-              {t('reviews.successTitle')}
-            </h3>
-            <p className="text-[#4A3B32]/70">
-              {t('reviews.successMessage')}
-            </p>
-          </div>
+          <SuccessMessage 
+            title={t('reviews.successTitle')}
+            message={t('reviews.successMessage')}
+          />
         ) : (
           <>
             <div className="border-b border-[#4A3B32]/10 p-6">
@@ -109,29 +106,21 @@ const ReviewModal = ({
                     {workerName}
                   </p>
                 </div>
-                <button
+                <ModalCloseButton 
                   onClick={handleClose}
                   disabled={submitting}
-                  className="text-[#4A3B32]/60 hover:text-[#4A3B32] transition-colors disabled:opacity-50"
-                  aria-label={t('common.close')}
-                >
-                  <X size={24} />
-                </button>
+                  label={t('common.close')}
+                />
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-                  <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
-                  <div>
-                    <p className="text-red-800 font-medium text-sm">
-                      {t('reviews.errorTitle')}
-                    </p>
-                    <p className="text-red-700 text-sm mt-1">{error}</p>
-                  </div>
-                </div>
+                <ErrorAlert 
+                  title={t('reviews.errorTitle')}
+                  message={error}
+                />
               )}
 
               <div>
@@ -219,8 +208,8 @@ const ReviewModal = ({
             </form>
           </>
         )}
-      </div>
-    </div>
+      </ModalContent>
+    </ModalBackdrop>
   );
 };
 

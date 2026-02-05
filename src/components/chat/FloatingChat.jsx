@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { MessageSquare, Minimize2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import api from '../../api/axios';
 import { useWebSocketChat } from '../../hooks/useWebSocketChat';
 import { canChatInStatus } from '../../utils/websocket';
+import { useChatHistory } from '../../hooks/useChatHistory';
 import ConnectionStatus from './ConnectionStatus';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
@@ -11,32 +11,14 @@ import ChatInput from './ChatInput';
 const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
   const { t } = useTranslation();
   const [isMinimized, setIsMinimized] = useState(false);
-  const [historyMessages, setHistoryMessages] = useState([]);
-  const [historyLoading, setHistoryLoading] = useState(true);
+  const isChatEnabled = useMemo(() => canChatInStatus(orderStatus), [orderStatus]);
+  
+  const { 
+    messages: historyMessages, 
+    loading: historyLoading 
+  } = useChatHistory(orderId);
 
   const token = localStorage.getItem('access_token');
-  const isChatEnabled = useMemo(() => canChatInStatus(orderStatus), [orderStatus]);
-
-  useEffect(() => {
-    const loadHistory = async () => {
-      try {
-        setHistoryLoading(true);
-        const { data } = await api.get(`/orders/${orderId}/messages/`);
-        
-        // Handle different response structures
-        const messagesArray = data?.messages || data?.results || data?.data || data;
-        setHistoryMessages(Array.isArray(messagesArray) ? messagesArray : []);
-      } catch (err) {
-        setHistoryMessages([]);
-      } finally {
-        setHistoryLoading(false);
-      }
-    };
-
-    if (orderId && token) {
-      loadHistory();
-    }
-  }, [orderId, token]);
 
   const {
     messages,
@@ -46,11 +28,13 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
     sendMessage,
   } = useWebSocketChat(orderId, token, isChatEnabled, historyMessages);
 
+  const toggleMinimize = useCallback(() => setIsMinimized(prev => !prev), []);
+
   if (isMinimized) {
     return (
       <div className="fixed bottom-6 right-6 z-50">
         <button
-          onClick={() => setIsMinimized(false)}
+          onClick={toggleMinimize}
           className="bg-primary hover:bg-[#a83f34] text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all hover:scale-105"
         >
           <MessageSquare size={24} />
@@ -64,6 +48,10 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
       </div>
     );
   }
+
+  const alertMessage = !isChatEnabled
+    ? (orderStatus === 'PENDING' ? t('chat.waitForAcceptance') : t('chat.orderClosed'))
+    : wsError;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 w-[420px] max-h-[600px] flex flex-col bg-white rounded-2xl shadow-2xl border border-neutral-dark/10 animate-in slide-in-from-bottom-5">
@@ -85,7 +73,7 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
           />
           
           <button
-            onClick={() => setIsMinimized(true)}
+            onClick={toggleMinimize}
             className="hover:bg-white/20 p-1.5 rounded-lg transition-colors"
             aria-label={t('chat.minimize')}
           >
@@ -102,16 +90,13 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
         </div>
       </div>
 
-      {wsError && (
-        <div className="bg-red-50 border-b border-red-200 px-4 py-2 text-xs text-red-700">
-          {t(wsError) || wsError}
-        </div>
-      )}
-
-      {!isChatEnabled && (
-        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
-          {orderStatus === 'PENDING' && t('chat.waitForAcceptance')}
-          {['COMPLETED', 'CANCELLED'].includes(orderStatus) && t('chat.orderClosed')}
+      {alertMessage && (
+        <div className={`border-b px-4 py-2 text-xs ${
+          !isChatEnabled 
+            ? 'bg-amber-50 border-amber-200 text-amber-800' 
+            : 'bg-red-50 border-red-200 text-red-700'
+        }`}>
+          {t(alertMessage) || alertMessage}
         </div>
       )}
 

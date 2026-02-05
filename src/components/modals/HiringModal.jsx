@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createServiceOrder } from '../../api/orders';
 import { Clock, DollarSign } from 'lucide-react';
+import { useModalBehavior } from '../../hooks/useModalBehavior';
+import { ModalBackdrop, ModalContent, SuccessMessage, ErrorAlert, LoadingButton } from '../common/ModalComponents';
 
 const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourlyRate }) => {
   const { t } = useTranslation();
@@ -12,6 +14,8 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
   const [status, setStatus] = useState('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const textareaRef = useRef(null);
+
+  const { handleBackdropClick } = useModalBehavior(isOpen, onClose, !isLoading && status !== 'success');
 
   useEffect(() => {
     if (isOpen) {
@@ -25,27 +29,12 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
       setTimeout(() => {
         textareaRef.current?.focus();
       }, 100);
-      
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
     }
 
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
-
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen && !isLoading) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, isLoading, onClose]);
 
   if (!isOpen) return null;
 
@@ -95,38 +84,23 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
     }
   };
 
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget && !isLoading && status !== 'success') {
-      onClose();
-    }
-  };
-
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#4A3B32]/25 backdrop-blur-[2px] transition-all px-4"
+    <ModalBackdrop 
       onClick={handleBackdropClick}
-      role="dialog"
-      aria-modal="true"
       aria-labelledby="modal-title"
     >
-      <div 
-        className="bg-white w-full max-w-2xl rounded-lg shadow-xl overflow-hidden transform transition-all max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        
+      <ModalContent maxWidth="max-w-2xl" className="max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-[#C04A3E] px-6 py-4 flex justify-between items-center sticky top-0 z-10">
-          <h3 
-            id="modal-title"
-            className="text-xl font-bold text-[#EFE6DD]"
-          >
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 id="modal-title" className="text-xl font-bold text-[#4A3B32]">
             {t('hiringModal.title', { name: workerName })}
-          </h3>
-          {!isLoading && status !== 'success' && (
+          </h2>
+          {status !== 'success' && (
             <button
               onClick={onClose}
-              className="text-[#EFE6DD] hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#C04A3E] rounded cursor-pointer"
-              aria-label={t('common.close', 'Cerrar')}
+              disabled={isLoading}
+              className="text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+              aria-label={t('common.close')}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -138,28 +112,19 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
         {/* Body */}
         <div className="p-6">
           {status === 'success' ? (
-            <div className="flex flex-col items-center justify-center py-8 text-[#556B2F]">
-              <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <p className="text-lg font-semibold text-center mb-2">
-                {t('hiringModal.successMessage')}
-              </p>
-              <p className="text-sm text-gray-600 text-center">
-                {t('hiringModal.successSubtext')}
-              </p>
-            </div>
+            <SuccessMessage 
+              title={t('hiringModal.successMessage')}
+              message={t('hiringModal.successSubtext')}
+            />
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* Payment Type Selection */}
+              {/* Tipo de pago */}
               <div>
                 <label className="block text-sm font-medium text-[#4A3B32] mb-3">
-                  {t('hiringModal.paymentType')}
+                  {t('hiringModal.paymentTypeLabel')}
                 </label>
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Opción: Por Horas */}
+                  {/* Opción: Por horas */}
                   <button
                     type="button"
                     onClick={() => setPaymentType('HOURLY')}
@@ -313,15 +278,7 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
 
               {/* Error Message */}
               {errorMessage && (
-                <div 
-                  className="p-3 bg-red-50 border border-red-200 text-[#C04A3E] text-sm rounded-md flex items-start gap-2"
-                  role="alert"
-                >
-                  <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                  <span>{errorMessage}</span>
-                </div>
+                <ErrorAlert message={errorMessage} />
               )}
 
               {/* Buttons */}
@@ -352,13 +309,7 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
                   }`}
                 >
                   {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      {t('hiringModal.sending')}
-                    </span>
+                    <LoadingButton text={t('hiringModal.sending')} />
                   ) : (
                     t('hiringModal.submitButton')
                   )}
@@ -367,8 +318,8 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
             </form>
           )}
         </div>
-      </div>
-    </div>
+      </ModalContent>
+    </ModalBackdrop>
   );
 };
 

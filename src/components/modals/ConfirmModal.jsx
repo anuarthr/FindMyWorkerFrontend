@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { useModalBehavior } from '../../hooks/useModalBehavior';
+import { ModalBackdrop, ModalContent } from '../common/ModalComponents';
 
 const ConfirmModal = ({ 
   isOpen, 
@@ -11,27 +13,7 @@ const ConfirmModal = ({
   cancelText = 'Cancelar',
   variant = 'warning'
 }) => {
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
+  const { handleBackdropClick } = useModalBehavior(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -59,20 +41,8 @@ const ConfirmModal = ({
   const style = variants[variant];
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#4A3B32]/25 backdrop-blur-[2px] transition-all px-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
-      role="dialog"
-      aria-modal="true"
-    >
-      <div 
-        className={`bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden transform transition-all border ${style.border}`}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <ModalBackdrop onClick={handleBackdropClick}>
+      <ModalContent className={`border ${style.border}`}>
         
         {/* Icon y Contenido */}
         <div className={`${style.bg} p-8 text-center border-b ${style.border}`}>
@@ -107,8 +77,8 @@ const ConfirmModal = ({
             {confirmText}
           </button>
         </div>
-      </div>
-    </div>
+      </ModalContent>
+    </ModalBackdrop>
   );
 };
 

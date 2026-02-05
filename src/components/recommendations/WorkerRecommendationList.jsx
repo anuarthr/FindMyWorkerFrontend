@@ -1,3 +1,14 @@
+/**
+ * Lista de trabajadores recomendados con paginación
+ * Incluye estados de carga, vacío, y resultados con controles de página
+ * 
+ * @param {Array} results - Lista de trabajadores recomendados
+ * @param {boolean} loading - Estado de carga
+ * @param {string} query - Query de búsqueda actual
+ * @param {Object} pagination - Información de paginación
+ * @param {Function} onPageChange - Callback para cambio de página
+ */
+
 import { ChevronLeft, ChevronRight, Search as SearchIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import WorkerRecommendationCard from './WorkerRecommendationCard';
@@ -11,7 +22,7 @@ const WorkerRecommendationList = ({
 }) => {
   const { t } = useTranslation();
 
-  // Loading state con skeleton loaders
+  // Estado de carga con skeleton loaders
   if (loading) {
     return (
       <div className="space-y-4">
@@ -37,7 +48,7 @@ const WorkerRecommendationList = ({
     );
   }
 
-  // Empty state
+  // Estado vacío sin resultados
   if (!results || results.length === 0) {
     return (
       <div className="bg-white border border-[#4A3B32]/10 rounded-xl p-12 text-center">
@@ -67,7 +78,7 @@ const WorkerRecommendationList = ({
     );
   }
 
-  // Results found
+  // Resultados encontrados
   return (
     <div className="space-y-6">
       {/* Header con contador */}

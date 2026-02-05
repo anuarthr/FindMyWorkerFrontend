@@ -1,11 +1,27 @@
-import { useState, useEffect } from 'react';
+/**
+ * Componente selector de ubicación con mapa interactivo
+ * Permite seleccionar ubicación mediante click en mapa o GPS
+ * 
+ * @param {Object} props
+ * @param {number} props.latitude - Latitud inicial
+ * @param {number} props.longitude - Longitud inicial
+ * @param {Function} props.onLocationChange - Callback cuando cambia la ubicación
+ */
+
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { Navigation } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import PropTypes from 'prop-types';
 
-export default function LocationPicker({ latitude, longitude, onLocationChange }) {
+const LocationPicker = ({ latitude, longitude, onLocationChange }) => {
   const { t } = useTranslation();
-  const defaultCenter = { lat: 11.24079, lng: -74.19904 }; 
+  
+  // Centro por defecto (Santa Marta, Colombia)
+  const defaultCenter = useMemo(() => ({ 
+    lat: 11.24079, 
+    lng: -74.19904 
+  }), []); 
   const [position, setPosition] = useState(null);
 
   useEffect(() => {
@@ -14,7 +30,8 @@ export default function LocationPicker({ latitude, longitude, onLocationChange }
     }
   }, [latitude, longitude]);
 
-  const handleGetCurrentLocation = (e) => {
+  // Obtener ubicación actual del GPS del dispositivo
+  const handleGetCurrentLocation = useCallback((e) => {
     e.preventDefault();
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
@@ -25,9 +42,10 @@ export default function LocationPicker({ latitude, longitude, onLocationChange }
     } else {
       alert(t('locationPicker.gpsNotSupported'));
     }
-  };
+  }, [onLocationChange, t]);
 
-  function MapController() {
+  // Componente interno para manejar eventos del mapa
+  const MapController = useCallback(() => {
     const map = useMapEvents({
       click(e) {
         const newPos = e.latlng;
@@ -44,7 +62,7 @@ export default function LocationPicker({ latitude, longitude, onLocationChange }
     }, [map]);
 
     return position === null ? null : <Marker position={position} />;
-  }
+  }, [position, onLocationChange]);
 
   return (
     <div className="space-y-3">
@@ -80,4 +98,12 @@ export default function LocationPicker({ latitude, longitude, onLocationChange }
       </p>
     </div>
   );
-}
+};
+
+LocationPicker.propTypes = {
+  latitude: PropTypes.number,
+  longitude: PropTypes.number,
+  onLocationChange: PropTypes.func.isRequired,
+};
+
+export default LocationPicker;

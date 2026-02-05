@@ -32,7 +32,7 @@ export const useCreateReview = (orderId) => {
    * @param {string} reviewData.comment - Comentario de la evaluación
    * @returns {Promise<Object|null>} Evaluación creada o null en caso de error
    */
-  const submitReview = async (reviewData) => {
+  const submitReview = useCallback(async (reviewData) => {
     setError(null);
     setFieldErrors({});
     setSuccess(false);
@@ -81,7 +81,7 @@ export const useCreateReview = (orderId) => {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [orderId]);
 
   const reset = useCallback(() => {
     setSubmitting(false);

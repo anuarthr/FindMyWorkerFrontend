@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { CheckCircle, XCircle, Clock, Loader2, AlertTriangle } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Clock, Loader2, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useWorkHours } from '../../hooks/useWorkHours';
 import PriceSummaryCard from './PriceSummaryCard';
 import { usePriceSummary } from '../../hooks/usePriceSummary';
+import { DateCell, HoursBadge, ApprovalStatusBadge, PaymentAmount, ApprovalActions, EmptyHoursState } from './HourRow';
 
 const ApproveHoursTable = ({ orderId, orderStatus }) => {
   const { t } = useTranslation();
@@ -13,7 +14,7 @@ const ApproveHoursTable = ({ orderId, orderStatus }) => {
 
   const canApproveHours = ['ACCEPTED', 'IN_ESCROW'].includes(orderStatus);
 
-  const handleApprove = async (hourId, approved) => {
+  const handleApprove = useCallback(async (hourId, approved) => {
     try {
       setApprovingId(hourId);
       await approveHours(hourId, approved);
@@ -23,7 +24,7 @@ const ApproveHoursTable = ({ orderId, orderStatus }) => {
     } finally {
       setApprovingId(null);
     }
-  };
+  }, [approveHours, refreshSummary, t]);
 
   if (loading) {
     return (
@@ -56,11 +57,10 @@ const ApproveHoursTable = ({ orderId, orderStatus }) => {
 
         {/* Empty State */}
         {hours.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
-            <Clock className="mx-auto text-gray-300 mb-4" size={64} />
-            <p className="text-gray-500 text-lg mb-2">{t('orders.noHoursRegistered')}</p>
-            <p className="text-gray-400 text-sm">{t('orders.workerWillRegisterSoon')}</p>
-          </div>
+          <EmptyHoursState 
+            message={t('orders.noHoursRegistered')}
+            subtitle={t('orders.workerWillRegisterSoon')}
+          />
         ) : (
           /* Table */
           <div className="overflow-x-auto">
@@ -79,20 +79,10 @@ const ApproveHoursTable = ({ orderId, orderStatus }) => {
                 {hours.map((log) => (
                   <tr key={log.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="py-4 px-4">
-                      <span className="text-sm font-medium text-gray-900">
-                        {new Date(log.date).toLocaleDateString('es-CO', {
-                          weekday: 'short',
-                          day: '2-digit',
-                          month: 'short',
-                          year: 'numeric'
-                        })}
-                      </span>
+                      <DateCell date={log.date} />
                     </td>
                     <td className="py-4 px-4 text-center">
-                      <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">
-                        <Clock size={14} />
-                        {parseFloat(log.hours).toFixed(1)}h
-                      </span>
+                      <HoursBadge hours={log.hours} />
                     </td>
                     <td className="py-4 px-4">
                       <p className="text-sm text-gray-700">{log.description}</p>
@@ -101,53 +91,18 @@ const ApproveHoursTable = ({ orderId, orderStatus }) => {
                       </p>
                     </td>
                     <td className="py-4 px-4 text-right">
-                      <span className="text-lg font-bold text-gray-900">
-                        ${parseFloat(log.calculated_payment).toLocaleString('es-CO')}
-                      </span>
+                      <PaymentAmount amount={log.calculated_payment} />
                     </td>
                     <td className="py-4 px-4 text-center">
-                      {log.approved_by_client ? (
-                        <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
-                          <CheckCircle size={14} />
-                          {t('orders.approved')}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">
-                          <AlertTriangle size={14} />
-                          {t('orders.pending')}
-                        </span>
-                      )}
+                      <ApprovalStatusBadge approved={log.approved_by_client} />
                     </td>
                     <td className="py-4 px-4 text-center">
-                      {canApproveHours && (
-                        log.approved_by_client ? (
-                          <button
-                            onClick={() => handleApprove(log.id, false)}
-                            disabled={approvingId === log.id}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 font-medium text-sm transition-all disabled:opacity-50 cursor-pointer"
-                          >
-                            {approvingId === log.id ? (
-                              <Loader2 size={16} className="animate-spin" />
-                            ) : (
-                              <XCircle size={16} />
-                            )}
-                            {t('orders.revoke')}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleApprove(log.id, true)}
-                            disabled={approvingId === log.id}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm transition-all disabled:opacity-50 shadow-sm hover:shadow-md cursor-pointer"
-                          >
-                            {approvingId === log.id ? (
-                              <Loader2 size={16} className="animate-spin" />
-                            ) : (
-                              <CheckCircle size={16} />
-                            )}
-                            {t('orders.approve')}
-                          </button>
-                        )
-                      )}
+                      <ApprovalActions
+                        hour={log}
+                        isApproving={approvingId === log.id}
+                        onApprove={handleApprove}
+                        canApprove={canApproveHours}
+                      />
                     </td>
                   </tr>
                 ))}

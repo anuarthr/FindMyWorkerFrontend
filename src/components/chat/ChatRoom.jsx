@@ -1,43 +1,50 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageSquare, X, AlertTriangle } from 'lucide-react';
-import api from '../../api/axios';
 import { useWebSocketChat } from '../../hooks/useWebSocketChat';
 import { canChatInStatus } from '../../utils/websocket';
+import { useChatHistory } from '../../hooks/useChatHistory';
 import ConnectionStatus from './ConnectionStatus';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
 
+// Sub-componente: Alerta de chat no disponible
+const ChatUnavailableAlert = ({ orderStatus, t }) => (
+  <div className="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-3">
+    <AlertTriangle className="text-amber-600 shrink-0 mt-0.5" size={18} />
+    <div>
+      <p className="text-amber-800 font-semibold text-sm">
+        {t('chat.chatNotAvailable')}
+      </p>
+      <p className="text-amber-700 text-xs mt-1">
+        {orderStatus === 'PENDING' && t('chat.waitForAcceptance')}
+        {['COMPLETED', 'CANCELLED'].includes(orderStatus) && t('chat.orderClosed')}
+      </p>
+    </div>
+  </div>
+);
+
+// Sub-componente: Alerta de error
+const ErrorAlert = ({ message, t }) => (
+  <div className="bg-red-50 border-b border-red-200 px-6 py-3 flex items-start gap-3">
+    <AlertTriangle className="text-red-600 shrink-0 mt-0.5" size={18} />
+    <p className="text-red-700 text-sm">
+      {t(message) || message}
+    </p>
+  </div>
+);
+
 const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
   const { t } = useTranslation();
-  const [historyMessages, setHistoryMessages] = useState([]);
-  const [historyLoading, setHistoryLoading] = useState(true);
-  const [historyError, setHistoryError] = useState(null);
+  const isChatEnabled = useMemo(() => canChatInStatus(orderStatus), [orderStatus]);
+  
+  const { 
+    messages: historyMessages, 
+    loading: historyLoading, 
+    error: historyError 
+  } = useChatHistory(orderId);
 
   const token = localStorage.getItem('access_token');
-  const isChatEnabled = useMemo(() => canChatInStatus(orderStatus), [orderStatus]);
-
-  useEffect(() => {
-    const loadHistory = async () => {
-      try {
-        setHistoryLoading(true);
-        const { data } = await api.get(`/orders/${orderId}/messages/`);
-        
-        // Handle different response structures
-        const messagesArray = data?.messages || data?.results || data?.data || data;
-        setHistoryMessages(Array.isArray(messagesArray) ? messagesArray : []);
-      } catch (err) {
-        setHistoryError(t('chat.errorLoadingHistory'));
-        setHistoryMessages([]);
-      } finally {
-        setHistoryLoading(false);
-      }
-    };
-
-    if (orderId && token) {
-      loadHistory();
-    }
-  }, [orderId, token, t]);
 
   const {
     messages,
@@ -84,35 +91,9 @@ const ChatRoom = ({ orderId, orderStatus, currentUser, onClose }) => {
         </div>
       </div>
 
-      {!isChatEnabled && (
-        <div className="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-3">
-          <AlertTriangle className="text-amber-600 shrink-0 mt-0.5" size={18} />
-          <div>
-            <p className="text-amber-800 font-semibold text-sm">
-              {t('chat.chatNotAvailable')}
-            </p>
-            <p className="text-amber-700 text-xs mt-1">
-              {orderStatus === 'PENDING' && t('chat.waitForAcceptance')}
-              {['COMPLETED', 'CANCELLED'].includes(orderStatus) && t('chat.orderClosed')}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {wsError && (
-        <div className="bg-red-50 border-b border-red-200 px-6 py-3 flex items-start gap-3">
-          <AlertTriangle className="text-red-600 shrink-0 mt-0.5" size={18} />
-          <p className="text-red-700 text-sm">
-            {t(wsError) || wsError}
-          </p>
-        </div>
-      )}
-
-      {historyError && (
-        <div className="bg-yellow-50 border-b border-yellow-200 px-6 py-3">
-          <p className="text-yellow-700 text-sm">{historyError}</p>
-        </div>
-      )}
+      {!isChatEnabled && <ChatUnavailableAlert orderStatus={orderStatus} t={t} />}
+      {wsError && <ErrorAlert message={wsError} t={t} />}
+      {historyError && <ErrorAlert message={historyError} t={t} />}
 
       <MessageList
         messages={messages}

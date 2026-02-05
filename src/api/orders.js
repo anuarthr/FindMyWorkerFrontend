@@ -5,6 +5,23 @@ import api from './axios';
  */
 
 /**
+ * Extrae mensaje de error de respuesta del backend
+ * @param {Object} errorData - Datos de error de la respuesta
+ * @returns {string|null} Mensaje de error o null
+ */
+const extractErrorMessage = (errorData) => {
+  const errorFields = ['worker', 'description', 'agreed_price'];
+  
+  for (const field of errorFields) {
+    if (errorData[field]) {
+      return errorData[field][0];
+    }
+  }
+  
+  return errorData.detail || null;
+};
+
+/**
  * Crea una nueva orden de servicio
  * @param {Object} params - Parámetros de la orden
  * @param {number} params.worker - ID del trabajador
@@ -15,10 +32,7 @@ import api from './axios';
  */
 export const createServiceOrder = async ({ worker, description, agreed_price }) => {
   try {
-    const payload = {
-      worker,
-      description
-    };
+    const payload = { worker, description };
     
     if (agreed_price !== null && agreed_price !== undefined && agreed_price > 0) {
       payload.agreed_price = agreed_price;
@@ -28,19 +42,9 @@ export const createServiceOrder = async ({ worker, description, agreed_price }) 
     return response.data;
   } catch (error) {
     if (error.response?.data) {
-      const errorData = error.response.data;
-      
-      if (errorData.worker) {
-        throw new Error(errorData.worker[0]);
-      }
-      if (errorData.description) {
-        throw new Error(errorData.description[0]);
-      }
-      if (errorData.agreed_price) {
-        throw new Error(errorData.agreed_price[0]);
-      }
-      if (errorData.detail) {
-        throw new Error(errorData.detail);
+      const errorMessage = extractErrorMessage(error.response.data);
+      if (errorMessage) {
+        throw new Error(errorMessage);
       }
     }
     throw error;

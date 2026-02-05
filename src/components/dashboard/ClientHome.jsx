@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Search, List, Map as MapIcon, Filter } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import WorkerMap from './WorkerMap';       
@@ -6,6 +6,57 @@ import FiltersSidebar from './FiltersSidebar';
 import WorkerCard from './WorkerCard';
 import ClientOrders from './ClientOrders';
 import { getWorkers } from '../../api/workers';
+
+/**
+ * Ubicación por defecto (Santa Marta, Colombia)
+ */
+const DEFAULT_LOCATION = { lat: 11.24079, lng: -74.19904 };
+
+/**
+ * Componente de encabezado de búsqueda con saludo
+ */
+const SearchHeader = ({ userName, searchValue, onSearchChange, t }) => (
+  <div className="bg-[#4A3B32] rounded-b-3xl p-8 md:p-12 text-center shadow-lg relative overflow-hidden mx-4 mt-4">
+    <div className="absolute top-0 right-0 w-32 h-32 bg-[#C04A3E]/20 rounded-full blur-2xl"></div>
+    
+    <h2 className="relative z-10 font-sans text-2xl md:text-3xl font-bold text-white mb-4">
+      {t('clientHome.greeting', { name: userName })}
+    </h2>
+    
+    <div className="relative z-10 max-w-2xl mx-auto mt-6">
+      <div className="relative">
+        <input 
+          type="text" 
+          placeholder={t('clientHome.searchPlaceholder')} 
+          value={searchValue}
+          onChange={onSearchChange}
+          className="w-full py-3 pl-5 pr-12 rounded-full text-white bg-white/10 border border-white/20 placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#C04A3E]"
+        />
+        <Search className="absolute right-4 top-3 text-white/80" size={20} />
+      </div>
+    </div>
+  </div>
+);
+
+/**
+ * Barra de herramientas con selector de modo de vista
+ */
+const ToolbarButtons = ({ viewMode, onViewModeChange, t }) => (
+  <div className="flex bg-gray-100 p-1 rounded-md">
+    <button 
+      onClick={() => onViewModeChange('list')}
+      className={`p-1.5 rounded cursor-pointer ${viewMode === 'list' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
+    >
+      <List size={18} />
+    </button>
+    <button 
+      onClick={() => onViewModeChange('map')}
+      className={`p-1.5 rounded cursor-pointer ${viewMode === 'map' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
+    >
+      <MapIcon size={18} />
+    </button>
+  </div>
+);
 
 const ClientHome = ({ user }) => {
   const { t } = useTranslation();
@@ -36,11 +87,11 @@ const ClientHome = ({ user }) => {
         },
         (error) => {
           console.error("Error Geo:", error);
-          setUserLocation({ lat: 11.24079, lng: -74.19904 }); 
+          setUserLocation(DEFAULT_LOCATION); 
         }
       );
     } else {
-        setUserLocation({ lat: 11.24079, lng: -74.19904 });
+        setUserLocation(DEFAULT_LOCATION);
     }
   }, []);
 
@@ -56,7 +107,7 @@ const ClientHome = ({ user }) => {
       try {
         const data = await getWorkers(activeFilters);
         
-        // Handle paginated response
+        // Manejar respuesta paginada
         const workersArray = data?.results || data?.data || data;
         setWorkers(Array.isArray(workersArray) ? workersArray : []);
       } catch (error) {
@@ -72,32 +123,26 @@ const ClientHome = ({ user }) => {
     }
   }, [filters, userLocation]);
 
+  const handleSearchChange = useCallback((e) => {
+    setFilters(prev => ({ ...prev, search: e.target.value }));
+  }, []);
+
+  const handleToggleSidebar = useCallback(() => {
+    setIsSidebarOpen(prev => !prev);
+  }, []);
+
   const userName = user?.first_name || t('clientHome.visitor');
 
   return (
     <div className="space-y-6 pb-10 bg-[#EFE6DD] min-h-screen">
       
       {/* HEADER BUSCADOR */}
-      <div className="bg-[#4A3B32] rounded-b-3xl p-8 md:p-12 text-center shadow-lg relative overflow-hidden mx-4 mt-4">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#C04A3E]/20 rounded-full blur-2xl"></div>
-        
-        <h2 className="relative z-10 font-sans text-2xl md:text-3xl font-bold text-white mb-4">
-          {t('clientHome.greeting', { name: userName })}
-        </h2>
-        
-        <div className="relative z-10 max-w-2xl mx-auto mt-6">
-          <div className="relative">
-            <input 
-              type="text" 
-              placeholder={t('clientHome.searchPlaceholder')} 
-              value={filters.search}
-              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-              className="w-full py-3 pl-5 pr-12 rounded-full text-white bg-white/10 border border-white/20 placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#C04A3E]"
-            />
-            <Search className="absolute right-4 top-3 text-white/80" size={20} />
-          </div>
-        </div>
-      </div>
+      <SearchHeader 
+        userName={userName}
+        searchValue={filters.search}
+        onSearchChange={handleSearchChange}
+        t={t}
+      />
 
       {/* ÁREA PRINCIPAL */}
       <div className="px-4 md:px-6 max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 items-start">
@@ -108,7 +153,7 @@ const ClientHome = ({ user }) => {
              filters={filters} 
              setFilters={setFilters} 
              isOpen={isSidebarOpen} 
-             toggleSidebar={() => setIsSidebarOpen(false)}
+             toggleSidebar={handleToggleSidebar}
            />
         </div>
 
@@ -118,7 +163,7 @@ const ClientHome = ({ user }) => {
           {/* Toolbar */}
           <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm">
             <div className="flex items-center gap-2">
-               <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-gray-100 rounded cursor-pointer">
+               <button onClick={handleToggleSidebar} className="lg:hidden p-2 bg-gray-100 rounded cursor-pointer">
                  <Filter size={18} />
                </button>
                <span className="font-bold text-[#4A3B32] text-sm">
@@ -126,20 +171,11 @@ const ClientHome = ({ user }) => {
                </span>
             </div>
 
-            <div className="flex bg-gray-100 p-1 rounded-md">
-                 <button 
-                   onClick={() => setViewMode('list')}
-                   className={`p-1.5 rounded cursor-pointer ${viewMode === 'list' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
-                 >
-                   <List size={18} />
-                 </button>
-                 <button 
-                   onClick={() => setViewMode('map')}
-                   className={`p-1.5 rounded cursor-pointer ${viewMode === 'map' ? 'bg-white shadow text-[#C04A3E]' : 'text-gray-400'}`}
-                 >
-                   <MapIcon size={18} />
-                 </button>
-            </div>
+            <ToolbarButtons 
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              t={t}
+            />
           </div>
 
           {/* Vistas */}

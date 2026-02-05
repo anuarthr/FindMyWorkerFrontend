@@ -3,7 +3,7 @@
  */
 
 import { Star } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 
@@ -20,13 +20,13 @@ const StarRatingInput = ({ value, onChange, disabled = false, error }) => {
   const { t } = useTranslation();
   const [hoveredStar, setHoveredStar] = useState(0);
 
-  const handleStarClick = (rating) => {
+  const handleStarClick = useCallback((rating) => {
     if (!disabled) {
       onChange(rating);
     }
-  };
+  }, [disabled, onChange]);
 
-  const handleKeyDown = (e, rating) => {
+  const handleKeyDown = useCallback((e, rating) => {
     if (disabled) return;
 
     if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
@@ -40,7 +40,7 @@ const StarRatingInput = ({ value, onChange, disabled = false, error }) => {
       onChange(prevRating);
       document.getElementById(`star-${prevRating}`)?.focus();
     }
-  };
+  }, [disabled, onChange]);
 
   return (
     <div className="space-y-2">

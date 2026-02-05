@@ -1,4 +1,16 @@
+/**
+ * Iconos personalizados de Leaflet para el mapa
+ * Define marcadores visuales para usuarios y trabajadores en el mapa interactivo
+ * @module utils/mapIcons
+ */
+
 import L from 'leaflet';
+
+/**
+ * Icono de marcador para ubicación del usuario/cliente
+ * Representa la ubicación actual del usuario en el mapa con un icono de persona
+ * @type {L.DivIcon}
+ */
 
 export const userIcon = L.divIcon({
   className: 'custom-icon',
@@ -10,6 +22,12 @@ export const userIcon = L.divIcon({
   popupAnchor: [0, -32]
 });
 
+/**
+ * Icono de marcador para ubicación de trabajadores
+ * Representa la ubicación de trabajadores en el mapa con un icono de herramienta
+ * Incluye animación de rebote para mayor visibilidad
+ * @type {L.DivIcon}
+ */
 export const workerIcon = L.divIcon({
   className: 'custom-icon',
   html: `<div class="w-8 h-8 bg-[#C04A3E] rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white animate-bounce-short">

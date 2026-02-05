@@ -1,9 +1,11 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 /**
- * Contexto para gestionar el estado del chat flotante
- * Permite abrir/cerrar conversaciones desde cualquier parte de la app
+ * Contexto de chat flotante
+ * Gestiona el estado global del chat flotante y permite abrir/cerrar conversaciones
+ * desde cualquier parte de la aplicación
+ * @module context/ChatContext
  */
 const ChatContext = createContext();
 
@@ -33,16 +35,16 @@ export const ChatProvider = ({ children }) => {
    * @param {number} orderId - ID de la orden
    * @param {string} orderStatus - Estado de la orden
    */
-  const openChat = (orderId, orderStatus) => {
+  const openChat = useCallback((orderId, orderStatus) => {
     setActiveChat({ orderId, orderStatus });
-  };
+  }, []);
 
   /**
    * Cierra la conversación activa
    */
-  const closeChat = () => {
+  const closeChat = useCallback(() => {
     setActiveChat(null);
-  };
+  }, []);
 
   return (
     <ChatContext.Provider value={{ activeChat, openChat, closeChat }}>
