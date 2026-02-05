@@ -1,4 +1,10 @@
-import { useState, useEffect } from 'react';
+/**
+ * Página de detalle de orden de servicio
+ * Muestra información completa, horas trabajadas, chat, reviews y acciones disponibles
+ * @module pages/OrderDetail
+ */
+
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, User, FileText, Clock, CheckCircle, 
@@ -14,6 +20,155 @@ import ReviewModal from '../components/modals/ReviewModal';
 import ReviewCard from '../components/reviews/ReviewCard';
 import { useChat } from '../context/ChatContext';
 
+// ============================================================================
+// SUB-COMPONENTES
+// ============================================================================
+
+/**
+ * Pantalla de carga mientras se obtiene la orden
+ * @param {Function} t - Función de traducción
+ */
+const LoadingScreen = ({ t }) => (
+  <div className="min-h-screen bg-gradient-to-br from-neutral-light to-white flex items-center justify-center">
+    <div className="text-center">
+      <Loader2 className="animate-spin text-primary mx-auto mb-4" size={48} />
+      <p className="text-neutral-dark/60 font-medium">{t('common.loading')}</p>
+    </div>
+  </div>
+);
+
+/**
+ * Badge visual del estado de la orden
+ * @param {string} status - Estado de la orden (PENDING, ACCEPTED, IN_ESCROW, etc.)
+ * @param {Function} t - Función de traducción
+ */
+const StatusBadge = ({ status, t }) => {
+  const styles = {
+    PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    ACCEPTED: 'bg-blue-100 text-blue-800 border-blue-300',
+    IN_ESCROW: 'bg-green-100 text-green-800 border-green-300',
+    COMPLETED: 'bg-gray-100 text-gray-800 border-gray-300',
+    CANCELLED: 'bg-red-100 text-red-800 border-red-300'
+  };
+
+  const labels = {
+    PENDING: t('orderStatus.pending'),
+    ACCEPTED: t('orderStatus.accepted'),
+    IN_ESCROW: t('orderStatus.inEscrow'),
+    COMPLETED: t('orderStatus.completed'),
+    CANCELLED: t('orderStatus.cancelled')
+  };
+
+  return (
+    <span className={`px-4 py-2 rounded-full text-sm font-bold border ${styles[status] || 'bg-gray-100'}`}>
+      {labels[status] || status}
+    </span>
+  );
+};
+
+const OrderHeader = ({ order, t, navigate }) => (
+  <div>
+    <Link
+      to="/dashboard"
+      className="inline-flex items-center gap-2 text-neutral-dark/60 hover:text-primary mb-4 font-medium transition-colors cursor-pointer"
+    >
+      <ArrowLeft size={20} />
+      {t('common.backToDashboard')}
+    </Link>
+
+    <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="font-heading text-3xl font-bold text-neutral-dark mb-2">
+            {t('orders.orderNumber', { number: order.id })}
+          </h1>
+          <p className="text-neutral-dark/60">
+            {t('orders.createdOn')} {new Date(order.created_at).toLocaleDateString('es-CO', {
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </p>
+        </div>
+        <StatusBadge status={order.status} t={t} />
+      </div>
+    </div>
+  </div>
+);
+
+const OrderInfo = ({ order, isWorker, t }) => (
+  <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
+    <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
+      <FileText className="text-primary" size={24} />
+      {t('orders.orderInformation')}
+    </h2>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <p className="text-sm text-gray-600 mb-1">{isWorker ? t('orders.client') : t('orders.worker')}</p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <User size={20} className="text-primary" />
+          </div>
+          <div>
+            <p className="font-bold text-neutral-dark">
+              {isWorker ? order.client_email : order.worker_name}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p className="text-sm text-gray-600 mb-2">{t('orders.description')}</p>
+        <p className="text-neutral-dark bg-gray-50 p-3 rounded-lg">
+          {order.description}
+        </p>
+      </div>
+    </div>
+  </div>
+);
+
+const FixedPriceDisplay = ({ agreedPrice, t }) => (
+  <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
+    <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
+      <DollarSign className="text-primary" size={24} />
+      {t('orders.agreedPrice')}
+    </h2>
+    <div className="bg-linear-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+      <p className="text-sm text-gray-600 mb-2">{t('orders.fixedPriceAgreement')}</p>
+      <p className="text-5xl font-bold text-primary">
+        ${parseFloat(agreedPrice).toLocaleString('es-CO')}
+      </p>
+    </div>
+  </div>
+);
+
+const PaymentWarning = ({ t }) => (
+  <div className="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-xl">
+    <div className="flex items-start gap-3">
+      <AlertTriangle className="text-yellow-600 shrink-0 mt-0.5" size={20} />
+      <div>
+        <p className="text-yellow-800 font-semibold text-sm mb-1">
+          {t('orders.cannotPayYet')}
+        </p>
+        <p className="text-yellow-700 text-xs">
+          {t('orders.approveHoursBeforePayment')}
+        </p>
+      </div>
+    </div>
+  </div>
+);
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
+
+/**
+ * Componente principal de detalle de orden
+ * Maneja visualización de información, acciones del cliente/trabajador, chat y reviews
+ */
 const OrderDetail = () => {
   const { t } = useTranslation();
   const { orderId } = useParams();
@@ -34,22 +189,17 @@ const OrderDetail = () => {
     variant: 'warning'
   });
 
-  useEffect(() => {
-    fetchOrder();
-    fetchUser();
-    fetchOrderReview();
-  }, [orderId]);
-
-  const fetchUser = async () => {
+  // Fetch functions
+  const fetchUser = useCallback(async () => {
     try {
       const { data } = await api.get('/users/me/');
       setUser(data);
     } catch (err) {
       console.error('Error fetching user:', err);
     }
-  };
+  }, []);
 
-  const fetchOrderReview = async () => {
+  const fetchOrderReview = useCallback(async () => {
     try {
       const { data } = await api.get(`/orders/${orderId}/review/`);
       setOrderReview(data);
@@ -58,9 +208,9 @@ const OrderDetail = () => {
         console.error('Error fetching review:', err);
       }
     }
-  };
+  }, [orderId]);
 
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
       setLoading(true);
       const { data } = await api.get(`/orders/${orderId}/`);
@@ -71,9 +221,27 @@ const OrderDetail = () => {
     } finally {
       setLoading(false);
     }
+  }, [orderId, navigate]);
+
+  useEffect(() => {
+    fetchOrder();
+    fetchUser();
+    fetchOrderReview();
+  }, [fetchOrder, fetchUser, fetchOrderReview]);
+
+  // Helper para extraer mensaje de error
+  const extractErrorMessage = (error, defaultMessage) => {
+    if (!error.response?.data) return defaultMessage;
+    
+    const { data } = error.response;
+    if (data.detail) return data.detail;
+    if (data.error) return data.error;
+    if (typeof data === 'string') return data;
+    
+    return defaultMessage;
   };
 
-  const handleStatusChange = async (newStatus) => {
+  const handleStatusChange = useCallback(async (newStatus) => {
     setConfirmModal({ isOpen: false, action: null });
     
     // Validación: No permitir completar sin precio acordado
@@ -89,175 +257,91 @@ const OrderDetail = () => {
       await refreshSummary();
     } catch (error) {
       console.error('Error updating status:', error);
-      
-      // Extraer mensaje de error
-      let errorMessage = t('orders.errorUpdatingStatus');
-      
-      if (error.response?.data) {
-        if (error.response.data.detail) {
-          errorMessage = error.response.data.detail;
-        } else if (error.response.data.error) {
-          errorMessage = error.response.data.error;
-        } else if (typeof error.response.data === 'string') {
-          errorMessage = error.response.data;
-        }
-      }
-      
+      const errorMessage = extractErrorMessage(error, t('orders.errorUpdatingStatus'));
       alert(errorMessage);
     } finally {
       setActionLoading(false);
     }
-  };
+  }, [orderId, summary, t, fetchOrder, refreshSummary]);
 
-  const handleReviewSuccess = async (createdReview) => {
+  const handleReviewSuccess = useCallback(async (createdReview) => {
     console.log('✅ Review creada:', createdReview);
     setOrderReview(createdReview);
     await fetchOrder();
     setIsReviewModalOpen(false);
-  };
+  }, [fetchOrder]);
 
-  const openConfirmModal = (action, variant = 'warning') => {
+  const openConfirmModal = useCallback((action, variant = 'warning') => {
     setConfirmModal({ isOpen: true, action, variant });
-  };
+  }, []);
 
-  const getStatusBadge = (status) => {
-    const styles = {
-      PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-      ACCEPTED: 'bg-blue-100 text-blue-800 border-blue-300',
-      IN_ESCROW: 'bg-green-100 text-green-800 border-green-300',
-      COMPLETED: 'bg-gray-100 text-gray-800 border-gray-300',
-      CANCELLED: 'bg-red-100 text-red-800 border-red-300'
-    };
-
-    const labels = {
-      PENDING: t('orderStatus.pending'),
-      ACCEPTED: t('orderStatus.accepted'),
-      IN_ESCROW: t('orderStatus.inEscrow'),
-      COMPLETED: t('orderStatus.completed'),
-      CANCELLED: t('orderStatus.cancelled')
-    };
-
-    return (
-      <span className={`px-4 py-2 rounded-full text-sm font-bold border ${styles[status] || 'bg-gray-100'}`}>
-        {labels[status] || status}
-      </span>
-    );
-  };
-
-  const getModalData = () => {
-    const { action } = confirmModal;
-    
-    if (action === 'payment') {
-      return {
+  // Modal configurations
+  const getModalData = useCallback(() => {
+    const modalConfigs = {
+      payment: {
         title: t('clientOrders.confirmPaymentTitle'),
         message: t('clientOrders.confirmPayment'),
         confirmText: t('clientOrders.confirmPaymentButton'),
         variant: 'success'
-      };
-    } else if (action === 'complete') {
-      return {
+      },
+      complete: {
         title: t('clientOrders.confirmCompleteTitle'),
         message: t('clientOrders.confirmComplete'),
         confirmText: t('clientOrders.confirmCompleteButton'),
         variant: 'success'
-      };
-    } else if (action === 'cancel') {
-      return {
+      },
+      cancel: {
         title: t('clientOrders.confirmCancelTitle'),
         message: t('clientOrders.confirmCancel'),
         confirmText: t('clientOrders.confirmCancelButton'),
         variant: 'danger'
-      };
-    }
+      }
+    };
     
-    return {};
-  };
+    return modalConfigs[confirmModal.action] || {};
+  }, [confirmModal.action, t]);
 
+  // Early return para loading
   if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-light to-white flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="animate-spin text-primary mx-auto mb-4" size={48} />
-          <p className="text-neutral-dark/60 font-medium">{t('common.loading')}</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen t={t} />;
   }
 
   const isWorker = user.role === 'WORKER';
   const isClient = user.role === 'CLIENT';
   const modalData = getModalData();
 
+  // Valores derivados con useMemo para evitar cálculos innecesarios
+  const hasFixedPrice = useMemo(() => 
+    order.agreed_price && parseFloat(order.agreed_price) > 0,
+    [order.agreed_price]
+  );
+  
+  const canPay = useMemo(() => 
+    summary && summary.agreed_price > 0,
+    [summary]
+  );
+  
+  const showChatButton = useMemo(() => 
+    order && ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'].includes(order.status),
+    [order]
+  );
+  
+  const isOrderCompleted = useMemo(() => 
+    order && order.status === 'COMPLETED',
+    [order]
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-light to-white py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto space-y-6">
-        
-        {/* Header */}
-        <div>
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center gap-2 text-neutral-dark/60 hover:text-primary mb-4 font-medium transition-colors cursor-pointer"
-          >
-            <ArrowLeft size={20} />
-            {t('common.backToDashboard')}
-          </Link>
+        <OrderHeader order={order} t={t} navigate={navigate} />
+        <OrderInfo order={order} isWorker={isWorker} t={t} />
 
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <h1 className="font-heading text-3xl font-bold text-neutral-dark mb-2">
-                  {t('orders.orderNumber', { number: order.id })}
-                </h1>
-                <p className="text-neutral-dark/60">
-                  {t('orders.createdOn')} {new Date(order.created_at).toLocaleDateString('es-CO', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </p>
-              </div>
-              {getStatusBadge(order.status)}
-            </div>
-          </div>
-        </div>
-
-        {/* Order Info */}
-        <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
-          <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
-            <FileText className="text-primary" size={24} />
-            {t('orders.orderInformation')}
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">{isWorker ? t('orders.client') : t('orders.worker')}</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User size={20} className="text-primary" />
-                </div>
-                <div>
-                  <p className="font-bold text-neutral-dark">
-                    {isWorker ? order.client_email : order.worker_name}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600 mb-2">{t('orders.description')}</p>
-              <p className="text-neutral-dark bg-gray-50 p-3 rounded-lg">
-                {order.description}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Solo mostrar sistema de horas si es pago por horas */}
-        {(!order.agreed_price || parseFloat(order.agreed_price) === 0) ? (
+        {/* Sistema de horas o precio fijo */}
+        {hasFixedPrice ? (
+          <FixedPriceDisplay agreedPrice={order.agreed_price} t={t} />
+        ) : (
           <>
-            {/* Sistema de Horas */}
             {isWorker && (
               <WorkHoursTable 
                 orderId={orderId} 
@@ -266,7 +350,6 @@ const OrderDetail = () => {
                 onHoursChanged={refreshSummary}
               />
             )}
-
             {isClient && (
               <ApproveHoursTable 
                 orderId={orderId}
@@ -275,23 +358,10 @@ const OrderDetail = () => {
               />
             )}
           </>
-        ) : (
-          /* Precio Fijo - Mostrar precio acordado */
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
-            <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
-              <DollarSign className="text-primary" size={24} />
-              {t('orders.agreedPrice')}
-            </h2>
-            <div className="bg-linear-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
-              <p className="text-sm text-gray-600 mb-2">{t('orders.fixedPriceAgreement')}</p>
-              <p className="text-5xl font-bold text-primary">
-                ${parseFloat(order.agreed_price).toLocaleString('es-CO')}
-              </p>
-            </div>
-          </div>
         )}
 
-        {order && ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'].includes(order.status) && (
+        {/* Chat section */}
+        {showChatButton && (
           <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
             <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
               <MessageSquare className="text-primary" size={24} />
@@ -310,7 +380,8 @@ const OrderDetail = () => {
           </div>
         )}
 
-        {order && order.status === 'COMPLETED' && (
+        {/* Reviews section */}
+        {isOrderCompleted && (
           <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
             <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
               <Star className="text-[#C04A3E]" size={24} />
@@ -354,7 +425,7 @@ const OrderDetail = () => {
               {/* ACCEPTED */}
               {order.status === 'ACCEPTED' && (
                 <>
-                  {summary && summary.agreed_price > 0 ? (
+                  {canPay ? (
                     <button
                       onClick={() => openConfirmModal('payment', 'success')}
                       disabled={actionLoading}
@@ -370,19 +441,7 @@ const OrderDetail = () => {
                       )}
                     </button>
                   ) : (
-                    <div className="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-xl">
-                      <div className="flex items-start gap-3">
-                        <AlertTriangle className="text-yellow-600 shrink-0 mt-0.5" size={20} />
-                        <div>
-                          <p className="text-yellow-800 font-semibold text-sm mb-1">
-                            {t('orders.cannotPayYet')}
-                          </p>
-                          <p className="text-yellow-700 text-xs">
-                            {t('orders.approveHoursBeforePayment')}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                    <PaymentWarning t={t} />
                   )}
                   
                   <button

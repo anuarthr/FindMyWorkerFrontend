@@ -1,10 +1,20 @@
-import { useState } from 'react';
+/**
+ * Página de inicio de sesión
+ * Permite a los usuarios autenticarse con email y contraseña
+ * @module pages/Login
+ */
+
+import { useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Briefcase, Lock, Mail } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 
+/**
+ * Componente de página de Login
+ * Maneja autenticación de usuarios y redirección al dashboard
+ */
 const Login = () => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -12,7 +22,10 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  /**
+   * Maneja el envío del formulario de login
+   */
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setError('');
     const res = await login(formData.email, formData.password);
@@ -22,7 +35,7 @@ const Login = () => {
       // Intentamos traducir el error si coincide con clave, sino texto raw
       setError(res.error === "Credenciales inválidas" ? t('auth.invalidCredentials') : res.error);
     }
-  };
+  }, [formData.email, formData.password, login, navigate, t]);
 
   return (
     <div className="min-h-screen bg-neutral-light flex items-center justify-center p-4 relative">

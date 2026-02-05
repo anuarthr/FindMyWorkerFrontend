@@ -1,4 +1,10 @@
-import { useState } from 'react';
+/**
+ * Página de registro de nuevos usuarios
+ * Permite crear cuentas de Cliente, Trabajador o Empresa
+ * @module pages/Register
+ */
+
+import { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { 
@@ -8,6 +14,10 @@ import {
 import { useTranslation, Trans } from 'react-i18next';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 
+/**
+ * Componente de registro de usuarios
+ * Maneja formulario de 3 pasos: rol, información personal y credenciales
+ */
 const Register = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -50,15 +60,24 @@ const Register = () => {
     }
   ];
 
-  const handleChange = (e) => {
+  /**
+   * Maneja cambios en los campos del formulario
+   */
+  const handleChange = useCallback((e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  }, [formData]);
 
-  const handleRoleSelect = (role) => {
+  /**
+   * Maneja selección de rol
+   */
+  const handleRoleSelect = useCallback((role) => {
     setFormData({ ...formData, role });
-  };
+  }, [formData]);
 
-  const handleSubmit = async (e) => {
+  /**
+   * Maneja envío del formulario de registro
+   */
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -76,7 +95,7 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, navigate, t]);
 
   return (
     <div className="min-h-screen bg-neutral-light flex items-center justify-center p-4 py-10 relative">
