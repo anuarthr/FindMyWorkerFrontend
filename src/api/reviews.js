@@ -24,10 +24,10 @@ export const createReview = async (orderId, reviewData) => {
     return data;
   } catch (error) {
     if (error.response?.status === 429) {
-      const retryAfter = error.response.headers['retry-after'];
+      const retryAfter = parseInt(error.response.headers['retry-after']) || 60;
       const minutes = Math.ceil(retryAfter / 60);
       throw new Error(
-        `Has creado muchas evaluaciones. Intenta de nuevo en ${minutes} minuto${minutes > 1 ? 's' : ''}.`
+        `Has creado muchas evaluaciones. Intenta de nuevo en ${minutes} minuto${minutes !== 1 ? 's' : ''}.`
       );
     }
 

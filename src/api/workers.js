@@ -17,22 +17,29 @@ import api from './axios';
  * @param {string} filters.sortBy - Campo para ordenar
  * @returns {Promise<Array>} Lista de trabajadores
  */
+/**
+ * Limpia objeto removiendo propiedades undefined
+ * @param {Object} obj - Objeto a limpiar
+ * @returns {Object} Objeto sin propiedades undefined
+ */
+const cleanParams = (obj) => {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([_, value]) => value !== undefined)
+  );
+};
+
 export const getWorkers = async (filters) => {
-  const params = {
+  const params = cleanParams({
     min_price: filters.minPrice,
     max_price: filters.maxPrice,
     min_rating: filters.minRating > 0 ? filters.minRating : undefined,
     search: filters.search || undefined,
     profession: filters.category || undefined,
-    
     lat: filters.userLocation?.lat,
     lng: filters.userLocation?.lng,
-    radius: filters.radius || 20, 
-    
+    radius: filters.radius || 20,
     ordering: filters.sortBy || undefined
-  };
-
-  Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+  });
 
   try {
     const response = await api.get('/workers/', { params });
