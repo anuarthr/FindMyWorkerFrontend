@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { listMyOrders, updateOrderStatus } from '../../api/orders';
 import { Clock, CreditCard, CheckCircle, XCircle, User, FileText, Loader2, ArrowRight, MessageSquare } from 'lucide-react';
 import ConfirmModal from '../modals/ConfirmModal';
 import { useChat } from '../../context/ChatContext';
+import { getStatusLabel, getStatusBadgeClasses, formatDate, extractErrorMessage } from '../../utils/orderHelpers';
 
 const ClientOrders = () => {
   const { t } = useTranslation();
@@ -42,23 +43,23 @@ const ClientOrders = () => {
     }
   };
 
-  const openConfirmModal = (action, orderId, variant = 'warning') => {
+  const openConfirmModal = useCallback((action, orderId, variant = 'warning') => {
     setConfirmModal({
       isOpen: true,
       action,
       orderId,
       variant
     });
-  };
+  }, []);
 
-  const closeConfirmModal = () => {
+  const closeConfirmModal = useCallback(() => {
     setConfirmModal({
       isOpen: false,
       action: null,
       orderId: null,
       variant: 'warning'
     });
-  };
+  }, []);
 
   const handleConfirmedAction = async () => {
   const { action, orderId } = confirmModal;
@@ -79,64 +80,17 @@ const ClientOrders = () => {
   } catch (error) {
     console.error(`Error executing ${action}:`, error);
     
-    let errorMessage = t(`clientOrders.error${action.charAt(0).toUpperCase() + action.slice(1)}`);
+    const fallbackMessage = t(`clientOrders.error${action.charAt(0).toUpperCase() + action.slice(1)}`);
+    const errorMessage = extractErrorMessage(error, fallbackMessage);
     
-    if (error.response?.data) {
-      if (error.response.data.detail) {
-        errorMessage = error.response.data.detail;
-      } else if (error.response.data.error) {
-        errorMessage = error.response.data.error;
-      } else if (typeof error.response.data === 'string') {
-        errorMessage = error.response.data;
-      }
-    }
-    
-      alert(errorMessage);
-      closeConfirmModal();
-    } finally {
-      setActionLoading(null);
-    }
-  };
+    alert(errorMessage);
+    closeConfirmModal();
+  } finally {
+    setActionLoading(null);
+  }
+};
 
-  const getStatusLabel = (status) => {
-    const statusMap = {
-      'PENDING': t('orderStatus.pending'),
-      'ACCEPTED': t('orderStatus.accepted'),
-      'IN_ESCROW': t('orderStatus.inEscrow'),
-      'COMPLETED': t('orderStatus.completed'),
-      'CANCELLED': t('orderStatus.cancelled')
-    };
-    return statusMap[status] || status;
-  };
-
-  const getStatusBadge = (status) => {
-    const styles = {
-      PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-      ACCEPTED: 'bg-blue-100 text-blue-800 border-blue-300',
-      IN_ESCROW: 'bg-green-100 text-green-800 border-green-300',
-      COMPLETED: 'bg-gray-100 text-gray-800 border-gray-300',
-      CANCELLED: 'bg-red-100 text-red-800 border-red-300'
-    };
-
-    return (
-      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${styles[status] || 'bg-gray-100'}`}>
-        {getStatusLabel(status)}
-      </span>
-    );
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getModalData = () => {
+  const getModalData = useCallback(() => {
     const { action } = confirmModal;
     
     if (action === 'payment') {
@@ -163,7 +117,7 @@ const ClientOrders = () => {
     }
     
     return {};
-  };
+  }, [confirmModal, t]);
 
   if (loading) {
     return (
@@ -230,11 +184,13 @@ const ClientOrders = () => {
                           <p className="font-bold text-[#4A3B32]">{order.worker_name}</p>
                           <p className="text-xs text-gray-500 flex items-center gap-1">
                             <Clock size={12} />
-                            {formatDate(order.created_at)}
+                            {formatDate(order.created_at, 'es-ES')}
                           </p>
                         </div>
                       </div>
-                      {getStatusBadge(order.status)}
+                      <span className={getStatusBadgeClasses(order.status)}>
+                        {getStatusLabel(order.status, t)}
+                      </span>
                     </div>
 
                     <div className="bg-gray-50 rounded-lg p-4 mb-3">

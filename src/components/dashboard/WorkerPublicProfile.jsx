@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import HiringModal from '../modals/HiringModal';
 import ReviewsList from '../reviews/ReviewsList';
 import ReviewSummary from '../reviews/ReviewSummary';
+import { getFullName, getAvatarUrl } from '../../utils/profileHelpers';
 
 const WorkerPublicProfile = () => {
   const { t } = useTranslation();
@@ -46,10 +47,8 @@ const WorkerPublicProfile = () => {
   );
 
   const userData = worker.user || worker;
-  const firstName = userData.first_name || "Usuario";
-  const lastName = userData.last_name || "";
-  const fullName = `${firstName} ${lastName}`.trim() || t('workerCard.defaultName');
-  const avatar = userData.avatar || "https://placehold.co/150x150";
+  const fullName = getFullName(userData, t('workerCard.defaultName'));
+  const avatar = getAvatarUrl(userData, '150x150');
   const hourlyRate = parseInt(worker.hourly_rate || 0).toLocaleString();
 
   return (

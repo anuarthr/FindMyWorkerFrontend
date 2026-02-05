@@ -1,20 +1,16 @@
 import React from 'react';
 import { Star, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // Import i18n
+import { useTranslation } from 'react-i18next';
+import { getFullName, getAvatarUrl } from '../../utils/profileHelpers';
 
 const WorkerCard = ({ worker }) => {
-  const { t } = useTranslation(); // Hook initialization
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userData = worker.user || worker;
   
-  const firstName = userData.first_name || "";
-  const lastName = userData.last_name || "";
-  
-  let fullName = `${firstName} ${lastName}`.trim();
-  if (!fullName) fullName = t('workerCard.defaultName');
-
-  const avatarUrl = userData.avatar || "https://placehold.co/100x100?text=WK";
+  const fullName = getFullName(userData, t('workerCard.defaultName'));
+  const avatarUrl = getAvatarUrl(userData);
   
   const profession = worker.profession || t('workerCard.defaultProfession');
   const rating = parseFloat(worker.average_rating || 0).toFixed(1);
