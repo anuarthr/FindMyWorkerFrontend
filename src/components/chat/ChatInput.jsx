@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Send, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -6,7 +6,7 @@ const ChatInput = ({ onSendMessage, disabled, isConnected, placeholder }) => {
   const { t } = useTranslation();
   const [inputValue, setInputValue] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = useCallback((e) => {
     e.preventDefault();
     
     if (!inputValue.trim() || disabled || !isConnected) {
@@ -17,14 +17,20 @@ const ChatInput = ({ onSendMessage, disabled, isConnected, placeholder }) => {
     if (success) {
       setInputValue('');
     }
-  };
+  }, [inputValue, disabled, isConnected, onSendMessage]);
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
-  };
+  }, [handleSubmit]);
+
+  const placeholderText = disabled 
+    ? t('chat.chatClosed') 
+    : !isConnected 
+      ? t('chat.waitingConnection')
+      : placeholder || t('chat.typeMessage');
 
   return (
     <form onSubmit={handleSubmit} className="border-t border-neutral-dark/10 bg-white p-4">
@@ -35,13 +41,7 @@ const ChatInput = ({ onSendMessage, disabled, isConnected, placeholder }) => {
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={disabled || !isConnected}
-          placeholder={
-            disabled 
-              ? t('chat.chatClosed') 
-              : !isConnected 
-                ? t('chat.waitingConnection')
-                : placeholder || t('chat.typeMessage')
-          }
+          placeholder={placeholderText}
           className="flex-1 px-4 py-3 border border-neutral-dark/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary disabled:bg-gray-100 disabled:cursor-not-allowed transition-all"
         />
         
