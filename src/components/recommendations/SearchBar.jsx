@@ -1,11 +1,79 @@
-import { useState, useEffect } from 'react';
+/**
+ * Componente de barra de búsqueda para recomendaciones de trabajadores
+ * Incluye búsqueda por texto, ubicación con mapa, y filtros avanzados
+ */
+
+import { useState, useCallback } from 'react';
 import { Search, MapPin, Navigation, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { useTranslation } from 'react-i18next';
 
+const DEFAULT_CENTER = { lat: 11.24079, lng: -74.19904 }; // Santa Marta
+const MIN_QUERY_LENGTH = 3;
+
+const ModelTrainingAlert = ({ t }) => (
+  <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-md flex items-start gap-3">
+    <Loader2 className="text-amber-600 animate-spin flex-shrink-0 mt-0.5" size={20} />
+    <div>
+      <p className="font-bold text-amber-800 text-sm">
+        🤖 {t('search.modelTraining')}
+      </p>
+      <p className="text-amber-700 text-xs mt-1">
+        {t('search.modelTrainingDesc')}
+      </p>
+    </div>
+  </div>
+);
+
+const ModelReadyAlert = ({ t }) => (
+  <div className="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-md">
+    <p className="text-xs text-blue-800">
+      {t('search.languageNote')}
+    </p>
+  </div>
+);
+
+const LocationDisplay = ({ location, showMap, setShowMap, t }) => (
+  <div className="flex items-center gap-2 text-sm text-gray-600 bg-[#EFE6DD] px-3 py-2 rounded-md">
+    <MapPin size={16} className="text-[#C04A3E]" />
+    <span>
+      {location.lat.toFixed(6)}, {location.lon.toFixed(6)}
+    </span>
+    <button
+      type="button"
+      onClick={() => setShowMap(!showMap)}
+      className="ml-auto text-xs font-bold text-[#C04A3E] hover:underline"
+    >
+      {showMap ? t('search.hideMap') : t('search.showMap')}
+    </button>
+  </div>
+);
+
+const ValidationMessage = ({ isValid, loading, modelStatus, query, t }) => {
+  if (isValid || loading) return null;
+  
+  const getMessage = () => {
+    if (!modelStatus.trained) return t('search.waitingModel');
+    if (!query.trim()) return t('search.enterQuery');
+    if (query.trim().length < MIN_QUERY_LENGTH) return t('search.queryTooShort');
+    return '';
+  };
+
+  return (
+    <p className="text-xs text-center text-gray-500">
+      {getMessage()}
+    </p>
+  );
+};
+
+/**
+ * Componente principal de búsqueda
+ * @param {Function} onSearch - Callback para ejecutar búsqueda
+ * @param {boolean} loading - Estado de carga
+ * @param {Object} modelStatus - Estado del modelo ML
+ */
 const SearchBar = ({ onSearch, loading, modelStatus }) => {
   const { t } = useTranslation();
-  const defaultCenter = { lat: 11.24079, lng: -74.19904 }; // Santa Marta
   
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState(null);
@@ -18,46 +86,49 @@ const SearchBar = ({ onSearch, loading, modelStatus }) => {
   const [mapPosition, setMapPosition] = useState(null);
   const [gettingLocation, setGettingLocation] = useState(false);
 
-  // Validación para habilitar búsqueda: solo requiere query y modelo entrenado
-  // La ubicación es OPCIONAL (si no se envía, backend usa solo similitud semántica)
-  const isValid = query.trim().length >= 3 && modelStatus.trained;
+  // Estado derivado: validación de búsqueda
+  const isValid = query.trim().length >= MIN_QUERY_LENGTH && modelStatus.trained;
 
-  const handleGetCurrentLocation = () => {
-    if (navigator.geolocation) {
-      setGettingLocation(true);
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const newPos = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-          setLocation(newPos);
-          setMapPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-          setGettingLocation(false);
-        },
-        (error) => {
-          console.error('Error obteniendo ubicación:', error);
-          alert(t('search.locationError'));
-          setGettingLocation(false);
-        }
-      );
-    } else {
+  // Obtener ubicación actual del usuario
+  const handleGetCurrentLocation = useCallback(() => {
+    if (!navigator.geolocation) {
       alert(t('search.gpsNotSupported'));
+      return;
     }
-  };
 
-  const handleSearch = () => {
+    setGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const newPos = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        setLocation(newPos);
+        setMapPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setGettingLocation(false);
+      },
+      (error) => {
+        console.error('Error obteniendo ubicación:', error);
+        alert(t('search.locationError'));
+        setGettingLocation(false);
+      }
+    );
+  }, [t]);
+
+  // Ejecutar búsqueda con parámetros actuales
+  const handleSearch = useCallback(() => {
     if (isValid) {
       onSearch(query, location, filters);
     }
-  };
+  }, [isValid, query, location, filters, onSearch]);
 
-  const handleKeyPress = (e) => {
+  // Manejar enter en textarea
+  const handleKeyPress = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSearch();
     }
-  };
+  }, [handleSearch]);
 
   // Componente interno para manejar clics en el mapa
-  function MapClickHandler() {
+  const MapClickHandler = useCallback(() => {
     useMapEvents({
       click(e) {
         const newPos = { lat: e.latlng.lat, lon: e.latlng.lng };
@@ -66,42 +137,14 @@ const SearchBar = ({ onSearch, loading, modelStatus }) => {
       },
     });
     return mapPosition ? <Marker position={mapPosition} /> : null;
-  }
+  }, [mapPosition]);
 
   return (
     <div className="bg-white rounded-xl shadow-md border border-[#4A3B32]/10 p-6 space-y-4">
-      {modelStatus.backend_ready === false && (
-        <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-md flex items-start gap-3">
-          <div>
-            <p className="font-bold text-orange-800 text-sm">
-              ⚠️ Backend en Desarrollo
-            </p>
-            <p className="text-orange-700 text-xs mt-1">
-              El endpoint de recomendaciones aún no está disponible. La funcionalidad estará lista cuando el backend implemente <code className="bg-orange-100 px-1 rounded">/users/recommendation-health/</code>
-            </p>
-          </div>
-        </div>
-      )}
-      {modelStatus.backend_ready !== false && !modelStatus.trained && (
-        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-md flex items-start gap-3">
-          <Loader2 className="text-amber-600 animate-spin flex-shrink-0 mt-0.5" size={20} />
-          <div>
-            <p className="font-bold text-amber-800 text-sm">
-              🤖 {t('search.modelTraining')}
-            </p>
-            <p className="text-amber-700 text-xs mt-1">
-              {t('search.modelTrainingDesc')}
-            </p>
-          </div>
-        </div>
-      )}
-      {modelStatus.backend_ready !== false && modelStatus.trained && (
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-md">
-          <p className="text-xs text-blue-800">
-            {t('search.languageNote')}
-          </p>
-        </div>
-      )}
+      {/* Alertas de estado */}
+      {!modelStatus.trained && <ModelTrainingAlert t={t} />}
+      {modelStatus.trained && <ModelReadyAlert t={t} />}
+      
       <div>
         <label className="block text-sm font-bold text-[#4A3B32] mb-2">
           {t('search.queryLabel')}
@@ -146,24 +189,17 @@ const SearchBar = ({ onSearch, loading, modelStatus }) => {
         </div>
 
         {location && (
-          <div className="flex items-center gap-2 text-sm text-gray-600 bg-[#EFE6DD] px-3 py-2 rounded-md">
-            <MapPin size={16} className="text-[#C04A3E]" />
-            <span>
-              {location.lat.toFixed(6)}, {location.lon.toFixed(6)}
-            </span>
-            <button
-              type="button"
-              onClick={() => setShowMap(!showMap)}
-              className="ml-auto text-xs font-bold text-[#C04A3E] hover:underline"
-            >
-              {showMap ? t('search.hideMap') : t('search.showMap')}
-            </button>
-          </div>
+          <LocationDisplay 
+            location={location} 
+            showMap={showMap} 
+            setShowMap={setShowMap} 
+            t={t} 
+          />
         )}
         {showMap && (
           <div className="mt-3 h-64 w-full rounded-lg overflow-hidden border border-[#4A3B32]/20 shadow-inner">
             <MapContainer 
-              center={mapPosition || defaultCenter} 
+              center={mapPosition || DEFAULT_CENTER} 
               zoom={13} 
               className="h-full w-full"
             >
@@ -254,14 +290,14 @@ const SearchBar = ({ onSearch, loading, modelStatus }) => {
           </>
         )}
       </button>
-      {!isValid && !loading && (
-        <p className="text-xs text-center text-gray-500">
-          {!modelStatus.trained ? t('search.waitingModel') :
-           !query.trim() ? t('search.enterQuery') :
-           query.trim().length < 3 ? t('search.queryTooShort') :
-           !location ? t('search.selectLocation') : ''}
-        </p>
-      )}
+      
+      <ValidationMessage 
+        isValid={isValid} 
+        loading={loading} 
+        modelStatus={modelStatus} 
+        query={query} 
+        t={t} 
+      />
     </div>
   );
 };

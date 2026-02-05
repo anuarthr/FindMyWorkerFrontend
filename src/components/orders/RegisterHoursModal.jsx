@@ -1,20 +1,20 @@
-import { useState } from 'react';
-import { X, Clock, Calendar, FileText, DollarSign } from 'lucide-react';
+import { useState, useCallback, useMemo } from 'react';
+import { Clock, Calendar, FileText, DollarSign } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useModalBehavior } from '../../hooks/useModalBehavior';
+import { ModalBackdrop, ModalContent, ErrorAlert, ModalCloseButton } from '../common/ModalComponents';
 
 const RegisterHoursModal = ({ orderId, workerRate, onClose, onSuccess, editData }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // ✅ SOLUCIÓN - Fecha máxima = AYER (para evitar problemas de zona horaria)
-  const getMaxDate = () => {
+  // Fecha máxima = AYER (para evitar problemas de zona horaria)
+  const maxDate = useMemo(() => {
     const today = new Date();
-    today.setDate(today.getDate() - 1); // Restar 1 día
+    today.setDate(today.getDate() - 1);
     return today.toISOString().split('T')[0];
-  };
-  
-  const maxDate = getMaxDate();
+  }, []);
 
   const [formData, setFormData] = useState({
     date: editData?.date || maxDate,
@@ -22,17 +22,21 @@ const RegisterHoursModal = ({ orderId, workerRate, onClose, onSuccess, editData 
     description: editData?.description || ''
   });
 
-  const handleChange = (e) => {
+  const { handleBackdropClick } = useModalBehavior(true, onClose, !loading);
+
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-  };
+  }, []);
 
-  const calculatedPayment = formData.hours ? (parseFloat(formData.hours) * workerRate).toFixed(2) : '0.00';
+  const calculatedPayment = useMemo(() => {
+    return formData.hours ? (parseFloat(formData.hours) * workerRate).toFixed(2) : '0.00';
+  }, [formData.hours, workerRate]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -73,35 +77,25 @@ const RegisterHoursModal = ({ orderId, workerRate, onClose, onSuccess, editData 
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, onSuccess, onClose, t]);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        
+    <ModalBackdrop onClick={handleBackdropClick}>
+      <ModalContent maxWidth="max-w-2xl" className="max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-neutral-dark flex items-center gap-2">
             <Clock className="text-primary" size={28} />
             {editData ? t('orders.editHours') : t('orders.registerHours')}
           </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-          >
-            <X size={24} />
-          </button>
+          <ModalCloseButton onClick={onClose} disabled={loading} />
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           
           {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
-              <p className="text-red-800 text-sm font-medium whitespace-pre-line">{error}</p>
-            </div>
-          )}
+          {error && <ErrorAlert message={error} />}
 
           {/* Date */}
           <div>
@@ -195,8 +189,8 @@ const RegisterHoursModal = ({ orderId, workerRate, onClose, onSuccess, editData 
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </ModalContent>
+    </ModalBackdrop>
   );
 };
 

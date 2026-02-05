@@ -4,6 +4,7 @@
  */
 
 import { Star } from 'lucide-react';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -15,7 +16,10 @@ import PropTypes from 'prop-types';
  * @param {boolean} [props.showNumber=false] - Mostrar número de rating junto a las estrellas
  */
 const StarRating = ({ rating = 0, size = 'md', showNumber = false }) => {
-  const normalizedRating = Math.max(0, Math.min(5, rating));
+  const normalizedRating = useMemo(() => 
+    Math.max(0, Math.min(5, rating)),
+    [rating]
+  );
   
   const sizeClasses = {
     sm: 'w-4 h-4',
@@ -29,13 +33,13 @@ const StarRating = ({ rating = 0, size = 'md', showNumber = false }) => {
     lg: 'text-lg'
   };
 
-  const renderStars = () => {
-    const stars = [];
+  const stars = useMemo(() => {
+    const result = [];
     
     for (let i = 1; i <= 5; i++) {
       const fillPercentage = Math.max(0, Math.min(1, normalizedRating - (i - 1)));
       
-      stars.push(
+      result.push(
         <div key={i} className="relative inline-block">
           <Star
             className={`${sizeClasses[size]} text-gray-300`}
@@ -59,8 +63,8 @@ const StarRating = ({ rating = 0, size = 'md', showNumber = false }) => {
       );
     }
     
-    return stars;
-  };
+    return result;
+  }, [normalizedRating, size]);
 
   return (
     <div className="flex items-center gap-2">
@@ -69,7 +73,7 @@ const StarRating = ({ rating = 0, size = 'md', showNumber = false }) => {
         role="img"
         aria-label={`${normalizedRating.toFixed(1)} de 5 estrellas`}
       >
-        {renderStars()}
+        {stars}
       </div>
       
       {showNumber && (

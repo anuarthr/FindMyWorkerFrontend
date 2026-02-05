@@ -3,6 +3,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import StarRating from './StarRating';
 
@@ -21,14 +22,14 @@ const ReviewSummary = ({
 }) => {
   const { t } = useTranslation();
 
-  const rating = parseFloat(averageRating) || 0;
+  const rating = useMemo(() => parseFloat(averageRating) || 0, [averageRating]);
   const count = totalReviews || 0;
   
-  const getReviewsText = (count) => {
+  const getReviewsText = useMemo(() => (count) => {
     if (count === 0) return t('reviews.reviewsCount_0');
     if (count === 1) return t('reviews.reviewsCount_1');
     return t('reviews.reviewsCount_other', { count });
-  };
+  }, [t]);
 
   if (variant === 'compact') {
     return (

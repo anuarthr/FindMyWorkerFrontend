@@ -1,28 +1,44 @@
+/**
+ * Tarjeta de recomendación de trabajador con información y keywords coincidentes
+ * Muestra perfil, calificación, distancia, y palabras clave relevantes
+ * 
+ * @param {Object} worker - Datos del trabajador recomendado
+ */
+
 import { Star, MapPin, Lightbulb, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 import { PROFESSION_TRANSLATIONS } from '../../config/constants';
 
 const WorkerRecommendationCard = ({ worker }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   
-  const userData = worker.user || worker;
-  const firstName = userData.first_name || "";
-  const lastName = userData.last_name || "";
-  const fullName = `${firstName} ${lastName}`.trim() || t('workerCard.defaultName');
+  // Datos del usuario y perfil
+  const userData = useMemo(() => worker.user || worker, [worker]);
+  const fullName = useMemo(() => {
+    const firstName = userData.first_name || "";
+    const lastName = userData.last_name || "";
+    return `${firstName} ${lastName}`.trim() || t('workerCard.defaultName');
+  }, [userData, t]);
+  
   const avatarUrl = userData.avatar || "https://placehold.co/100x100?text=WK";
   
+  // Datos de recomendación
   const recommendationScore = worker.recommendation_score || 0;
   const matchedKeywords = worker.matched_keywords || [];
   const explanation = worker.explanation || "";
   
+  // Datos del perfil de trabajador
   const profile = worker.worker_profile || worker;
-  const currentLang = i18n.language.startsWith('es') ? 'es' : 'en';
-  const professionKey = worker.profession || profile.service_category;
-  const profession = PROFESSION_TRANSLATIONS[currentLang]?.[professionKey] || 
-                     professionKey || 
-                     t('workerCard.defaultProfession');
+  const profession = useMemo(() => {
+    const currentLang = i18n.language.startsWith('es') ? 'es' : 'en';
+    const professionKey = worker.profession || profile.service_category;
+    return PROFESSION_TRANSLATIONS[currentLang]?.[professionKey] || 
+           professionKey || 
+           t('workerCard.defaultProfession');
+  }, [i18n.language, worker.profession, profile.service_category, t]);
   
   const rating = parseFloat(worker.average_rating || profile.average_rating || 0).toFixed(1);
   const hourlyRate = parseInt(worker.hourly_rate || profile.hourly_rate || 0).toLocaleString();
