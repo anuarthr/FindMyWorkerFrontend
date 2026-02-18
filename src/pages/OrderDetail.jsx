@@ -301,19 +301,9 @@ const OrderDetail = () => {
     return modalConfigs[confirmModal.action] || {};
   }, [confirmModal.action, t]);
 
-  // Early return para loading
-  if (loading || !user) {
-    return <LoadingScreen t={t} />;
-  }
-
-  const isWorker = user.role === 'WORKER';
-  const isClient = user.role === 'CLIENT';
-  const modalData = getModalData();
-
-  // Valores derivados con useMemo para evitar cálculos innecesarios
   const hasFixedPrice = useMemo(() => 
-    order.agreed_price && parseFloat(order.agreed_price) > 0,
-    [order.agreed_price]
+    order?.agreed_price && parseFloat(order.agreed_price) > 0,
+    [order?.agreed_price]
   );
   
   const canPay = useMemo(() => 
@@ -330,6 +320,15 @@ const OrderDetail = () => {
     order && order.status === 'COMPLETED',
     [order]
   );
+
+  // Early return para loading - DESPUÉS de todos los hooks
+  if (loading || !user) {
+    return <LoadingScreen t={t} />;
+  }
+
+  const isWorker = user.role === 'WORKER';
+  const isClient = user.role === 'CLIENT';
+  const modalData = getModalData();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-light to-white py-8 px-4 sm:px-6 lg:px-8">
