@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
-import { Clock, AlertTriangle, CheckCircle, Edit2, Briefcase, MapPin, Loader2, TrendingUp, DollarSign } from 'lucide-react';
+import { Clock, AlertTriangle, CheckCircle, Edit2, Briefcase, MapPin, Loader2, TrendingUp, DollarSign, Image } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import WorkerOrders from './WorkerOrders';
 import { useWorkerStats } from '../../hooks/useWorkerStats';
 import { formatCurrency as formatCurrencyUtil } from '../../utils/profileHelpers';
+import { usePortfolio } from '../../hooks/usePortfolio';
+import PortfolioViewModal from '../portfolio/PortfolioViewModal';
 
 /**
  * Alerta de advertencia de perfil incompleto
@@ -65,7 +67,7 @@ const PendingVerificationAlert = ({ t }) => (
 /**
  * Tarjeta de perfil verificado
  */
-const VerifiedProfileCard = ({ profile, t }) => (
+const VerifiedProfileCard = ({ profile, t, onOpenPortfolio }) => (
   <div className="bg-white border border-neutral-dark/10 rounded-xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
     <div className="flex items-center gap-4 w-full">
        <div className="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-2xl border border-green-100">
@@ -85,13 +87,23 @@ const VerifiedProfileCard = ({ profile, t }) => (
        </div>
     </div>
     
-    <Link 
-      to="/profile/edit" 
-      className="w-full md:w-auto flex justify-center items-center gap-2 border border-neutral-dark/20 hover:border-primary text-neutral-dark hover:text-primary px-4 py-2 rounded-lg font-bold text-sm transition-colors cursor-pointer"
-    >
-      <Edit2 size={16} />
-      {t('workerHome.edit')}
-    </Link>
+    <div className="w-full md:w-auto flex gap-2">
+      <button
+        type="button"
+        onClick={onOpenPortfolio}
+        className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2 rounded-lg font-bold text-sm transition-colors cursor-pointer"
+      >
+        <Image size={16} />
+        {t('workerHome.myPortfolio')}
+      </button>
+      <Link 
+        to="/profile/edit" 
+        className="flex-1 md:flex-none flex justify-center items-center gap-2 border border-neutral-dark/20 hover:border-primary text-neutral-dark hover:text-primary px-4 py-2 rounded-lg font-bold text-sm transition-colors cursor-pointer"
+      >
+        <Edit2 size={16} />
+        {t('workerHome.edit')}
+      </Link>
+    </div>
   </div>
 );
 
@@ -141,7 +153,10 @@ const WorkerHome = ({ user }) => {
   const { t, i18n } = useTranslation();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showMonthlyEarnings, setShowMonthlyEarnings] = useState(false);
+  const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
   const { stats, loading: statsLoading, error: statsError } = useWorkerStats();
+  const { items: portfolioItems, loading: portfolioLoading, loadMyPortfolio } = usePortfolio();
   const hasData = Boolean(profile?.profession) && Boolean(profile?.latitude) && Boolean(profile?.longitude);
   const isVerified = Boolean(profile?.is_verified);
 
@@ -165,6 +180,11 @@ const WorkerHome = ({ user }) => {
     fetchFreshProfile();
   }, [user]);
 
+  const handleOpenPortfolio = () => {
+    setIsPortfolioModalOpen(true);
+    loadMyPortfolio();
+  };
+
   if (loading) {
     return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary" /></div>;
   }
@@ -186,7 +206,7 @@ const WorkerHome = ({ user }) => {
       ) : !isVerified ? (
         <PendingVerificationAlert t={t} />
       ) : (
-        <VerifiedProfileCard profile={profile} t={t} />
+        <VerifiedProfileCard profile={profile} t={t} onOpenPortfolio={handleOpenPortfolio} />
       )}
 
       {/* Stats Cards */}
@@ -197,15 +217,34 @@ const WorkerHome = ({ user }) => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Monthly Earnings */}
-        <StatsCard 
-          title={t('workerHome.monthEarnings')}
-          icon={DollarSign}
-          iconColor="bg-primary/10 text-primary"
-          loading={statsLoading}
-          value={<p className="text-3xl font-heading font-bold text-primary">{formatCurrency(stats.monthly_earnings)}</p>}
-          hint={t('workerHome.monthlyEarningsHint')}
-        />
+        {/* Earnings Card with Toggle */}
+        <div className="bg-surface p-6 rounded-xl shadow-sm border border-neutral-dark/5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-neutral-dark/60 font-bold uppercase">
+              {showMonthlyEarnings ? t('workerHome.monthEarnings') : t('workerHome.totalEarnings')}
+            </p>
+            <div className="bg-primary/10 text-primary p-2 rounded-lg">
+              <DollarSign size={20} />
+            </div>
+          </div>
+          {statsLoading ? (
+            <div className="h-9 w-32 bg-gray-200 animate-pulse rounded"></div>
+          ) : (
+            <p className="text-3xl font-heading font-bold text-primary">
+              {formatCurrency(showMonthlyEarnings ? stats.monthly_earnings : stats.total_earnings)}
+            </p>
+          )}
+          <p className="text-xs text-neutral-dark/40 mt-2">
+            {showMonthlyEarnings ? t('workerHome.monthlyEarningsHint') : t('workerHome.totalEarningsHint')}
+          </p>
+          <button
+            onClick={() => setShowMonthlyEarnings(!showMonthlyEarnings)}
+            className="mt-3 text-xs text-primary hover:text-primary/80 font-semibold flex items-center gap-1 transition-colors"
+          >
+            {showMonthlyEarnings ? t('workerHome.viewTotal') : t('workerHome.viewMonthly')}
+            <span className="text-base">⇄</span>
+          </button>
+        </div>
 
         {/* Active Jobs */}
         <StatsCard 
@@ -238,6 +277,14 @@ const WorkerHome = ({ user }) => {
       {isVerified && hasData && (
         <WorkerOrders />
       )}
+
+      <PortfolioViewModal
+        isOpen={isPortfolioModalOpen}
+        onClose={() => setIsPortfolioModalOpen(false)}
+        items={portfolioItems}
+        loading={portfolioLoading}
+        isOwnPortfolio={true}
+      />
 
     </div>
   );

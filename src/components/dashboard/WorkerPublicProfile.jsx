@@ -10,14 +10,20 @@ import HiringModal from '../modals/HiringModal';
 import ReviewsList from '../reviews/ReviewsList';
 import ReviewSummary from '../reviews/ReviewSummary';
 import { getFullName, getAvatarUrl } from '../../utils/profileHelpers';
+import { useAuth } from '../../context/AuthContext';
+import { usePortfolio } from '../../hooks/usePortfolio';
+import PortfolioGrid from '../portfolio/PortfolioGrid';
 
 const WorkerPublicProfile = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [worker, setWorker] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isHiringModalOpen, setIsHiringModalOpen] = useState(false);
+
+  const { items: portfolioItems, loading: portfolioLoading, error: portfolioError, loadPublicPortfolio } = usePortfolio();
 
   useEffect(() => {
     const fetchWorker = async () => {
@@ -28,6 +34,12 @@ const WorkerPublicProfile = () => {
     };
     fetchWorker();
   }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      loadPublicPortfolio(id);
+    }
+  }, [id, loadPublicPortfolio]);
 
   const handleOrderCreated = (order) => {
     console.log('Order created successfully:', order);
@@ -145,6 +157,44 @@ const WorkerPublicProfile = () => {
 
               {/* Reviews List */}
               <ReviewsList workerId={worker.id} pageSize={10} showSummary />
+            </div>
+
+            {/* Sección de Portafolio */}
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#4A3B32]/5">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="font-bold text-xl text-[#4A3B32]">
+                  {t('portfolio.publicPortfolioTitle')}
+                </h3>
+
+                {user && user.role === 'WORKER' && String(user.id) === String(id) && (
+                  <button
+                    type="button"
+                    onClick={() => navigate('/worker/portfolio')}
+                    className="text-sm text-[#C04A3E] hover:underline focus:outline-none focus:ring-2 focus:ring-[#C04A3E] rounded px-2 py-1"
+                  >
+                    {t('portfolio.manageMyPortfolio')}
+                  </button>
+                )}
+              </div>
+
+              {portfolioError && (
+                <p className="mb-2 text-sm text-red-600">
+                  {t(portfolioError)}
+                </p>
+              )}
+
+              {portfolioLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <p className="text-sm text-gray-500">{t('common.loading')}</p>
+                </div>
+              ) : (
+                <PortfolioGrid
+                  items={portfolioItems}
+                  readonly={true}
+                  currentLang={i18n.language}
+                  variant="large"
+                />
+              )}
             </div>
           </div>
 
