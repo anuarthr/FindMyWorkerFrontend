@@ -99,3 +99,17 @@ export const updateOrderStatus = async (orderId, newStatus) => {
     throw error;
   }
 };
+
+/**
+ * Obtiene órdenes completadas del worker sin portfolio asociado
+ * @returns {Promise<Array>} Lista de órdenes completadas disponibles para portfolio
+ */
+export const getCompletedOrdersWithoutPortfolio = async () => {
+  try {
+    const response = await api.get('/orders/workers/me/completed-without-portfolio/');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener órdenes completadas:', error);
+    throw error;
+  }
+};
