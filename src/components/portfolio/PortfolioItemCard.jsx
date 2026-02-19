@@ -5,7 +5,7 @@ import { es, enUS } from 'date-fns/locale';
 import { Pencil, Trash2, CheckCircle } from 'lucide-react';
 import { useMemo } from 'react';
 
-const PortfolioItemCard = ({ item, readonly = false, onEdit, onDelete, currentLang, variant = 'default' }) => {
+const PortfolioItemCard = ({ item, readonly = false, onEdit, onDelete, onClick, currentLang, variant = 'default' }) => {
   const { t } = useTranslation();
 
   const formattedDate = useMemo(() => {
@@ -20,7 +20,10 @@ const PortfolioItemCard = ({ item, readonly = false, onEdit, onDelete, currentLa
 
   return (
     <div className="flex flex-col overflow-hidden rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
-      <div className={`relative ${imageHeight}`}>
+      <div 
+        className={`relative ${imageHeight} ${onClick ? 'cursor-pointer group' : ''}`}
+        onClick={onClick}
+      >
         <img
           src={item.image_url}
           alt={item.title}
@@ -37,6 +40,16 @@ const PortfolioItemCard = ({ item, readonly = false, onEdit, onDelete, currentLa
             <span className="text-xs font-medium text-white">
               {t('portfolio.verified')}
             </span>
+          </div>
+        )}
+        {/* Hover Overlay for clickable images */}
+        {onClick && (
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded-full p-3">
+              <svg className="h-6 w-6 text-neutral-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+              </svg>
+            </div>
           </div>
         )}
       </div>

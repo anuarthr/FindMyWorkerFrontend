@@ -8,6 +8,7 @@ import { usePortfolio } from '../../hooks/usePortfolio';
 import PortfolioGrid from '../../components/portfolio/PortfolioGrid';
 import PortfolioUploadModal from '../../components/portfolio/PortfolioUploadModal';
 import ConfirmModal from '../../components/modals/ConfirmModal';
+import ImageViewerModal from '../../components/portfolio/ImageViewerModal';
 
 const MyPortfolio = () => {
   const { t, i18n } = useTranslation();
@@ -29,6 +30,11 @@ const MyPortfolio = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  
+  // Image viewer modal state
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [selectedImageItem, setSelectedImageItem] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     if (user?.role === 'WORKER') {
@@ -78,6 +84,17 @@ const MyPortfolio = () => {
     if (!itemToDelete) return;
     await deleteItem(itemToDelete.id);
     setItemToDelete(null);
+  };
+
+  const handleItemClick = (item, index) => {
+    setSelectedImageItem(item);
+    setSelectedImageIndex(index);
+    setIsImageViewerOpen(true);
+  };
+
+  const handleImageNavigate = (newIndex) => {
+    setSelectedImageIndex(newIndex);
+    setSelectedImageItem(items[newIndex]);
   };
 
   const modalOnSubmit = (payload, isMultipart) =>
@@ -169,6 +186,7 @@ const MyPortfolio = () => {
             readonly={false}
             onEdit={handleEditClick}
             onDelete={setItemToDelete}
+            onItemClick={handleItemClick}
             currentLang={i18n.language}
             variant="large"
           />
@@ -193,7 +211,16 @@ const MyPortfolio = () => {
         title={t('portfolio.deleteConfirmTitle')}
         message={t('portfolio.deleteConfirmMessage')}
         onConfirm={handleDeleteConfirm}
-        onCancel={() => setItemToDelete(null)}
+        onClose={() => setItemToDelete(null)}
+      />
+
+      <ImageViewerModal
+        isOpen={isImageViewerOpen}
+        onClose={() => setIsImageViewerOpen(false)}
+        item={selectedImageItem}
+        items={items}
+        currentIndex={selectedImageIndex}
+        onNavigate={handleImageNavigate}
       />
     </div>
   );

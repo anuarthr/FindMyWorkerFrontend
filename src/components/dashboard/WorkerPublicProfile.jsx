@@ -13,6 +13,7 @@ import { getFullName, getAvatarUrl } from '../../utils/profileHelpers';
 import { useAuth } from '../../context/AuthContext';
 import { usePortfolio } from '../../hooks/usePortfolio';
 import PortfolioGrid from '../portfolio/PortfolioGrid';
+import ImageViewerModal from '../portfolio/ImageViewerModal';
 
 const WorkerPublicProfile = () => {
   const { t, i18n } = useTranslation();
@@ -22,6 +23,11 @@ const WorkerPublicProfile = () => {
   const [worker, setWorker] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isHiringModalOpen, setIsHiringModalOpen] = useState(false);
+  
+  // Image viewer modal state
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [selectedImageItem, setSelectedImageItem] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const { items: portfolioItems, loading: portfolioLoading, error: portfolioError, loadPublicPortfolio } = usePortfolio();
 
@@ -43,6 +49,17 @@ const WorkerPublicProfile = () => {
 
   const handleOrderCreated = (order) => {
     console.log('Order created successfully:', order);
+  };
+
+  const handleItemClick = (item, index) => {
+    setSelectedImageItem(item);
+    setSelectedImageIndex(index);
+    setIsImageViewerOpen(true);
+  };
+
+  const handleImageNavigate = (newIndex) => {
+    setSelectedImageIndex(newIndex);
+    setSelectedImageItem(portfolioItems[newIndex]);
   };
 
   if (loading) return (
@@ -191,6 +208,7 @@ const WorkerPublicProfile = () => {
                 <PortfolioGrid
                   items={portfolioItems}
                   readonly={true}
+                  onItemClick={handleItemClick}
                   currentLang={i18n.language}
                   variant="large"
                 />
@@ -240,6 +258,8 @@ const WorkerPublicProfile = () => {
 
         </div>
       </div>
+      
+      {/* Modals */}
       <HiringModal 
         isOpen={isHiringModalOpen}
         onClose={(order) => {
@@ -251,6 +271,15 @@ const WorkerPublicProfile = () => {
         workerProfileId={worker.id}
         workerName={fullName}
         workerHourlyRate={worker.hourly_rate}
+      />
+      
+      <ImageViewerModal
+        isOpen={isImageViewerOpen}
+        onClose={() => setIsImageViewerOpen(false)}
+        item={selectedImageItem}
+        items={portfolioItems}
+        currentIndex={selectedImageIndex}
+        onNavigate={handleImageNavigate}
       />
     </div>
   );

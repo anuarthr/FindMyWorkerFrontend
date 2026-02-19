@@ -2,7 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import PortfolioItemCard from './PortfolioItemCard';
 
-const PortfolioGrid = ({ items, readonly = false, onEdit, onDelete, currentLang, variant = 'default' }) => {
+const PortfolioGrid = ({ items, readonly = false, onEdit, onDelete, onItemClick, currentLang, variant = 'default' }) => {
   const { t } = useTranslation();
 
   if (!items?.length) {
@@ -21,13 +21,14 @@ const PortfolioGrid = ({ items, readonly = false, onEdit, onDelete, currentLang,
 
   return (
     <div className={gridClasses[variant]}>
-      {items.map((item) => (
+      {items.map((item, index) => (
         <PortfolioItemCard
           key={item.id}
           item={item}
           readonly={readonly}
           onEdit={onEdit}
           onDelete={onDelete}
+          onClick={onItemClick ? () => onItemClick(item, index) : undefined}
           currentLang={currentLang}
           variant={variant}
         />
