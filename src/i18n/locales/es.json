@@ -17,7 +17,10 @@
     "actions": "Acciones",
     "update": "Actualizar",
     "backToDashboard": "Volver al Dashboard",
-    "sending": "Enviando..."
+    "sending": "Enviando...",
+    "create": "Crear",
+    "next": "Siguiente",
+    "previous": "Anterior"
   },
   "clientHome": {
     "greeting": "¿Qué necesitas hoy, {{name}}?",
@@ -263,6 +266,7 @@
     "submitButton": "Enviar Solicitud",
     "sending": "Enviando...",
     "paymentType": "Tipo de Pago",
+    "paymentTypeLabel": "Tipo de Pago",
     "hourly": "Por Horas",
     "hourlyDesc": "Pagas según las horas trabajadas. El trabajador registra sus horas y tú las apruebas.",
     "fixed": "Precio Fijo",
@@ -332,7 +336,11 @@
     "cannotCompleteYet": "No puedes completar la orden aún",
     "approveHoursBeforeCompleting": "Aprueba las horas trabajadas primero",
     "mustBeInEscrowToComplete": "La orden debe estar en estado 'En Progreso' para completarla",
-    "noHourlyRateSet": "No se ha configurado una tarifa por hora para este trabajo"
+    "noHourlyRateSet": "No se ha configurado una tarifa por hora para este trabajo",
+    "workEvidence": "Evidencia del Trabajo Realizado",
+    "evidenceDescription": "Foto del proyecto finalizado subida por el trabajador",
+    "noEvidenceYet": "El trabajador aún no ha subido evidencia del trabajo realizado",
+    "viewFullImage": "Ver imagen completa"
   },
   "chat": {
     "title": "Chat en Vivo",
@@ -489,11 +497,18 @@
     "deleteConfirmTitle": "Eliminar Proyecto",
     "deleteConfirmMessage": "¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.",
     "verified": "Verificado",
+    "orderInfo": {
+      "linkedTo": "Vinculado a",
+      "order": "Orden",
+      "client": "Cliente"
+    },
     "fields": {
       "title": "Título del Proyecto",
       "description": "Descripción (Opcional)",
       "image": "Imagen del Proyecto",
       "imageOptional": "Nueva Imagen (Opcional)",
+      "selectImage": "Seleccionar imagen",
+      "changeImage": "Cambiar imagen",
       "relatedOrder": "Relacionar con Orden",
       "noOrder": "Sin orden asociada",
       "externalWork": "Trabajo externo (sin orden)",

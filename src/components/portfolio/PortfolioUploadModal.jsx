@@ -1,7 +1,7 @@
 // src/components/portfolio/PortfolioUploadModal.jsx
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, CheckCircle } from 'lucide-react';
+import { X, CheckCircle, Upload } from 'lucide-react';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import { ModalBackdrop, ModalContent } from '../common/ModalComponents';
@@ -18,6 +18,7 @@ const PortfolioUploadModal = ({
   uploadProgress = 0,
   isSubmitting = false,
 }) => {
+  const fileInputRef = useRef(null);
   const { t, i18n } = useTranslation();
   const [title, setTitle] = useState(initialItem?.title || '');
   const [description, setDescription] = useState(initialItem?.description || '');
@@ -126,13 +127,21 @@ const PortfolioUploadModal = ({
 
     // Editar
     if (file) {
+      // Si hay nueva imagen, enviar como FormData
       const formData = new FormData();
       formData.append('title', title.trim());
       if (description.trim()) formData.append('description', description.trim());
       formData.append('image', file);
+      
+      // Agregar información de orden si existe en el item original
+      if (initialItem?.order && initialItem.order !== 'external') {
+        formData.append('order', initialItem.order);
+      }
+      
       const result = await onSubmit(formData, true);
       if (result?.success) onClose();
     } else {
+      // Si NO hay imagen nueva, enviar solo JSON
       const payload = {
         title: title.trim(),
         description: description.trim() || '',
@@ -252,13 +261,35 @@ const PortfolioUploadModal = ({
                   ? t('portfolio.fields.imageOptional')
                   : t('portfolio.fields.image')}
               </label>
+              
+              {/* Hidden file input */}
               <input
+                ref={fileInputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
                 onChange={handleFileChange}
                 disabled={isSubmitting}
-                className="w-full text-sm focus:outline-none focus:ring-2 focus:ring-[#C04A3E]"
+                className="hidden"
               />
+              
+              {/* Custom file upload button */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isSubmitting}
+                className="w-full rounded-lg border-2 border-dashed border-gray-300 bg-[#EFE6DD] px-4 py-8 text-center transition-colors hover:border-[#C04A3E] hover:bg-[#E37B5B]/20 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Upload className="mx-auto mb-2 h-8 w-8 text-[#4A3B32]" />
+                <p className="text-sm font-medium text-[#4A3B32]">
+                  {previewUrl
+                    ? t('portfolio.fields.changeImage')
+                    : t('portfolio.fields.selectImage')}
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  JPEG, PNG, WebP (max 5MB)
+                </p>
+              </button>
+              
               {fieldErrors.image && (
                 <p className="mt-1 text-xs text-red-600">
                   {fieldErrors.image}
