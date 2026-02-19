@@ -68,8 +68,8 @@ const PendingVerificationAlert = ({ t }) => (
  * Tarjeta de perfil verificado
  */
 const VerifiedProfileCard = ({ profile, t, onOpenPortfolio }) => (
-  <div className="bg-white border border-neutral-dark/10 rounded-xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-    <div className="flex items-center gap-4 w-full">
+  <div className="bg-white border border-neutral-dark/10 rounded-xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="flex items-center gap-4">
        <div className="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-2xl border border-green-100">
          👷
        </div>
@@ -87,18 +87,18 @@ const VerifiedProfileCard = ({ profile, t, onOpenPortfolio }) => (
        </div>
     </div>
     
-    <div className="w-full md:w-auto flex gap-2">
+    <div className="flex gap-2 self-start md:self-auto">
       <button
         type="button"
         onClick={onOpenPortfolio}
-        className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2 rounded-lg font-bold text-sm transition-colors cursor-pointer"
+        className="flex justify-center items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2 rounded-lg font-bold text-sm transition-colors cursor-pointer"
       >
         <Image size={16} />
         {t('workerHome.myPortfolio')}
       </button>
       <Link 
         to="/profile/edit" 
-        className="flex-1 md:flex-none flex justify-center items-center gap-2 border border-neutral-dark/20 hover:border-primary text-neutral-dark hover:text-primary px-4 py-2 rounded-lg font-bold text-sm transition-colors cursor-pointer"
+        className="flex justify-center items-center gap-2 border border-neutral-dark/20 hover:border-primary text-neutral-dark hover:text-primary px-4 py-2 rounded-lg font-bold text-sm transition-colors cursor-pointer"
       >
         <Edit2 size={16} />
         {t('workerHome.edit')}
