@@ -15,7 +15,10 @@
     "actions": "Actions",
     "update": "Update",
     "backToDashboard": "Back to Dashboard",
-    "sending": "Sending..."
+    "sending": "Sending...",
+    "create": "Create",
+    "next": "Next",
+    "previous": "Previous"
   },
   "clientHome": {
     "greeting": "What do you need today, {{name}}?",
@@ -79,10 +82,15 @@
     "yearsExp": "{{years}} years exp.",
     "visibleInMap": "Visible on map",
     "edit": "Edit",
+    "myPortfolio": "My Portfolio",
     "monthEarnings": "Month Earnings",
+    "totalEarnings": "Total Earnings",
     "activeJobs": "Active Jobs",
     "rating": "Rating",
     "monthlyEarningsHint": "Approved hours this month",
+    "totalEarningsHint": "Cumulative from all completed jobs",
+    "viewTotal": "View total",
+    "viewMonthly": "View this month",
     "activeJobsHint": "Accepted or in-progress orders",
     "completedJobsCount": "{{count}} completed jobs"
   },
@@ -257,6 +265,7 @@
     "submitButton": "Send Request",
     "sending": "Sending...",
     "paymentType": "Payment Type",
+    "paymentTypeLabel": "Payment Type",
     "hourly": "Hourly",
     "hourlyDesc": "Pay based on hours worked. Worker logs hours and you approve them.",
     "fixed": "Fixed Price",
@@ -326,7 +335,11 @@
     "cannotCompleteYet": "You cannot complete the order yet",
     "approveHoursBeforeCompleting": "Approve worked hours first",
     "mustBeInEscrowToComplete": "Order must be 'In Progress' to complete it",
-    "noHourlyRateSet": "No hourly rate has been set for this job"
+    "noHourlyRateSet": "No hourly rate has been set for this job",
+    "workEvidence": "Work Evidence",
+    "evidenceDescription": "Photo of the completed project uploaded by the worker",
+    "noEvidenceYet": "The worker has not uploaded work evidence yet",
+    "viewFullImage": "View full image"
   },
   "chat": {
     "title": "Live Chat",
@@ -459,11 +472,60 @@
     "aiSearch": "AI-Powered Smart Search",
     "aiSearchDesc": "Find workers using natural language and personalized recommendations"
   },
-    "validation": {
+  "validation": {
     "minLength": "Must be at least {{count}} characters",
     "requireUppercase": "Must contain at least one uppercase letter",
     "requireLowercase": "Must contain at least one lowercase letter",
     "requireNumber": "Must contain at least one number",
     "invalidEmail": "Invalid email"
+  },
+  "portfolio": {
+    "myPortfolioTitle": "My Portfolio",
+    "publicPortfolioTitle": "Project Portfolio",
+    "manageMyPortfolio": "Manage My Portfolio",
+    "addProject": "Add Project Photo",
+    "createModalTitle": "Upload Project Photo",
+    "editModalTitle": "Edit Project",
+    "emptyState": "No projects yet. Add photos of your work to showcase your experience!",
+    "imageAltFallback": "Project preview",
+    "projectCount": "{{count}} projects",
+    "getStarted": "Start showcasing your work",
+    "noProjectsYet": "You don't have any projects yet!",
+    "emptyStateDescription": "Share photos of your best work to gain trust from new clients. Showcase your skills and build your reputation.",
+    "uploadFirstProject": "Upload First Project",
+    "deleteConfirmTitle": "Delete Project",
+    "deleteConfirmMessage": "Are you sure you want to delete this project? This action cannot be undone.",
+    "verified": "Verified",
+    "orderInfo": {
+      "linkedTo": "Linked to",
+      "order": "Order",
+      "client": "Client"
+    },
+    "fields": {
+      "title": "Project Title",
+      "description": "Description (Optional)",
+      "image": "Project Image",
+      "imageOptional": "New Image (Optional)",
+      "selectImage": "Select image",
+      "changeImage": "Change image",
+      "relatedOrder": "Link to Order",
+      "noOrder": "No associated order",
+      "externalWork": "External work (no order)",
+      "orderOption": "Order #{{id}} - {{client}} - {{date}}",
+      "orderHint": "Link this photo to a completed order to verify your work"
+    },
+    "labels": {
+      "date": "{{date}}"
+    },
+    "errors": {
+      "emptyTitle": "Title is required",
+      "imageRequired": "Please select an image",
+      "fileTooLarge": "File size must be less than 5 MB"
+    }
+  },
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "forbidden": "You do not have permission to perform this action.",
+    "notFound": "Resource not found."
   }
 }

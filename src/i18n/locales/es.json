@@ -17,7 +17,10 @@
     "actions": "Acciones",
     "update": "Actualizar",
     "backToDashboard": "Volver al Dashboard",
-    "sending": "Enviando..."
+    "sending": "Enviando...",
+    "create": "Crear",
+    "next": "Siguiente",
+    "previous": "Anterior"
   },
   "clientHome": {
     "greeting": "¿Qué necesitas hoy, {{name}}?",
@@ -81,10 +84,15 @@
     "yearsExp": "{{years}} años exp.",
     "visibleInMap": "Visible en mapa",
     "edit": "Editar",
+    "myPortfolio": "Mi Portafolio",
     "monthEarnings": "Ganancias del Mes",
+    "totalEarnings": "Ganancias Totales",
     "activeJobs": "Trabajos Activos",
     "rating": "Calificación",
     "monthlyEarningsHint": "Horas aprobadas este mes",
+    "totalEarningsHint": "Acumulado de todos tus trabajos completados",
+    "viewTotal": "Ver total",
+    "viewMonthly": "Ver este mes",
     "activeJobsHint": "Órdenes aceptadas o en proceso",
     "completedJobsCount": "{{count}} trabajos completados"
   },
@@ -258,6 +266,7 @@
     "submitButton": "Enviar Solicitud",
     "sending": "Enviando...",
     "paymentType": "Tipo de Pago",
+    "paymentTypeLabel": "Tipo de Pago",
     "hourly": "Por Horas",
     "hourlyDesc": "Pagas según las horas trabajadas. El trabajador registra sus horas y tú las apruebas.",
     "fixed": "Precio Fijo",
@@ -327,7 +336,11 @@
     "cannotCompleteYet": "No puedes completar la orden aún",
     "approveHoursBeforeCompleting": "Aprueba las horas trabajadas primero",
     "mustBeInEscrowToComplete": "La orden debe estar en estado 'En Progreso' para completarla",
-    "noHourlyRateSet": "No se ha configurado una tarifa por hora para este trabajo"
+    "noHourlyRateSet": "No se ha configurado una tarifa por hora para este trabajo",
+    "workEvidence": "Evidencia del Trabajo Realizado",
+    "evidenceDescription": "Foto del proyecto finalizado subida por el trabajador",
+    "noEvidenceYet": "El trabajador aún no ha subido evidencia del trabajo realizado",
+    "viewFullImage": "Ver imagen completa"
   },
   "chat": {
     "title": "Chat en Vivo",
@@ -466,5 +479,54 @@
     "requireLowercase": "Debe contener al menos una minúscula",
     "requireNumber": "Debe contener al menos un número",
     "invalidEmail": "Email inválido"
+  },
+  "portfolio": {
+    "myPortfolioTitle": "Mi Portafolio",
+    "publicPortfolioTitle": "Portafolio de Proyectos",
+    "manageMyPortfolio": "Gestionar Mi Portafolio",
+    "addProject": "Agregar Foto de Proyecto",
+    "createModalTitle": "Subir Foto de Proyecto",
+    "editModalTitle": "Editar Proyecto",
+    "emptyState": "Aún no hay proyectos. ¡Agrega fotos de tus trabajos para mostrar tu experiencia!",
+    "imageAltFallback": "Vista previa del proyecto",
+    "projectCount": "{{count}} proyectos",
+    "getStarted": "Comienza a mostrar tu trabajo",
+    "noProjectsYet": "¡Aún no tienes proyectos!",
+    "emptyStateDescription": "Comparte fotos de tus mejores trabajos para ganar la confianza de nuevos clientes. Muestra tus habilidades y construye tu reputación.",
+    "uploadFirstProject": "Subir Primer Proyecto",
+    "deleteConfirmTitle": "Eliminar Proyecto",
+    "deleteConfirmMessage": "¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.",
+    "verified": "Verificado",
+    "orderInfo": {
+      "linkedTo": "Vinculado a",
+      "order": "Orden",
+      "client": "Cliente"
+    },
+    "fields": {
+      "title": "Título del Proyecto",
+      "description": "Descripción (Opcional)",
+      "image": "Imagen del Proyecto",
+      "imageOptional": "Nueva Imagen (Opcional)",
+      "selectImage": "Seleccionar imagen",
+      "changeImage": "Cambiar imagen",
+      "relatedOrder": "Relacionar con Orden",
+      "noOrder": "Sin orden asociada",
+      "externalWork": "Trabajo externo (sin orden)",
+      "orderOption": "Orden #{{id}} - {{client}} - {{date}}",
+      "orderHint": "Relaciona esta foto con una orden completada para verificar tu trabajo"
+    },
+    "labels": {
+      "date": "{{date}}"
+    },
+    "errors": {
+      "emptyTitle": "El título es obligatorio",
+      "imageRequired": "Por favor selecciona una imagen",
+      "fileTooLarge": "El tamaño del archivo debe ser menor a 5 MB"
+    }
+  },
+  "errors": {
+    "generic": "Ocurrió un error. Por favor inténtalo de nuevo.",
+    "forbidden": "No tienes permiso para realizar esta acción.",
+    "notFound": "Recurso no encontrado."
   }
 }

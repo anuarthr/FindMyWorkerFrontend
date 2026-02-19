@@ -9,9 +9,7 @@ import { API_CONFIG, STORAGE_KEYS } from '../config/constants';
 const api = axios.create({
   // Usar variable de entorno o fallback a localhost
   baseURL: API_CONFIG.BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // No especificar Content-Type por defecto, se manejará en el interceptor
   // Timeout de 10 segundos para evitar requests colgados
   timeout: API_CONFIG.TIMEOUT,
 });
@@ -25,8 +23,21 @@ api.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+    
     // Añadir idioma actual del usuario para respuestas localizadas
-    config.headers['Accept-Language'] = i18n.language; 
+    config.headers['Accept-Language'] = i18n.language;
+    
+    // Si los datos son FormData, NO establecer Content-Type
+    // Axios lo manejará automáticamente con el boundary correcto
+    if (!(config.data instanceof FormData)) {
+      // Solo para peticiones no-FormData, usar application/json
+      config.headers['Content-Type'] = 'application/json';
+    } else {
+      // Si es FormData, eliminar cualquier Content-Type predefinido
+      // para que axios lo genere automáticamente
+      delete config.headers['Content-Type'];
+    }
+    
     return config;
   },
   (error) => {

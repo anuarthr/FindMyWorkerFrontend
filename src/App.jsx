@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import SearchWorkers from './pages/SearchWorkers';
 import EditProfile from './pages/worker/EditProfile';
+import MyPortfolio from './pages/worker/MyPortfolio';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import WorkerPublicProfile from './components/dashboard/WorkerPublicProfile';
@@ -44,6 +45,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <EditProfile />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/worker/portfolio" 
+              element={
+                <ProtectedRoute requiredRole="WORKER">
+                  <MyPortfolio />
                 </ProtectedRoute>
               } 
             />

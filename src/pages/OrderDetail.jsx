@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, User, FileText, Clock, CheckCircle, 
-  XCircle, CreditCard, Loader2, AlertTriangle, DollarSign, MessageSquare, Star 
+  XCircle, CreditCard, Loader2, AlertTriangle, DollarSign, MessageSquare, Star, Image 
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
@@ -19,6 +19,8 @@ import ConfirmModal from '../components/modals/ConfirmModal';
 import ReviewModal from '../components/modals/ReviewModal';
 import ReviewCard from '../components/reviews/ReviewCard';
 import { useChat } from '../context/ChatContext';
+import { getWorkerPortfolio } from '../api/portfolio';
+import ImageViewerModal from '../components/portfolio/ImageViewerModal';
 
 // ============================================================================
 // SUB-COMPONENTES
@@ -182,6 +184,8 @@ const OrderDetail = () => {
   const [orderReview, setOrderReview] = useState(null);
   const { summary, loading: summaryLoading, error: summaryError, refreshSummary } = usePriceSummary(orderId);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [portfolioPhoto, setPortfolioPhoto] = useState(null);
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -210,6 +214,23 @@ const OrderDetail = () => {
     }
   }, [orderId]);
 
+  const fetchPortfolioPhoto = useCallback(async () => {
+    if (!order?.worker) return;
+    
+    try {
+      const items = await getWorkerPortfolio(order.worker);
+      
+      // Find portfolio item linked to this order
+      const linkedPhoto = items.find(item => 
+        item.order_info && item.order_info.id === parseInt(orderId)
+      );
+      
+      setPortfolioPhoto(linkedPhoto || null);
+    } catch (err) {
+      console.error('Error fetching portfolio photo:', err);
+    }
+  }, [order?.worker, orderId]);
+
   const fetchOrder = useCallback(async () => {
     try {
       setLoading(true);
@@ -228,6 +249,12 @@ const OrderDetail = () => {
     fetchUser();
     fetchOrderReview();
   }, [fetchOrder, fetchUser, fetchOrderReview]);
+
+  useEffect(() => {
+    if (order) {
+      fetchPortfolioPhoto();
+    }
+  }, [order, fetchPortfolioPhoto]);
 
   // Helper para extraer mensaje de error
   const extractErrorMessage = (error, defaultMessage) => {
@@ -301,19 +328,9 @@ const OrderDetail = () => {
     return modalConfigs[confirmModal.action] || {};
   }, [confirmModal.action, t]);
 
-  // Early return para loading
-  if (loading || !user) {
-    return <LoadingScreen t={t} />;
-  }
-
-  const isWorker = user.role === 'WORKER';
-  const isClient = user.role === 'CLIENT';
-  const modalData = getModalData();
-
-  // Valores derivados con useMemo para evitar cálculos innecesarios
   const hasFixedPrice = useMemo(() => 
-    order.agreed_price && parseFloat(order.agreed_price) > 0,
-    [order.agreed_price]
+    order?.agreed_price && parseFloat(order.agreed_price) > 0,
+    [order?.agreed_price]
   );
   
   const canPay = useMemo(() => 
@@ -330,6 +347,15 @@ const OrderDetail = () => {
     order && order.status === 'COMPLETED',
     [order]
   );
+
+  // Early return para loading - DESPUÉS de todos los hooks
+  if (loading || !user) {
+    return <LoadingScreen t={t} />;
+  }
+
+  const isWorker = user.role === 'WORKER';
+  const isClient = user.role === 'CLIENT';
+  const modalData = getModalData();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-light to-white py-8 px-4 sm:px-6 lg:px-8">
@@ -409,6 +435,42 @@ const OrderDetail = () => {
             ) : (
               <p className="text-neutral-dark/60 text-sm">
                 El cliente aún no ha dejado una evaluación.
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Work Evidence section - Portfolio photo */}
+        {isOrderCompleted && (
+          <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
+            <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
+              <Image className="text-[#C04A3E]" size={24} />
+              {t('orders.workEvidence')}
+            </h2>
+            
+            {portfolioPhoto ? (
+              <>
+                <p className="text-neutral-dark/60 text-sm mb-4">
+                  {t('orders.evidenceDescription')}
+                </p>
+                <div className="relative group">
+                  <img
+                    src={portfolioPhoto.image}
+                    alt={portfolioPhoto.title}
+                    className="w-full max-w-md rounded-lg shadow-md hover:shadow-xl transition-shadow cursor-pointer"
+                    onClick={() => setIsImageViewerOpen(true)}
+                  />
+                  <div className="mt-2">
+                    <h3 className="font-semibold text-neutral-dark">{portfolioPhoto.title}</h3>
+                    {portfolioPhoto.description && (
+                      <p className="text-sm text-neutral-dark/60 mt-1">{portfolioPhoto.description}</p>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <p className="text-neutral-dark/60 text-sm">
+                {t('orders.noEvidenceYet')}
               </p>
             )}
           </div>
@@ -501,6 +563,15 @@ const OrderDetail = () => {
           orderId={order.id}
           workerName={order.worker_name}
           onSuccess={handleReviewSuccess}
+        />
+      )}
+
+      {/* Image Viewer Modal */}
+      {isImageViewerOpen && portfolioPhoto && (
+        <ImageViewerModal
+          isOpen={isImageViewerOpen}
+          onClose={() => setIsImageViewerOpen(false)}
+          item={portfolioPhoto}
         />
       )}
     </div>
