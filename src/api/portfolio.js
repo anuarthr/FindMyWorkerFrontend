@@ -19,24 +19,15 @@ export const getWorkerPortfolio = async (workerId) => {
 };
 
 export const createPortfolioItem = async (formData, config = {}) => {
-  const response = await api.post('/users/workers/portfolio/', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-    ...config,
-  });
+  // No especificar Content-Type, el interceptor de axios lo maneja automáticamente
+  const response = await api.post('/users/workers/portfolio/', formData, config);
   return response.data;
 };
 
 export const updatePortfolioItem = async (id, payload, isMultipart = false, config = {}) => {
-  const response = await api.patch(
-    `/users/workers/portfolio/${id}/`,
-    payload,
-    {
-      headers: isMultipart
-        ? { 'Content-Type': 'multipart/form-data' }
-        : { 'Content-Type': 'application/json' },
-      ...config,
-    }
-  );
+  // El interceptor de axios detecta automáticamente FormData y establece el Content-Type correcto
+  // Para objetos JSON normales, usa application/json
+  const response = await api.patch(`/users/workers/portfolio/${id}/`, payload, config);
   return response.data;
 };
 
