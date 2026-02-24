@@ -27,7 +27,9 @@ export const useRecommendationSearch = () => {
     trained: false,
     corpus_size: 0,
     vocabulary_size: 0,
-    backend_ready: null // null = no se ha verificado aún
+    backend_ready: null, // null = no se ha verificado aún
+    available: null, // null = no se ha verificado, true = listo, false = 503
+    reason: null // Razón si no está disponible
   });
   const [pagination, setPagination] = useState({
     count: 0,
@@ -46,14 +48,17 @@ export const useRecommendationSearch = () => {
         trained: health.trained || false,
         corpus_size: health.corpus_size || 0,
         vocabulary_size: health.vocabulary_size || 0,
-        backend_ready: health.backend_ready !== false
+        backend_ready: health.backend_ready !== false,
+        available: health.available !== false,
+        reason: health.reason || null
       });
       return health.trained || false;
     } catch (err) {
       console.error('Error al verificar modelo:', err);
       setModelStatus(prev => ({
         ...prev,
-        backend_ready: false
+        backend_ready: false,
+        available: false
       }));
       return false;
     }
@@ -85,6 +90,25 @@ export const useRecommendationSearch = () => {
         pageSize: filters.pageSize || 10
       });
 
+      // Detectar si el sistema de IA está no disponible
+      if (response.ai_unavailable || response.fallback_mode) {
+        setModelStatus(prev => ({
+          ...prev,
+          available: false,
+          trained: false
+        }));
+        // Mostrar resultados vacíos pero sin error crítico
+        setResults([]);
+        setPagination({
+          count: 0,
+          next: null,
+          previous: null,
+          currentPage: 1
+        });
+        setError(null); // No mostrar error crítico
+        return;
+      }
+
       setResults(response.results || []);
       setPagination({
         count: response.count || 0,
@@ -94,11 +118,13 @@ export const useRecommendationSearch = () => {
       });
 
       if (response.query_info?.model_status) {
-        setModelStatus({
+        setModelStatus(prev => ({
+          ...prev,
           trained: response.query_info.model_status.trained,
           corpus_size: response.query_info.model_status.corpus_size,
-          vocabulary_size: response.query_info.model_status.vocabulary_size
-        });
+          vocabulary_size: response.query_info.model_status.vocabulary_size,
+          available: true
+        }));
       }
 
     } catch (err) {

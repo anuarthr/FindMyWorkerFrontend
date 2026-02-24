@@ -52,9 +52,23 @@ export const searchWorkers = async ({
       performance_ms: response.data.performance_ms
     };
   } catch (error) {
-    console.error('Error en búsqueda de recomendaciones:', error);
-    
     const status = error.response?.status;
+    
+    // 503 = Sistema de IA no disponible → Fallback a búsqueda básica
+    if (status === 503) {
+      console.warn('🔄 IA no disponible, fallback a búsqueda básica');
+      return {
+        count: 0,
+        next: null,
+        previous: null,
+        results: [],
+        fallback_mode: true,
+        ai_unavailable: true,
+        message: 'Sistema de recomendaciones IA temporalmente no disponible'
+      };
+    }
+    
+    console.error('Error en búsqueda de recomendaciones:', error);
     
     if (status === 400) {
       const data = error.response.data;
@@ -63,10 +77,6 @@ export const searchWorkers = async ({
                        data.error || 
                        'Parámetros de búsqueda inválidos';
       throw new Error(errorMsg);
-    }
-    
-    if (status === 503) {
-      throw new Error('El modelo de ML aún no está entrenado. Intenta en 1-2 minutos.');
     }
     
     throw error;
@@ -85,20 +95,42 @@ export const getRecommendationHealth = async () => {
     return {
       ...data,
       trained: data.status === 'ready',
-      backend_ready: true
+      backend_ready: true,
+      available: true
     };
   } catch (error) {
-    if (error.response?.status !== 404) {
+    const status = error.response?.status;
+    
+    // 503 = Sistema temporalmente no disponible (NO es un error crítico)
+    if (status === 503) {
+      const data = error.response?.data || {};
+      console.warn('🔄 Sistema de IA temporalmente no disponible:', data.recommendations?.join('; '));
+      
+      return {
+        status: data.status || 'not_trained',
+        model_trained: false,
+        trained: false,
+        corpus_size: data.corpus_size || 0,
+        vocabulary_size: 0,
+        backend_ready: true,
+        available: false,
+        reason: data.recommendations?.[0] || 'Modelo no entrenado'
+      };
+    }
+    
+    // Otros errores (404, network, etc.)
+    if (status !== 404) {
       console.error('Error al verificar salud del modelo:', error);
     }
     
     return {
-      status: error.response?.status === 404 ? 'endpoint_not_ready' : 'unknown',
+      status: status === 404 ? 'endpoint_not_ready' : 'unknown',
       model_trained: false,
       trained: false,
       corpus_size: 0,
       vocabulary_size: 0,
-      backend_ready: error.response?.status !== 404
+      backend_ready: status !== 404,
+      available: false
     };
   }
 };

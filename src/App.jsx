@@ -3,9 +3,13 @@ import { AuthProvider } from './context/AuthContext';
 import { ChatProvider } from './context/ChatContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import SearchWorkers from './pages/SearchWorkers';
 import EditProfile from './pages/worker/EditProfile';
+import UserProfile from './pages/UserProfile';
+import ChangePassword from './pages/ChangePassword';
 import MyPortfolio from './pages/worker/MyPortfolio';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -21,6 +25,8 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             
             <Route 
               path="/dashboard" 
@@ -43,8 +49,26 @@ function App() {
             <Route 
               path="/profile/edit" 
               element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="WORKER">
                   <EditProfile />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/change-password" 
+              element={
+                <ProtectedRoute>
+                  <ChangePassword />
                 </ProtectedRoute>
               } 
             />

@@ -95,6 +95,11 @@ const Login = () => {
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
             </div>
+            <div className="text-right mt-1.5">
+              <Link to="/forgot-password" className="text-xs text-primary hover:underline">
+                {t('auth.forgotPassword')}
+              </Link>
+            </div>
           </div>
 
           <button

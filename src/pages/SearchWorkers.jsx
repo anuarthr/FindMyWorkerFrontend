@@ -15,21 +15,37 @@ import { useRecommendationSearch } from '../hooks/useRecommendationSearch';
 
 /**
  * Badge del estado del modelo de recomendación
- * @param {Object} modelStatus - Estado del modelo {trained, corpus_size, vocabulary_size}
+ * @param {Object} modelStatus - Estado del modelo {trained, corpus_size, vocabulary_size, available}
  * @param {Function} t - Función de traducción
  */
-const ModelStatusBadge = ({ modelStatus, t }) => (
-  <div className="flex items-center gap-2">
-    <span className="text-xs text-gray-500">
-      {t('search.modelStatus')}: 
-    </span>
-    <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-      modelStatus.trained ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
-    }`}>
-      {modelStatus.trained ? t('search.ready') : t('search.training')}
-    </span>
-  </div>
-);
+const ModelStatusBadge = ({ modelStatus, t }) => {
+  // Si available es false, mostrar "No disponible"
+  if (modelStatus.available === false) {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-gray-500">
+          {t('search.modelStatus')}: 
+        </span>
+        <span className="text-xs font-bold px-2 py-1 rounded-full bg-red-100 text-red-700">
+          {t('search.unavailable')}
+        </span>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-gray-500">
+        {t('search.modelStatus')}: 
+      </span>
+      <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+        modelStatus.trained ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+      }`}>
+        {modelStatus.trained ? t('search.ready') : t('search.training')}
+      </span>
+    </div>
+  );
+};
 
 /**
  * Header de la página con navegación y estado del modelo
@@ -38,17 +54,17 @@ const ModelStatusBadge = ({ modelStatus, t }) => (
  * @param {Object} modelStatus - Estado del modelo de recomendación
  */
 const PageHeader = ({ onBack, t, modelStatus }) => (
-  <div className="bg-white border-b border-[#4A3B32]/10 sticky top-0 z-40 shadow-sm">
+  <div className="bg-white border-b border-neutral-dark/10 sticky top-0 z-40 shadow-sm">
     <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
       <div className="flex items-center gap-4">
         <button
           onClick={onBack}
-          className="p-2 text-[#4A3B32] hover:text-[#C04A3E] hover:bg-[#EFE6DD] rounded-full transition-colors"
+          className="p-2 text-neutral-dark hover:text-primary hover:bg-neutral-light rounded-full transition-colors"
           title={t('common.backToDashboard')}
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="font-bold text-xl text-[#4A3B32]">
+        <h1 className="font-bold text-xl text-neutral-dark">
           🤖 {t('search.title')}
         </h1>
       </div>
@@ -78,6 +94,37 @@ const ErrorAlert = ({ error, onRetry, t }) => (
       <RefreshCw size={14} />
       {t('recommendations.retry')}
     </button>
+  </div>
+);
+
+/**
+ * Banner informativo cuando el sistema de IA no está disponible
+ * @param {Function} onBackToDashboard - Callback para volver al dashboard
+ * @param {Function} t - Función de traducción
+ */
+const AIUnavailableBanner = ({ onBackToDashboard, t }) => (
+  <div className="bg-secondary/10 border-l-4 border-secondary p-6 rounded-md">
+    <div className="flex items-start gap-4">
+      <div className="text-4xl">🔧</div>
+      <div className="flex-1">
+        <h3 className="font-bold text-neutral-dark text-lg mb-2">
+          {t('search.systemPreparingTitle')}
+        </h3>
+        <p className="text-neutral-dark text-sm mb-3">
+          {t('search.systemPreparingMessage')}
+        </p>
+        <p className="text-neutral-dark/80 text-xs mb-4">
+          {t('search.systemPreparingAction')}
+        </p>
+        <button
+          onClick={onBackToDashboard}
+          className="px-4 py-2 bg-primary text-white hover:bg-primary-hover rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+        >
+          <ArrowLeft size={16} />
+          {t('search.backToDashboard')}
+        </button>
+      </div>
+    </div>
   </div>
 );
 
@@ -153,8 +200,11 @@ const SearchWorkers = () => {
     [results.length, loading]
   );
 
+  // Verificar si el sistema de IA está no disponible
+  const isAIUnavailable = modelStatus.available === false;
+
   return (
-    <div className="min-h-screen bg-[#EFE6DD]">
+    <div className="min-h-screen bg-neutral-light">
       <PageHeader 
         onBack={handleBackToDashboard} 
         t={t} 
@@ -162,15 +212,30 @@ const SearchWorkers = () => {
       />
 
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        <SearchBar 
-          onSearch={handleSearch} 
-          loading={loading}
-          modelStatus={modelStatus}
-        />
+        {/* Mostrar banner informativo si el sistema no está disponible */}
+        {isAIUnavailable && (
+          <AIUnavailableBanner 
+            onBackToDashboard={handleBackToDashboard} 
+            t={t} 
+          />
+        )}
 
-        {error && <ErrorAlert error={error} onRetry={handleRetry} t={t} />}
+        {/* Mostrar barra de búsqueda solo si el sistema está disponible */}
+        {!isAIUnavailable && (
+          <SearchBar 
+            onSearch={handleSearch} 
+            loading={loading}
+            modelStatus={modelStatus}
+          />
+        )}
 
-        {hasResults && (
+        {/* Mostrar errores (solo si no es el banner de no disponible) */}
+        {!isAIUnavailable && error && (
+          <ErrorAlert error={error} onRetry={handleRetry} t={t} />
+        )}
+
+        {/* Mostrar resultados */}
+        {!isAIUnavailable && hasResults && (
           <WorkerRecommendationList
             results={results}
             loading={loading}
