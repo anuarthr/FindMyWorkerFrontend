@@ -1,4 +1,3 @@
-// src/components/portfolio/PortfolioUploadModal.jsx
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, CheckCircle, Upload } from 'lucide-react';

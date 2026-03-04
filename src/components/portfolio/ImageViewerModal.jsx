@@ -1,4 +1,3 @@
-// src/components/portfolio/ImageViewerModal.jsx
 import { useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
