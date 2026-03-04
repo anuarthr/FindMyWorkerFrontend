@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
-import { CheckCircle, XCircle, ShieldAlert, UserCheck, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, ShieldAlert, UserCheck, Loader2, BarChart2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const AdminDashboard = () => {
@@ -64,14 +64,23 @@ const AdminDashboard = () => {
       <div className="max-w-6xl mx-auto">
         
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="p-3 bg-neutral-dark text-white rounded-lg shadow-lg">
-            <ShieldAlert size={32} />
+        <div className="flex items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-neutral-dark text-white rounded-lg shadow-lg">
+              <ShieldAlert size={32} />
+            </div>
+            <div>
+              <h1 className="font-heading text-3xl font-bold text-neutral-dark">{t('admin.dashboardTitle')}</h1>
+              <p className="text-gray-500">{t('admin.dashboardSubtitle')}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-heading text-3xl font-bold text-neutral-dark">{t('admin.dashboardTitle')}</h1>
-            <p className="text-gray-500">{t('admin.dashboardSubtitle')}</p>
-          </div>
+          <button
+            onClick={() => navigate('/admin/dashboard')}
+            className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-lg px-4 py-2 transition font-sans text-sm font-medium flex-shrink-0"
+          >
+            <BarChart2 size={16} />
+            Métricas
+          </button>
         </div>
 
         {error && (

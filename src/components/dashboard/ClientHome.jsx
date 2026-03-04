@@ -62,10 +62,17 @@ const ClientHome = ({ user }) => {
   const { t } = useTranslation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [viewMode, setViewMode] = useState('list');
-  const [loading, setLoading] = useState(false);
-  
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+  const [refetchKey, setRefetchKey] = useState(0);
+
   const [workers, setWorkers] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
+
+  const handleRetry = useCallback(() => {
+    setFetchError(false);
+    setRefetchKey(k => k + 1);
+  }, []);
 
   const [filters, setFilters] = useState({
     search: '',
@@ -85,43 +92,49 @@ const ClientHome = ({ user }) => {
             lng: position.coords.longitude
           });
         },
-        (error) => {
-          console.error("Error Geo:", error);
-          setUserLocation(DEFAULT_LOCATION); 
+        () => {
+          setUserLocation(DEFAULT_LOCATION);
         }
       );
     } else {
-        setUserLocation(DEFAULT_LOCATION);
+      setUserLocation(DEFAULT_LOCATION);
     }
   }, []);
 
   useEffect(() => {
+    // Flag para ignorar el resultado si el efecto se re-ejecutó antes de que respondiera
+    let cancelled = false;
+
     const fetchWorkers = async () => {
       setLoading(true);
-      const activeFilters = { 
-        ...filters, 
-        userLocation: userLocation, 
-        radius: 20 
+      setFetchError(false);
+
+      // La geo-ubicación se usa SOLO para el mapa y como filtro opcional del sidebar.
+      // En la vista de lista no se filtra por distancia para no excluir trabajadores
+      // que no tienen coordenadas asignadas cerca del usuario.
+      const activeFilters = {
+        ...filters,
+        userLocation: null,
+        radius: undefined,
       };
-      
+
       try {
         const data = await getWorkers(activeFilters);
-        
-        // Manejar respuesta paginada
-        const workersArray = data?.results || data?.data || data;
-        setWorkers(Array.isArray(workersArray) ? workersArray : []);
+        if (cancelled) return;
+        setWorkers(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error("Error fetching:", error);
+        if (cancelled) return;
+        setFetchError(true);
         setWorkers([]);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    if (userLocation) {
-        fetchWorkers();
-    }
-  }, [filters, userLocation]);
+    fetchWorkers();
+
+    return () => { cancelled = true; };
+  }, [filters, refetchKey]); // userLocation se quitó intencionalmente — no filtra la lista por geo
 
   const handleSearchChange = useCallback((e) => {
     setFilters(prev => ({ ...prev, search: e.target.value }));
@@ -189,6 +202,29 @@ const ClientHome = ({ user }) => {
             {viewMode === 'map' ? (
               <div className="h-[600px] rounded-xl overflow-hidden border border-[#4A3B32]/10 shadow-md bg-gray-100">
                  <WorkerMap workers={workers} userLocation={userLocation} />
+              </div>
+            ) : fetchError ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <svg className="w-12 h-12 text-[#C04A3E]/40 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M12 9v4m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" />
+                </svg>
+                <p className="text-[#4A3B32] font-semibold mb-1">{t('common.error')}</p>
+                <p className="text-gray-500 text-sm mb-4">No se pudo conectar con el servidor. Verifica tu conexión.</p>
+                <button
+                  onClick={handleRetry}
+                  className="bg-[#C04A3E] hover:bg-[#A63D33] text-white rounded-lg px-4 py-2 text-sm transition"
+                >
+                  Reintentar
+                </button>
+              </div>
+            ) : !loading && workers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <svg className="w-12 h-12 text-[#4A3B32]/20 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <p className="text-[#4A3B32] font-semibold">{t('clientHome.noWorkers')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

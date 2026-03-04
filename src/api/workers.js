@@ -30,26 +30,25 @@ const cleanParams = (obj) => {
 
 export const getWorkers = async (filters) => {
   const params = cleanParams({
-    min_price: filters.minPrice,
-    max_price: filters.maxPrice,
+    // Solo enviar min_price si es mayor a 0 para no filtrar trabajadores sin precio
+    min_price: filters.minPrice > 0 ? filters.minPrice : undefined,
+    max_price: filters.maxPrice || undefined,
     min_rating: filters.minRating > 0 ? filters.minRating : undefined,
     search: filters.search || undefined,
     profession: filters.category || undefined,
     lat: filters.userLocation?.lat,
     lng: filters.userLocation?.lng,
-    radius: filters.radius || 20,
-    ordering: filters.sortBy || undefined
+    // Solo enviar radio si hay ubicación disponible
+    radius: filters.userLocation ? (filters.radius || 20) : undefined,
+    ordering: filters.sortBy || undefined,
   });
 
-  try {
-    const response = await api.get('/workers/', { params });
-    const data = response.data;
-    return Array.isArray(data) ? data : data.results || [];
-  } catch (error) {
-    console.error('Error al obtener trabajadores:', error);
-    // Retornar array vacío en caso de error para no romper la UI
-    return [];
-  }
+  // Propagar el error para que el componente pueda mostrarlo
+  const response = await api.get('/workers/', { params });
+  const data = response.data;
+  const result = Array.isArray(data) ? data : (data.results ?? []);
+
+  return result;
 };
 
 /**

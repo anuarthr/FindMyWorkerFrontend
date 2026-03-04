@@ -1,4 +1,3 @@
-// src/components/portfolio/PortfolioViewModal.jsx
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Plus } from 'lucide-react';

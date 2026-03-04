@@ -1,4 +1,3 @@
-// src/components/portfolio/PortfolioGrid.jsx
 import { useTranslation } from 'react-i18next';
 import PortfolioItemCard from './PortfolioItemCard';
 

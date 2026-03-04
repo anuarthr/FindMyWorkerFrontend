@@ -1,4 +1,3 @@
-// src/components/portfolio/PortfolioItemCard.jsx
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';

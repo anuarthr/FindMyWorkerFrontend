@@ -548,6 +548,58 @@
     "aiSearch": "AI-Powered Smart Search",
     "aiSearchDesc": "Find workers using natural language and personalized recommendations"
   },
+  "adminDashboard": {
+    "title": "Admin Dashboard",
+    "lastUpdate": "Last update",
+    "refresh": "Refresh",
+    "totalUsers": "Total Users",
+    "newUsers": "New (last 30 days)",
+    "totalOrders": "Total Orders",
+    "platformRevenue": "Platform Commission (10%)",
+    "userDistribution": "User Distribution",
+    "topProfessions": "Most In-Demand Professions",
+    "revenueTrend": "Revenue Trend (6 months)",
+    "ordersByStatus": "Orders by Status",
+    "orders": "Orders",
+    "revenue": "Revenue",
+    "lastWeek": "new this week",
+    "noDataYet": "No data",
+    "noWorkersYet": "No workers registered yet",
+    "noTrendData": "Not enough data for trend",
+    "noTrendSuggestion": "Check back in a few days",
+    "roles": {
+      "CLIENT": "Clients",
+      "WORKER": "Workers",
+      "ADMIN": "Admins",
+      "COMPANY": "Companies"
+    },
+    "professions": {
+      "PLUMBER": "Plumber",
+      "ELECTRICIAN": "Electrician",
+      "PAINTER": "Painter",
+      "MASON": "Mason",
+      "CARPENTER": "Carpenter",
+      "WELDER": "Welder",
+      "LOCKSMITH": "Locksmith",
+      "GARDENER": "Gardener",
+      "CLEANER": "Cleaner",
+      "OTHER": "Other"
+    },
+    "orderStatus": {
+      "PENDING": "Pending",
+      "ACCEPTED": "Accepted",
+      "IN_ESCROW": "In Escrow",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "errors": {
+      "unauthorized": "You are not authorized. Please log in again.",
+      "forbidden": "You do not have permission to access this section.",
+      "tooManyRequests": "Too many requests. Please wait a moment.",
+      "serverError": "Error loading metrics. Please try again.",
+      "networkError": "No connection. Check your internet."
+    }
+  },
   "validation": {
     "minLength": "Must be at least {{count}} characters",
     "requireUppercase": "Must contain at least one uppercase letter",

@@ -549,6 +549,58 @@
     "aiSearch": "Búsqueda Inteligente con IA",
     "aiSearchDesc": "Encuentra trabajadores usando lenguaje natural y recomendaciones personalizadas"
   },
+  "adminDashboard": {
+    "title": "Tablero de Control",
+    "lastUpdate": "Última actualización",
+    "refresh": "Actualizar",
+    "totalUsers": "Total de Usuarios",
+    "newUsers": "Nuevos (últimos 30 días)",
+    "totalOrders": "Total de Órdenes",
+    "platformRevenue": "Comisión Plataforma (10%)",
+    "userDistribution": "Distribución de Usuarios",
+    "topProfessions": "Profesiones Más Demandadas",
+    "revenueTrend": "Tendencia de Ingresos (6 meses)",
+    "ordersByStatus": "Órdenes por Estado",
+    "orders": "Órdenes",
+    "revenue": "Ingresos",
+    "lastWeek": "nuevos esta semana",
+    "noDataYet": "Sin datos",
+    "noWorkersYet": "Sin trabajadores registrados",
+    "noTrendData": "Sin suficientes datos para la tendencia",
+    "noTrendSuggestion": "Vuelve en unos días",
+    "roles": {
+      "CLIENT": "Clientes",
+      "WORKER": "Trabajadores",
+      "ADMIN": "Administradores",
+      "COMPANY": "Empresas"
+    },
+    "professions": {
+      "PLUMBER": "Plomero",
+      "ELECTRICIAN": "Electricista",
+      "PAINTER": "Pintor",
+      "MASON": "Albañil",
+      "CARPENTER": "Carpintero",
+      "WELDER": "Soldador",
+      "LOCKSMITH": "Cerrajero",
+      "GARDENER": "Jardinero",
+      "CLEANER": "Limpiador",
+      "OTHER": "Otro"
+    },
+    "orderStatus": {
+      "PENDING": "Pendiente",
+      "ACCEPTED": "Aceptada",
+      "IN_ESCROW": "En Proceso",
+      "COMPLETED": "Completada",
+      "CANCELLED": "Cancelada"
+    },
+    "errors": {
+      "unauthorized": "No estás autorizado. Inicia sesión nuevamente.",
+      "forbidden": "No tienes permisos para acceder a esta sección.",
+      "tooManyRequests": "Demasiadas solicitudes. Espera un momento.",
+      "serverError": "Error al cargar las métricas. Intenta nuevamente.",
+      "networkError": "Sin conexión. Verifica tu internet."
+    }
+  },
   "validation": {
     "minLength": "Debe tener al menos {{count}} caracteres",
     "requireUppercase": "Debe contener al menos una mayúscula",
