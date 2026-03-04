@@ -12,6 +12,7 @@ import UserProfile from './pages/UserProfile';
 import ChangePassword from './pages/ChangePassword';
 import MyPortfolio from './pages/worker/MyPortfolio';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import WorkerPublicProfile from './components/dashboard/WorkerPublicProfile';
 import OrderDetail from './pages/OrderDetail';
@@ -103,6 +104,15 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="ADMIN">
                   <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/admin/dashboard" 
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <AdminDashboardPage />
                 </ProtectedRoute>
               } 
             />

@@ -10,7 +10,14 @@
   --color-neutral-light: #EFE6DD;
   
   --color-surface: #FFFFFF;
-  
+
+  /* Estados de órdenes */
+  --color-status-completed:  #22c55e;
+  --color-status-pending:    #f59e0b;
+  --color-status-accepted:   #3b82f6;
+  --color-status-inEscrow:   #8b5cf6;
+  --color-status-cancelled:  #ef4444;
+
   /* Tipografías */
   --font-heading: Montserrat, sans-serif;
   --font-sans: Inter, sans-serif;
