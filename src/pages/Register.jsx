@@ -5,11 +5,11 @@
  */
 
 import { useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import { 
   User, Hammer, Building2, ArrowRight, Loader2, 
-  Mail, Lock, UserCircle, CheckCircle, AlertCircle 
+  Mail, Lock, UserCircle, CheckCircle, AlertCircle, ArrowLeft
 } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
@@ -21,16 +21,21 @@ import LanguageSwitcher from '../components/common/LanguageSwitcher';
 const Register = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  
+
+  const initialRole = ['CLIENT', 'WORKER'].includes(searchParams.get('role'))
+    ? searchParams.get('role')
+    : 'CLIENT';
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     first_name: '',
     last_name: '',
-    role: 'CLIENT'
+    role: initialRole
   });
 
   const roles = [
@@ -105,6 +110,17 @@ const Register = () => {
         <LanguageSwitcher />
       </div>
 
+      {/* Back to home */}
+      <div className="absolute top-6 left-6 z-10">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-xs text-neutral-dark/50 hover:text-primary transition-colors"
+        >
+          <ArrowLeft size={14} />
+          {t('header.home')}
+        </Link>
+      </div>
+
       <div className="w-full max-w-3xl">
         
         {/* Header */}
@@ -156,11 +172,14 @@ const Register = () => {
                   <button
                     key={value}
                     type="button"
-                    onClick={() => handleRoleSelect(value)}
-                    className={`group relative p-5 rounded-2xl border-2 transition-all text-center overflow-hidden cursor-pointer ${
-                      formData.role === value
-                        ? 'border-primary shadow-lg scale-105'
-                        : 'border-neutral-dark/10 hover:border-primary/30 hover:shadow-md'
+                    disabled={value === 'COMPANY'}
+                    onClick={() => value !== 'COMPANY' && handleRoleSelect(value)}
+                    className={`group relative p-5 rounded-2xl border-2 transition-all text-center overflow-hidden ${
+                      value === 'COMPANY'
+                        ? 'border-neutral-dark/10 opacity-50 cursor-not-allowed'
+                        : formData.role === value
+                        ? 'border-primary shadow-lg scale-105 cursor-pointer'
+                        : 'border-neutral-dark/10 hover:border-primary/30 hover:shadow-md cursor-pointer'
                     }`}
                   >
                     {/* Background gradient on selected */}
@@ -178,18 +197,26 @@ const Register = () => {
                         <Icon size={28} />
                       </div>
 
-                      {/* Text */}
+                      {/* Texto */}
                       <h3 className="font-bold text-neutral-dark mb-1">
                         {emoji} {t(`auth.role${value.charAt(0) + value.slice(1).toLowerCase()}`)}
                       </h3>
                       <p className="text-xs text-neutral-dark/60 leading-snug">
-                        {t(`auth.role${value.charAt(0) + value.slice(1).toLowerCase()}Desc`)}
+                        {value === 'COMPANY'
+                          ? t('auth.roleCompanySoon')
+                          : t(`auth.role${value.charAt(0) + value.slice(1).toLowerCase()}Desc`)}
                       </p>
 
-                      {/* Check badge */}
-                      {formData.role === value && (
+                      {/* Insignia de seleccionado */}
+                      {formData.role === value && value !== 'COMPANY' && (
                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg">
                           <CheckCircle size={16} className="text-white" />
+                        </div>
+                      )}
+                      {/* Insignia próximamente */}
+                      {value === 'COMPANY' && (
+                        <div className="absolute -top-2 -right-2 bg-neutral-dark/60 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
+                          {t('auth.comingSoon')}
                         </div>
                       )}
                     </div>
