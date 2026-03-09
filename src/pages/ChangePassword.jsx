@@ -114,7 +114,7 @@ const ChangePassword = () => {
       // Cerrar sesión después de 2 segundos
       setTimeout(() => {
         logout();
-        navigate('/login');
+        navigate('/');
       }, 2000);
     } catch (err) {
       console.error('Error cambiando contraseña:', err);

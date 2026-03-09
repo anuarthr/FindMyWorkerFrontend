@@ -207,7 +207,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-neutral-light">
       <Navbar 
         user={user} 
-        onLogout={logout} 
+        onLogout={() => { logout(); navigate('/'); }} 
         t={t} 
         getRoleLabel={getRoleLabel}
         navigate={navigate}

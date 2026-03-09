@@ -7,7 +7,7 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Briefcase, Lock, Mail } from 'lucide-react';
+import { Briefcase, Lock, Mail, ArrowLeft } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 
@@ -39,6 +39,15 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-neutral-light flex items-center justify-center p-4 relative">
+      <div className="absolute top-4 left-4">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-xs text-neutral-dark/50 hover:text-primary transition-colors"
+        >
+          <ArrowLeft size={14} />
+          {t('header.home')}
+        </Link>
+      </div>
       <div className="absolute top-4 right-4">
         <LanguageSwitcher />
       </div>

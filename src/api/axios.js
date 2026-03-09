@@ -58,13 +58,14 @@ api.interceptors.response.use(
       error.message = 'La petición tardó demasiado. Por favor, intenta de nuevo.';
     }
     
-    // Manejo de error 401: sesión expirada o no autorizado
+    // Manejo de error 401: solo redirigir si había una sesión activa (token presente)
+    // Esto evita redirigir a usuarios anónimos que accedan a páginas públicas
     if (error.response && error.response.status === 401) {
-      console.warn('Sesión expirada, redirigiendo al login...');
+      const hadToken = !!localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
       localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
       localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-      // Evitar redirección si ya estamos en login
-      if (!window.location.pathname.includes('/login')) {
+      if (hadToken && !window.location.pathname.includes('/login')) {
+        console.warn('Sesión expirada, redirigiendo al login...');
         window.location.href = '/login';
       }
     }
