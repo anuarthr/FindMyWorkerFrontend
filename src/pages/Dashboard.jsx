@@ -4,15 +4,18 @@
  * @module pages/Dashboard
  */
 
-import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
+import { useCallback, useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User, Lock, ChevronDown } from 'lucide-react';
+import { LogOut, User, Lock, ChevronDown, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ClientHome from '../components/dashboard/ClientHome';
 import WorkerHome from '../components/dashboard/WorkerHome';
-import AdminDashboard from './admin/AdminDashboard';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
+
+// AdminDashboard solo se monta para usuarios con rol ADMIN, así que lo
+// cargamos dinámicamente para no inflar el bundle del cliente/trabajador.
+const AdminDashboard = lazy(() => import('./admin/AdminDashboard'));
 
 // ============================================================================
 // SUB-COMPONENTES
@@ -188,7 +191,15 @@ const Dashboard = () => {
    */
   const renderContent = useCallback(() => {
     if (user?.role === 'ADMIN' || user?.is_superuser) {
-      return <AdminDashboard />;
+      return (
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="animate-spin text-primary" size={36} />
+          </div>
+        }>
+          <AdminDashboard />
+        </Suspense>
+      );
     }
     
     if (user?.role === 'WORKER') {

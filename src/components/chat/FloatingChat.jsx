@@ -1,21 +1,23 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { MessageSquare, Minimize2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useWebSocketChat } from '../../hooks/useWebSocketChat';
 import { canChatInStatus } from '../../utils/websocket';
 import { useChatHistory } from '../../hooks/useChatHistory';
+import { useChat } from '../../context/ChatContext';
 import ConnectionStatus from './ConnectionStatus';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
 
 const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
   const { t } = useTranslation();
+  const { refreshUnread } = useChat();
   const [isMinimized, setIsMinimized] = useState(false);
   const isChatEnabled = useMemo(() => canChatInStatus(orderStatus), [orderStatus]);
-  
-  const { 
-    messages: historyMessages, 
-    loading: historyLoading 
+
+  const {
+    messages: historyMessages,
+    loading: historyLoading
   } = useChatHistory(orderId);
 
   const token = localStorage.getItem('access_token');
@@ -27,6 +29,12 @@ const FloatingChat = ({ orderId, orderStatus, currentUser, onClose }) => {
     error: wsError,
     sendMessage,
   } = useWebSocketChat(orderId, token, isChatEnabled, historyMessages);
+
+  // Cuando el chat se MINIMIZA o se cierra el badge debe volver a la realidad
+  // del backend en otras conversaciones. refreshUnread del context lo hace.
+  useEffect(() => {
+    if (isMinimized) refreshUnread();
+  }, [isMinimized, refreshUnread]);
 
   const toggleMinimize = useCallback(() => setIsMinimized(prev => !prev), []);
 

@@ -101,6 +101,88 @@ export const updateOrderStatus = async (orderId, newStatus) => {
 };
 
 /**
+ * Obtiene el conteo de mensajes no leídos por orden.
+ *
+ * Contrato real del backend:
+ *   { total: 5, orders: [{ order_id: 12, unread_count: 3 }, ...] }
+ *   { total: 0, orders: [] }   // sin pendientes
+ *
+ * Acepta también formatos legacy por defensa:
+ *   - array suelta de {order_id, unread_count}
+ *   - { by_order: { "12": 3 } }
+ *
+ * Normaliza a { total, byOrder: { [orderId]: count } } para que el
+ * resto de la app indexe por id de orden sin importar el shape.
+ * @returns {Promise<{ total: number, byOrder: Object<string, number> }>}
+ */
+export const getChatUnread = async () => {
+  try {
+    const { data } = await api.get('/orders/chat/unread/');
+
+    const buildFromArray = (arr) => {
+      const byOrder = {};
+      let total = 0;
+      arr.forEach((row) => {
+        const id = row.order_id ?? row.id;
+        const count = Number(row.unread_count ?? row.count ?? 0);
+        if (id != null && count > 0) {
+          byOrder[String(id)] = count;
+          total += count;
+        }
+      });
+      return { byOrder, total };
+    };
+
+    // Formato canónico del backend: { total, orders: [{order_id, unread_count}] }
+    if (data && Array.isArray(data.orders)) {
+      const { byOrder, total: derived } = buildFromArray(data.orders);
+      const total = Number.isFinite(data.total) ? Number(data.total) : derived;
+      return { total, byOrder };
+    }
+
+    // Defensa: array suelta sin envoltorio.
+    if (Array.isArray(data)) {
+      return buildFromArray(data);
+    }
+
+    // Defensa: { by_order: { "12": 3, ... } }
+    if (data && typeof data.by_order === 'object' && data.by_order !== null) {
+      const byOrder = {};
+      Object.entries(data.by_order).forEach(([id, count]) => {
+        const n = Number(count);
+        if (n > 0) byOrder[String(id)] = n;
+      });
+      const total = Number(data.total ?? Object.values(byOrder).reduce((s, n) => s + n, 0));
+      return { total, byOrder };
+    }
+
+    return { total: 0, byOrder: {} };
+  } catch (err) {
+    console.error('Error obteniendo unread de chat:', err);
+    return { total: 0, byOrder: {} };
+  }
+};
+
+/**
+ * Marca como leídos los mensajes de chat de una orden.
+ * Se llama al abrir el FloatingChat para que el contador unread se
+ * actualice en el siguiente poll y no "rebote" al valor anterior.
+ * El backend devuelve 204 / 200 según implementación; aquí solo nos
+ * importa que no lance y dejar registro silencioso si falla.
+ * @param {number} orderId
+ * @returns {Promise<void>}
+ */
+export const markChatRead = async (orderId) => {
+  try {
+    await api.post(`/orders/${orderId}/chat/mark-read/`);
+  } catch (err) {
+    // No interrumpe la UX — el chat puede seguir abierto. El siguiente
+    // poll de unread eventualmente reconcilia.
+    console.warn('No se pudo marcar el chat como leído:', err?.response?.status);
+  }
+};
+
+/**
  * Obtiene órdenes completadas del worker sin portfolio asociado
  * @returns {Promise<Array>} Lista de órdenes completadas disponibles para portfolio
  */

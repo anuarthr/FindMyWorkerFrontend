@@ -1,4 +1,7 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { Loader2 } from 'lucide-react';
 import { AuthProvider } from './context/AuthContext';
 import { ChatProvider } from './context/ChatContext';
 import Landing from './pages/Landing';
@@ -7,23 +10,34 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
-import SearchWorkers from './pages/SearchWorkers';
-import EditProfile from './pages/worker/EditProfile';
 import UserProfile from './pages/UserProfile';
 import ChangePassword from './pages/ChangePassword';
-import MyPortfolio from './pages/worker/MyPortfolio';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
-import WorkerPublicProfile from './components/dashboard/WorkerPublicProfile';
-import OrderDetail from './pages/OrderDetail';
 import FloatingChatManager from './components/chat/FloatingChatManager';
+import ChatInboxLauncher from './components/chat/ChatInboxLauncher';
+
+// Rutas con dependencias pesadas (Leaflet, recharts, mapa de portfolio) se
+// cargan bajo demanda para reducir el bundle inicial.
+const SearchWorkers = lazy(() => import('./pages/SearchWorkers'));
+const EditProfile = lazy(() => import('./pages/worker/EditProfile'));
+const MyPortfolio = lazy(() => import('./pages/worker/MyPortfolio'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
+const WorkerPublicProfile = lazy(() => import('./components/dashboard/WorkerPublicProfile'));
+const OrderDetail = lazy(() => import('./pages/OrderDetail'));
+
+const RouteFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-neutral-light">
+    <Loader2 className="animate-spin text-primary" size={40} />
+  </div>
+);
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <ChatProvider>
+          <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
@@ -121,8 +135,25 @@ function App() {
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          
+          </Suspense>
+
           <FloatingChatManager />
+          <ChatInboxLauncher />
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#4A3B32',
+                color: '#EFE6DD',
+                fontFamily: 'Inter, system-ui, sans-serif',
+                fontSize: '14px',
+                borderRadius: '12px',
+              },
+              success: { iconTheme: { primary: '#556B2F', secondary: '#EFE6DD' } },
+              error: { iconTheme: { primary: '#C04A3E', secondary: '#EFE6DD' } },
+            }}
+          />
         </ChatProvider>
       </AuthProvider>
     </BrowserRouter>
