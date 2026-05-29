@@ -19,33 +19,61 @@ export const usePortfolio = () => {
     setFieldErrors({});
   };
 
+  const FIELD_KEYS_MAPPED_IN_FORM = ['title', 'image', 'description'];
+
+  const flattenError = (value) => {
+    if (Array.isArray(value)) return value.join(' ');
+    if (typeof value === 'string') return value;
+    if (value && typeof value === 'object') {
+      // DRF nested errors: { campo: { 0: "msg" } } o { campo: [...] }
+      return Object.values(value).map(flattenError).join(' ');
+    }
+    return String(value ?? '');
+  };
+
   const mapBackendErrors = (err) => {
-    // Espera formatos tipo { title: [...], image: [...], detail: "..." }
+    // DRF puede devolver:
+    //  { title: ["..."], image: ["..."], detail: "..." }
+    //  { non_field_errors: ["..."] }
+    //  { order: ["la orden no está completada"] }   ← caso típico de este flujo
+    //  string plano cuando algún middleware mata el parser
     if (!err?.response) {
-      setError('errors.generic'); // clave i18n
+      setError('errors.generic');
       return;
     }
     const { status, data } = err.response;
 
-    if (status === 400 && typeof data === 'object') {
+    if (status === 400) {
       const newFieldErrors = {};
-      if (Array.isArray(data.title)) {
-        newFieldErrors.title = data.title[0];
+      const extraMessages = [];
+
+      if (data && typeof data === 'object') {
+        Object.entries(data).forEach(([key, value]) => {
+          if (FIELD_KEYS_MAPPED_IN_FORM.includes(key)) {
+            newFieldErrors[key] = Array.isArray(value) ? value[0] : flattenError(value);
+          } else if (key === 'detail' || key === 'non_field_errors') {
+            extraMessages.push(flattenError(value));
+          } else {
+            // Cualquier otro campo del backend (order, is_external_work, etc.)
+            // se muestra como "campo: mensaje" para no esconder el detalle.
+            extraMessages.push(`${key}: ${flattenError(value)}`);
+          }
+        });
+      } else if (typeof data === 'string') {
+        extraMessages.push(data);
       }
-      if (Array.isArray(data.image)) {
-        newFieldErrors.image = data.image[0];
-      }
-      if (Array.isArray(data.description)) {
-        newFieldErrors.description = data.description[0];
-      }
+
       setFieldErrors(newFieldErrors);
-      if (!Object.keys(newFieldErrors).length && data.detail) {
-        setError(data.detail);
+      if (extraMessages.length > 0) {
+        setError(extraMessages.join(' · '));
+      } else if (Object.keys(newFieldErrors).length === 0) {
+        setError('errors.generic');
       }
     } else if (status === 403) {
-      setError('errors.forbidden'); // clave, ej: "No tienes permiso para realizar esta acción."
+      const msg = (data && (data.detail || flattenError(data))) || 'errors.forbidden';
+      setError(msg);
     } else {
-      setError('errors.generic');
+      setError(flattenError(data?.detail || data) || 'errors.generic');
     }
   };
 

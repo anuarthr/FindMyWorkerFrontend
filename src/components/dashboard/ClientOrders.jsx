@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { listMyOrders, updateOrderStatus } from '../../api/orders';
 import { Clock, CreditCard, CheckCircle, XCircle, User, FileText, Loader2, ArrowRight, MessageSquare } from 'lucide-react';
 import ConfirmModal from '../modals/ConfirmModal';
 import { useChat } from '../../context/ChatContext';
 import { getStatusLabel, getStatusBadgeClasses, formatDate, extractErrorMessage } from '../../utils/orderHelpers';
+import { OrdersListSkeleton } from '../common/Skeletons';
 
 const ClientOrders = () => {
   const { t } = useTranslation();
@@ -83,7 +85,7 @@ const ClientOrders = () => {
     const fallbackMessage = t(`clientOrders.error${action.charAt(0).toUpperCase() + action.slice(1)}`);
     const errorMessage = extractErrorMessage(error, fallbackMessage);
     
-    alert(errorMessage);
+    toast.error(errorMessage);
     closeConfirmModal();
   } finally {
     setActionLoading(null);
@@ -120,11 +122,7 @@ const ClientOrders = () => {
   }, [confirmModal, t]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="animate-spin h-12 w-12 text-[#C04A3E]" />
-      </div>
-    );
+    return <OrdersListSkeleton count={3} />;
   }
 
   const modalData = getModalData();

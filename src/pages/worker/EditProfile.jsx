@@ -4,15 +4,22 @@
  * @module pages/worker/EditProfile
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import LocationPicker from '../../components/LocationPicker';
-import { 
-  Save, ArrowLeft, Loader2, Briefcase, Clock, 
-  DollarSign, FileText, MapPin, CheckCircle, AlertCircle 
+import {
+  Save, ArrowLeft, Loader2, Briefcase, Clock,
+  DollarSign, FileText, MapPin, CheckCircle, AlertCircle,
+  Camera, X
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../context/AuthContext';
+import { getAvatarUrl } from '../../utils/profileHelpers';
+import { updateUserProfile } from '../../api/users';
+
+const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 /**
  * Componente de edición de perfil de trabajador
@@ -21,17 +28,22 @@ import { useTranslation } from 'react-i18next';
 const EditProfile = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user, setUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const avatarInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     profession: '',
     years_experience: 0,
     hourly_rate: '',
     bio: '',
-    latitude: null,  
+    latitude: null,
     longitude: null,
   });
 
@@ -77,8 +89,44 @@ const EditProfile = () => {
     }));
   }, []);
 
+  const handleAvatarChange = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!ACCEPTED_AVATAR_TYPES.includes(file.type)) {
+      setError(t('userProfile.avatarTypeError', 'Formato no soportado. Usa JPG, PNG o WEBP.'));
+      e.target.value = '';
+      return;
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      setError(t('userProfile.avatarSizeError', 'La imagen excede 5MB.'));
+      e.target.value = '';
+      return;
+    }
+    setError('');
+    setAvatarFile(file);
+    setAvatarPreview(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+  }, [t]);
+
+  const handleAvatarClear = useCallback(() => {
+    setAvatarFile(null);
+    setAvatarPreview(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    if (avatarInputRef.current) avatarInputRef.current.value = '';
+  }, []);
+
+  useEffect(() => () => {
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+  }, [avatarPreview]);
+
   /**
-   * Maneja envío del formulario de edición
+   * Maneja envío del formulario de edición.
+   * El avatar vive en User (no en WorkerProfile), así que va en una request
+   * separada multipart a /users/me/ antes del PATCH al worker profile.
    */
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
@@ -99,18 +147,25 @@ const EditProfile = () => {
     }
 
     try {
+      if (avatarFile) {
+        const fd = new FormData();
+        fd.append('avatar', avatarFile);
+        const updatedUser = await updateUserProfile(fd);
+        setUser(prev => ({ ...prev, ...updatedUser }));
+      }
       await api.patch('workers/me/', payload);
       setSuccess(true);
+      handleAvatarClear();
       setTimeout(() => navigate('/dashboard'), 1500);
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || 
+      const errorMsg = err.response?.data?.detail ||
                        Object.values(err.response?.data || {}).flat().join(', ') ||
                        t('editProfile.error');
       setError(errorMsg);
     } finally {
       setLoading(false);
     }
-  }, [formData, navigate, t]);
+  }, [formData, avatarFile, setUser, navigate, t, handleAvatarClear]);
 
   if (fetching) {
     return (
@@ -171,6 +226,59 @@ const EditProfile = () => {
             </h2>
 
             <div className="space-y-5">
+              {/* Avatar */}
+              <div>
+                <label className="block text-sm font-semibold text-neutral-dark mb-3">
+                  {t('userProfile.avatarLabel', 'Foto de perfil')}
+                </label>
+                <div className="flex items-center gap-5">
+                  <div className="relative shrink-0">
+                    <img
+                      src={avatarPreview || getAvatarUrl(user, '100x100')}
+                      alt="avatar"
+                      className="w-24 h-24 rounded-full object-cover border-2 border-primary shadow-sm"
+                    />
+                    {avatarPreview && (
+                      <button
+                        type="button"
+                        onClick={handleAvatarClear}
+                        className="absolute -top-1 -right-1 bg-white border border-neutral-dark/20 rounded-full p-1 shadow hover:bg-red-50 hover:border-red-300 transition-colors"
+                        title={t('userProfile.avatarRemove', 'Quitar selección')}
+                      >
+                        <X size={14} className="text-red-600" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      ref={avatarInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => avatarInputRef.current?.click()}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-neutral-dark/20 hover:border-primary hover:bg-primary/5 text-sm font-semibold text-neutral-dark transition-all"
+                    >
+                      <Camera size={18} />
+                      {avatarFile
+                        ? t('userProfile.avatarChange', 'Cambiar imagen')
+                        : t('userProfile.avatarUpload', 'Subir nueva imagen')}
+                    </button>
+                    <p className="text-xs text-neutral-dark/50 mt-2">
+                      {t('userProfile.avatarHint', 'JPG, PNG o WEBP. Máximo 5MB.')}
+                    </p>
+                    {avatarFile && (
+                      <p className="text-xs text-primary mt-1 font-medium truncate max-w-xs">
+                        {avatarFile.name}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Profession */}
               <div>
                 <label className="block text-sm font-semibold text-neutral-dark mb-2 flex items-center gap-2">

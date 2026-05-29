@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Plus, Clock, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { useWorkHours } from '../../hooks/useWorkHours';
 import RegisterHoursModal from './RegisterHoursModal';
 import { DateCell, HoursBadge, ApprovalStatusBadge, PaymentAmount, WorkerActions, EmptyHoursState } from './HourRow';
@@ -21,12 +22,13 @@ const WorkHoursTable = ({ orderId, workerRate, orderStatus }) => {
 
   const handleDelete = useCallback(async (hourId) => {
     if (!confirm(t('orders.confirmDeleteHours'))) return;
-    
+
     try {
       setDeletingId(hourId);
       await deleteHours(hourId);
+      toast.success(t('orders.hoursDeleted', 'Horas eliminadas'));
     } catch (err) {
-      alert(t('orders.errorDeletingHours'));
+      toast.error(t('orders.errorDeletingHours'));
     } finally {
       setDeletingId(null);
     }

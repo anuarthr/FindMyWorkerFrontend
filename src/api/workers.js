@@ -41,6 +41,8 @@ export const getWorkers = async (filters) => {
     // Solo enviar radio si hay ubicación disponible
     radius: filters.userLocation ? (filters.radius || 20) : undefined,
     ordering: filters.sortBy || undefined,
+    // Toggle "Solo verificados" del sidebar — el backend acepta is_verified=true.
+    is_verified: filters.verifiedOnly ? 'true' : undefined,
   });
 
   // Propagar el error para que el componente pueda mostrarlo

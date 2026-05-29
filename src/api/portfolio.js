@@ -13,8 +13,17 @@ export const getMyPortfolio = async () => {
   return normalizeListResponse(response);
 };
 
-export const getWorkerPortfolio = async (workerId) => {
-  const response = await api.get(`/users/workers/${workerId}/portfolio/`);
+/**
+ * Lista los portfolio items públicos de un trabajador.
+ * @param {number|string} workerId - ID del WorkerProfile (no del User).
+ * @param {Object} [opts]
+ * @param {number|string} [opts.orderId] - Si viene, el backend filtra a
+ *   los items asociados a esa orden (útil para la sección "Evidencia del
+ *   trabajo" en OrderDetail). Endpoint público — no requiere JWT.
+ */
+export const getWorkerPortfolio = async (workerId, { orderId } = {}) => {
+  const params = orderId != null ? { order_id: orderId } : undefined;
+  const response = await api.get(`/users/workers/${workerId}/portfolio/`, { params });
   return normalizeListResponse(response);
 };
 

@@ -12,6 +12,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { Navigation } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import PropTypes from 'prop-types';
 
 const LocationPicker = ({ latitude, longitude, onLocationChange }) => {
@@ -40,7 +41,7 @@ const LocationPicker = ({ latitude, longitude, onLocationChange }) => {
         onLocationChange(newPos.lat, newPos.lng);
       });
     } else {
-      alert(t('locationPicker.gpsNotSupported'));
+      toast.error(t('locationPicker.gpsNotSupported'));
     }
   }, [onLocationChange, t]);
 

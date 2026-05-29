@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import api from '../../api/axios';
 import { CheckCircle, XCircle, ShieldAlert, UserCheck, Loader2, BarChart2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -43,11 +44,11 @@ const AdminDashboard = () => {
 
     try {
       await api.post(`/admin/workers/${workerId}/approve/`);
-      console.log(`Trabajador ${workerId} aprobado.`);
+      toast.success(t('admin.approveSuccess', 'Trabajador aprobado'));
     } catch (err) {
       console.error("Error aprobando:", err);
       setWorkers(originalWorkers);
-      alert("Hubo un error al intentar aprobar al trabajador.");
+      toast.error(t('admin.approveError', 'No se pudo aprobar al trabajador.'));
     }
   };
 

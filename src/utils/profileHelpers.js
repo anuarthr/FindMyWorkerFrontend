@@ -4,6 +4,28 @@
  * @module utils/profileHelpers
  */
 
+import { API_CONFIG } from '../config/constants';
+
+/**
+ * Convierte una ruta de media del backend a una URL absoluta usable en <img src>.
+ * - Si la URL ya es absoluta (http/https/data:/blob:) la devuelve tal cual: importante
+ *   porque cuando el backend usa S3 (USE_S3=True) los serializers devuelven URLs
+ *   absolutas https://<bucket>.s3..., y prependerle el host duplica el dominio.
+ * - Si es relativa (ej. "/media/avatars/foo.jpg" o "media/foo.jpg") la prepende con
+ *   el host del backend (BACKEND_ORIGIN, sin /api).
+ * - Si es falsy (null/undefined/'') retorna null para que el caller decida fallback.
+ *
+ * @param {string|null|undefined} url
+ * @returns {string|null}
+ */
+export const resolveMediaUrl = (url) => {
+  if (!url) return null;
+  if (/^(https?:|data:|blob:)/i.test(url)) return url;
+  const origin = API_CONFIG.BACKEND_ORIGIN.replace(/\/+$/, '');
+  const path = url.startsWith('/') ? url : `/${url}`;
+  return `${origin}${path}`;
+};
+
 /**
  * Obtiene nombre completo desde datos de usuario o trabajador
  * Combina first_name y last_name, con fallback si no existen
@@ -50,5 +72,6 @@ export const formatCurrency = (value, locale = 'es-CO', currency = 'COP') => {
  * @example getAvatarUrl({}, '50x50') // "https://placehold.co/50x50?text=WK"
  */
 export const getAvatarUrl = (userData, size = '100x100') => {
-  return userData?.avatar || `https://placehold.co/${size}?text=WK`;
+  const resolved = resolveMediaUrl(userData?.avatar);
+  return resolved || `https://placehold.co/${size}?text=WK`;
 };

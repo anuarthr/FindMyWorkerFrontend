@@ -5,10 +5,19 @@ import { Clock, DollarSign } from 'lucide-react';
 import { useModalBehavior } from '../../hooks/useModalBehavior';
 import { ModalBackdrop, ModalContent, SuccessMessage, ErrorAlert, LoadingButton } from '../common/ModalComponents';
 
-const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourlyRate }) => {
+const HiringModal = ({
+  isOpen,
+  onClose,
+  workerProfileId,
+  workerName,
+  workerHourlyRate,
+  initialDescription = '',
+  initialPaymentType = 'HOURLY',
+  initialAgreedPrice = '',
+}) => {
   const { t } = useTranslation();
   const [description, setDescription] = useState('');
-  const [paymentType, setPaymentType] = useState('HOURLY'); // HOURLY o FIXED
+  const [paymentType, setPaymentType] = useState('HOURLY');
   const [agreedPrice, setAgreedPrice] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState('idle');
@@ -19,13 +28,13 @@ const HiringModal = ({ isOpen, onClose, workerProfileId, workerName, workerHourl
 
   useEffect(() => {
     if (isOpen) {
-      setDescription('');
-      setPaymentType('HOURLY');
-      setAgreedPrice('');
+      setDescription(initialDescription || '');
+      setPaymentType(initialPaymentType || 'HOURLY');
+      setAgreedPrice(initialAgreedPrice ? String(initialAgreedPrice) : '');
       setStatus('idle');
       setErrorMessage('');
       setIsLoading(false);
-      
+
       setTimeout(() => {
         textareaRef.current?.focus();
       }, 100);

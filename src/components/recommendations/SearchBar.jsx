@@ -7,6 +7,7 @@ import { useState, useCallback } from 'react';
 import { Search, MapPin, Navigation, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 
 const DEFAULT_CENTER = { lat: 11.24079, lng: -74.19904 }; // Santa Marta
 const MIN_QUERY_LENGTH = 3;
@@ -92,7 +93,7 @@ const SearchBar = ({ onSearch, loading, modelStatus }) => {
   // Obtener ubicación actual del usuario
   const handleGetCurrentLocation = useCallback(() => {
     if (!navigator.geolocation) {
-      alert(t('search.gpsNotSupported'));
+      toast.error(t('search.gpsNotSupported'));
       return;
     }
 
@@ -106,7 +107,7 @@ const SearchBar = ({ onSearch, loading, modelStatus }) => {
       },
       (error) => {
         console.error('Error obteniendo ubicación:', error);
-        alert(t('search.locationError'));
+        toast.error(t('search.locationError'));
         setGettingLocation(false);
       }
     );

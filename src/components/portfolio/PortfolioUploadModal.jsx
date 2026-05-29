@@ -16,6 +16,8 @@ const PortfolioUploadModal = ({
   fieldErrors = {},
   uploadProgress = 0,
   isSubmitting = false,
+  lockedOrderId = null,
+  submitError = null,
 }) => {
   const fileInputRef = useRef(null);
   const { t, i18n } = useTranslation();
@@ -38,14 +40,16 @@ const PortfolioUploadModal = ({
       setFile(null);
       setPreviewUrl(initialItem?.image_url || null);
       setLocalError(null);
-      setSelectedOrder(initialItem?.order || null);
+      // Si la orden viene forzada (subida desde OrderDetail), úsala;
+      // si no, respeta lo del item en edición.
+      setSelectedOrder(lockedOrderId ?? initialItem?.order ?? null);
     }
-  }, [isOpen, initialItem]);
+  }, [isOpen, initialItem, lockedOrderId]);
 
-  // Load completed orders when opening in create mode
+  // Cargar órdenes completadas solo si NO hay orden bloqueada y estamos creando.
   useEffect(() => {
     const loadOrders = async () => {
-      if (isOpen && !isEditMode) {
+      if (isOpen && !isEditMode && !lockedOrderId) {
         setLoadingOrders(true);
         try {
           const orders = await getCompletedOrdersWithoutPortfolio();
@@ -58,7 +62,7 @@ const PortfolioUploadModal = ({
       }
     };
     loadOrders();
-  }, [isOpen, isEditMode]);
+  }, [isOpen, isEditMode, lockedOrderId]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -171,6 +175,17 @@ const PortfolioUploadModal = ({
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Error global del backend (4xx/5xx) — campos cuyos mensajes
+                no caben en un fieldError específico aparecen aquí. */}
+            {submitError && (
+              <div
+                role="alert"
+                className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700"
+              >
+                {submitError}
+              </div>
+            )}
+
             <div>
               <label className="mb-1 block text-sm font-medium text-[#4A3B32]">
                 {t('portfolio.fields.title')}
@@ -207,8 +222,19 @@ const PortfolioUploadModal = ({
               )}
             </div>
 
-            {/* Order Selector - Only in create mode */}
-            {!isEditMode && (
+            {/* Cuando sube desde OrderDetail, mostramos un chip informativo
+                en lugar del dropdown de órdenes. */}
+            {!isEditMode && lockedOrderId && (
+              <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-[#4A3B32] flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-primary shrink-0" />
+                <span>
+                  {t('portfolio.lockedOrder', 'Esta evidencia se asociará a la orden #{{id}}.', { id: lockedOrderId })}
+                </span>
+              </div>
+            )}
+
+            {/* Order Selector - Only in create mode and when no lockedOrderId */}
+            {!isEditMode && !lockedOrderId && (
               <div>
                 <label className="mb-1 block text-sm font-medium text-[#4A3B32]">
                   {t('portfolio.fields.relatedOrder')}
