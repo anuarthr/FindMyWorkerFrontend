@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, X } from 'lucide-react';
+import { Star, X, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
@@ -34,7 +34,32 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
         </div>
 
         <div className="p-6 space-y-8 overflow-y-auto flex-1">
-          
+
+          {/* Solo verificados */}
+          <div>
+            <label className="flex items-center justify-between cursor-pointer group">
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={16} className={filters.verifiedOnly ? "text-green-600" : "text-gray-400"} />
+                <span className="text-sm font-bold text-[#4A3B32] uppercase tracking-wider">
+                  {t('filtersSidebar.verifiedOnly', 'Solo verificados')}
+                </span>
+              </div>
+              <span className="relative">
+                <input
+                  type="checkbox"
+                  checked={Boolean(filters.verifiedOnly)}
+                  onChange={(e) => setFilters(prev => ({ ...prev, verifiedOnly: e.target.checked }))}
+                  className="sr-only peer"
+                />
+                <span className="block w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-[#C04A3E] transition-colors"></span>
+                <span className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></span>
+              </span>
+            </label>
+            <p className="text-xs text-gray-500 mt-1.5 ml-6">
+              {t('filtersSidebar.verifiedOnlyHint', 'Oculta trabajadores pendientes de verificación.')}
+            </p>
+          </div>
+
           {/* Categoría */}
           <div>
             <h3 className="text-sm font-bold text-[#4A3B32] uppercase mb-3 tracking-wider">
@@ -111,7 +136,7 @@ const FiltersSidebar = ({ filters, setFilters, isOpen, toggleSidebar }) => {
         {/* Footer Limpiar */}
         <div className="p-6 border-t border-[#4A3B32]/10 bg-gray-50">
           <button 
-            onClick={() => setFilters({ category: '', minPrice: 0, maxPrice: 200000, minRating: 0, search: '' })}
+            onClick={() => setFilters({ category: '', minPrice: 0, maxPrice: 200000, minRating: 0, search: '', verifiedOnly: false })}
             className="w-full py-2 text-sm font-bold text-[#C04A3E] hover:underline cursor-pointer"
           >
             {t('filtersSidebar.clear')}

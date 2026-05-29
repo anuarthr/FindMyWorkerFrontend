@@ -5,11 +5,12 @@
  * @param {Object} worker - Datos del trabajador recomendado
  */
 
-import { Star, MapPin, Lightbulb, ExternalLink } from 'lucide-react';
+import { Star, MapPin, Lightbulb, ExternalLink, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { PROFESSION_TRANSLATIONS } from '../../config/constants';
+import { getAvatarUrl } from '../../utils/profileHelpers';
 
 const WorkerRecommendationCard = ({ worker }) => {
   const { t, i18n } = useTranslation();
@@ -23,10 +24,16 @@ const WorkerRecommendationCard = ({ worker }) => {
     return `${firstName} ${lastName}`.trim() || t('workerCard.defaultName');
   }, [userData, t]);
   
-  const avatarUrl = userData.avatar || "https://placehold.co/100x100?text=WK";
+  const avatarUrl = getAvatarUrl(userData);
   
-  // Datos de recomendación
-  const recommendationScore = worker.recommendation_score || 0;
+  // Datos de recomendación devueltos por el motor IA (TF-IDF / hybrid).
+  // Contrato del backend (unificado con /workers/?search=): entero 0–100,
+  // o null cuando está por debajo del umbral interno.
+  const scoreRaw = worker.recommendation_score;
+  const scoreNum = scoreRaw != null ? Number(scoreRaw) : null;
+  const relevancePct = scoreNum != null && Number.isFinite(scoreNum) && scoreNum > 0
+    ? Math.max(0, Math.min(100, Math.round(scoreNum)))
+    : null;
   const matchedKeywords = worker.matched_keywords || [];
   const explanation = worker.explanation || "";
   
@@ -46,22 +53,41 @@ const WorkerRecommendationCard = ({ worker }) => {
   const bio = worker.bio || profile.bio || t('workerCard.defaultBio');
   const distanceKm = worker.distance_km != null ? worker.distance_km.toFixed(1) : null;
 
+  // Tint del badge según fuerza del match (verde fuerte ≥70, ámbar 40–70, gris bajo).
+  const relevanceClasses = relevancePct == null
+    ? ''
+    : relevancePct >= 70
+      ? 'bg-green-100 text-green-800 border-green-300'
+      : relevancePct >= 40
+        ? 'bg-amber-100 text-amber-800 border-amber-300'
+        : 'bg-gray-100 text-gray-700 border-gray-300';
+
   return (
-    <div className="bg-white border border-[#4A3B32]/10 rounded-xl overflow-hidden hover:shadow-xl hover:border-[#C04A3E]/30 transition-all duration-300 flex flex-col h-full">
+    <div className="bg-white border border-[#4A3B32]/10 rounded-xl overflow-hidden hover:shadow-xl hover:border-[#C04A3E]/30 transition-all duration-300 flex flex-col h-full relative">
+      {relevancePct != null && (
+        <div
+          className={`absolute top-3 right-3 inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${relevanceClasses}`}
+          title={explanation || t('recommendations.scoreTooltip', { pct: relevancePct })}
+        >
+          <Sparkles size={11} />
+          {t('recommendations.relevanceBadge', { pct: relevancePct, defaultValue: '{{pct}}% relevante' })}
+        </div>
+      )}
+
       <div className="p-5 flex items-start space-x-4">
-        <img 
-          src={avatarUrl} 
-          alt={fullName} 
+        <img
+          src={avatarUrl}
+          alt={fullName}
           className="w-16 h-16 rounded-full object-cover border-2 border-[#C04A3E] shadow-sm flex-shrink-0"
         />
-        <div className="flex-1 min-w-0 pt-1">
+        <div className="flex-1 min-w-0 pt-1 pr-20">
           <h3 className="font-bold text-[#4A3B32] truncate text-lg capitalize">
             {fullName}
           </h3>
           <p className="text-xs uppercase tracking-wider font-bold text-[#C04A3E] mb-1">
             {profession}
           </p>
-          <div className="flex items-center text-gray-500 text-xs gap-3">
+          <div className="flex items-center text-gray-500 text-xs gap-3 flex-wrap">
             {distanceKm && (
               <div className="flex items-center">
                 <MapPin size={12} className="mr-1" />
@@ -83,6 +109,15 @@ const WorkerRecommendationCard = ({ worker }) => {
         </p>
       </div>
 
+      {explanation && (
+        <div className="mx-5 mb-3 p-3 bg-[#EFE6DD]/60 border-l-4 border-[#C04A3E] rounded-r-md">
+          <p className="text-xs text-[#4A3B32] leading-relaxed">
+            <span className="font-bold">{t('recommendations.whyMatch', 'Por qué te lo recomendamos:')} </span>
+            {explanation}
+          </p>
+        </div>
+      )}
+
       {matchedKeywords.length > 0 && (
         <div className="px-5 pb-4">
           <p className="text-xs font-bold text-[#4A3B32] mb-2 flex items-center gap-1">
@@ -91,8 +126,8 @@ const WorkerRecommendationCard = ({ worker }) => {
           </p>
           <div className="flex flex-wrap gap-2">
             {matchedKeywords.slice(0, 5).map((keyword, i) => (
-              <span 
-                key={i} 
+              <span
+                key={i}
                 className="px-2 py-1 bg-[#EFE6DD] text-[#4A3B32] text-xs rounded-md font-medium border border-[#C04A3E]/20"
                 title={t('recommendations.keywordTooltip', { keyword })}
               >

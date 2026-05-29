@@ -77,13 +77,12 @@ export const useRecommendationSearch = () => {
     setError(null);
 
     try {
-      const currentLanguage = i18n.language.startsWith('es') ? 'es' : 'en';
-
+      // El backend rechaza language="en" con 400 (regla de negocio).
+      // El API client fuerza 'es' internamente — no pasamos `language` aquí.
       const response = await searchWorkers({
         searchQuery: searchQuery.trim(),
         lat: location?.lat,
         lon: location?.lon,
-        language: currentLanguage,
         serviceCategory: filters.serviceCategory,
         maxDistanceKm: filters.maxDistanceKm || 50,
         page: filters.page || 1,
@@ -133,7 +132,7 @@ export const useRecommendationSearch = () => {
     } finally {
       setLoading(false);
     }
-  }, [i18n.language]);
+  }, []);
 
   /**
    * Limpia resultados y errores

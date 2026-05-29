@@ -17,19 +17,20 @@ export const searchWorkers = async ({
   searchQuery,
   lat,
   lon,
-  language = 'es',
   serviceCategory,
   maxDistanceKm = 50,
   page = 1,
   pageSize = 10
 }) => {
   try {
-    const normalizedLanguage = language.startsWith('es') ? 'es' : 'en';
+    // El backend sólo soporta language="es" — "en" devuelve 400. Forzamos 'es'
+    // por defensa: el parámetro `language` ya no se acepta desde el caller
+    // para evitar errores silenciosos.
     const hasLocation = lat != null && lon != null;
 
     const body = {
       query: searchQuery,
-      language: normalizedLanguage,
+      language: 'es',
       strategy: hasLocation ? 'hybrid' : 'tfidf',
       top_n: Math.min(pageSize, 20),
       ...(serviceCategory && { profession: serviceCategory }),
