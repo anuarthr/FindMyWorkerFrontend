@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, List, Map as MapIcon, Filter } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import WorkerMap from './WorkerMap';       
-import FiltersSidebar from './FiltersSidebar'; 
+import WorkerMap from './WorkerMap';
+import FiltersSidebar from './FiltersSidebar';
 import WorkerCard from './WorkerCard';
 import ClientOrders from './ClientOrders';
+import { WorkerGridSkeleton } from '../common/Skeletons';
 import { getWorkers } from '../../api/workers';
+import { loadClientLocation } from '../../utils/clientLocation';
 
 /**
  * Ubicación por defecto (Santa Marta, Colombia)
@@ -81,6 +83,7 @@ const ClientHome = ({ user }) => {
     maxPrice: 200000,
     minRating: 0,
     sortBy: '-average_rating',
+    verifiedOnly: false,
   });
 
   useEffect(() => {
@@ -109,13 +112,21 @@ const ClientHome = ({ user }) => {
       setLoading(true);
       setFetchError(false);
 
-      // La geo-ubicación se usa SOLO para el mapa y como filtro opcional del sidebar.
-      // En la vista de lista no se filtra por distancia para no excluir trabajadores
-      // que no tienen coordenadas asignadas cerca del usuario.
+      // Prioridad de ubicación: la guardada por el cliente en su perfil
+      // (UserProfile → LocationPicker → localStorage). Si no hay, usa la
+      // del GPS detectada al abrir el dashboard. El backend ordena por
+      // distancia cuando recibe lat/lng + radius.
+      const saved = loadClientLocation();
+      const locationForSearch = saved
+        ? { lat: saved.lat, lng: saved.lng }
+        : userLocation;
+      const radiusForSearch = saved?.radiusKm
+        ?? (userLocation ? 50 : undefined);
+
       const activeFilters = {
         ...filters,
-        userLocation: null,
-        radius: undefined,
+        userLocation: locationForSearch,
+        radius: radiusForSearch,
       };
 
       try {
@@ -134,7 +145,7 @@ const ClientHome = ({ user }) => {
     fetchWorkers();
 
     return () => { cancelled = true; };
-  }, [filters, refetchKey]); // userLocation se quitó intencionalmente — no filtra la lista por geo
+  }, [filters, refetchKey, userLocation]);
 
   const handleSearchChange = useCallback((e) => {
     setFilters(prev => ({ ...prev, search: e.target.value }));
@@ -193,7 +204,8 @@ const ClientHome = ({ user }) => {
 
           {/* Vistas */}
           <div className="min-h-[500px] relative">
-            {loading && (
+            {/* Spinner overlay solo durante refetch — primer fetch usa skeleton */}
+            {loading && workers.length > 0 && (
                <div className="absolute inset-0 bg-white/60 z-20 flex items-center justify-center">
                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C04A3E]"></div>
                </div>
@@ -203,6 +215,8 @@ const ClientHome = ({ user }) => {
               <div className="h-[600px] rounded-xl overflow-hidden border border-[#4A3B32]/10 shadow-md bg-gray-100">
                  <WorkerMap workers={workers} userLocation={userLocation} />
               </div>
+            ) : loading && workers.length === 0 ? (
+              <WorkerGridSkeleton count={6} />
             ) : fetchError ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <svg className="w-12 h-12 text-[#C04A3E]/40 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
