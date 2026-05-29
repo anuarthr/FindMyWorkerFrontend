@@ -17,10 +17,20 @@ import api from './axios';
  */
 export const createReview = async (orderId, reviewData) => {
   try {
-    const { data } = await api.post(`/orders/${orderId}/review/`, {
-      rating: reviewData.rating,
-      comment: reviewData.comment.trim()
-    });
+    // Si hay foto, multipart. Sin foto, JSON (como antes).
+    let payload;
+    if (reviewData.image instanceof File) {
+      payload = new FormData();
+      payload.append('rating', String(reviewData.rating));
+      payload.append('comment', reviewData.comment.trim());
+      payload.append('image', reviewData.image);
+    } else {
+      payload = {
+        rating: reviewData.rating,
+        comment: reviewData.comment.trim(),
+      };
+    }
+    const { data } = await api.post(`/orders/${orderId}/review/`, payload);
     return data;
   } catch (error) {
     if (error.response?.status === 429) {

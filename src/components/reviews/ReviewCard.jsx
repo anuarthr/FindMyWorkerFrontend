@@ -62,6 +62,23 @@ const ReviewCard = ({ review }) => {
         {review.comment}
       </p>
 
+      {review.image_url && (
+        <a
+          href={review.image_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block mb-3 rounded-lg overflow-hidden border border-[#4A3B32]/10 hover:opacity-90 transition-opacity"
+          title={t('reviews.openImage', 'Ver foto en tamaño original')}
+        >
+          <img
+            src={review.image_url}
+            alt={t('reviews.imageAlt', 'Foto adjunta a la reseña')}
+            className="w-full max-h-72 object-cover"
+            loading="lazy"
+          />
+        </a>
+      )}
+
       {review.service_order_id && (
         <div className="pt-3 border-t border-[#4A3B32]/5">
           <p className="text-xs text-[#4A3B32]/50">

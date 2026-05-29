@@ -54,7 +54,8 @@ export const useCreateReview = (orderId) => {
 
       const review = await createReview(orderId, {
         rating: reviewData.rating,
-        comment: reviewData.comment.trim()
+        comment: reviewData.comment.trim(),
+        image: reviewData.image,
       });
 
       setSuccess(true);

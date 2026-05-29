@@ -3,14 +3,18 @@
  * Permite a los clientes calificar trabajadores después de completar una orden
  */
 
-import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Loader2, Camera, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import PropTypes from 'prop-types';
 import StarRatingInput from '../reviews/StarRatingInput';
 import useCreateReview from '../../hooks/useCreateReview';
 import { useModalBehavior } from '../../hooks/useModalBehavior';
 import { ModalBackdrop, ModalContent, SuccessMessage, ErrorAlert, ModalCloseButton } from '../common/ModalComponents';
+
+const MAX_REVIEW_IMAGE_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_REVIEW_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 /**
  * ReviewModal - Diálogo modal para crear evaluaciones de trabajadores
@@ -33,6 +37,9 @@ const ReviewModal = ({
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const imageInputRef = useRef(null);
 
   const { 
     submitReview, 
@@ -51,9 +58,47 @@ const ReviewModal = ({
       setRating(0);
       setComment('');
       setShowSuccess(false);
+      setImageFile(null);
+      setImagePreview(prev => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
       reset();
     }
   }, [isOpen, reset]);
+
+  useEffect(() => () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+  }, [imagePreview]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!ACCEPTED_REVIEW_IMAGE_TYPES.includes(file.type)) {
+      toast.error(t('reviews.imageTypeError', 'Formato no soportado. Usa JPG, PNG o WEBP.'));
+      e.target.value = '';
+      return;
+    }
+    if (file.size > MAX_REVIEW_IMAGE_BYTES) {
+      toast.error(t('reviews.imageSizeError', 'La imagen excede 5MB.'));
+      e.target.value = '';
+      return;
+    }
+    setImageFile(file);
+    setImagePreview(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+  };
+
+  const handleImageClear = () => {
+    setImageFile(null);
+    setImagePreview(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  };
 
   useEffect(() => {
     if (success && createdReview) {
@@ -70,7 +115,7 @@ const ReviewModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await submitReview({ rating, comment });
+    await submitReview({ rating, comment, image: imageFile });
   };
 
   const handleClose = () => {
@@ -177,6 +222,60 @@ const ReviewModal = ({
                   <p id="comment-error" className="text-sm text-red-600 mt-2">
                     {fieldErrors.comment}
                   </p>
+                )}
+              </div>
+
+              {/* Foto opcional */}
+              <div>
+                <label className="block text-sm font-medium text-[#4A3B32] mb-2">
+                  {t('reviews.imageLabel', 'Foto del trabajo')}
+                  <span className="ml-1 text-xs font-normal text-gray-400">
+                    ({t('common.optional')})
+                  </span>
+                </label>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImageChange}
+                  disabled={submitting}
+                  className="hidden"
+                />
+                {!imagePreview ? (
+                  <button
+                    type="button"
+                    onClick={() => imageInputRef.current?.click()}
+                    disabled={submitting}
+                    className="w-full rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-primary/5 hover:border-primary px-4 py-5 text-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Camera className="mx-auto mb-1.5 h-6 w-6 text-gray-400" />
+                    <p className="text-sm font-medium text-gray-700">
+                      {t('reviews.imageUpload', 'Adjuntar foto')}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {t('reviews.imageHint', 'JPG, PNG o WEBP. Máximo 5MB.')}
+                    </p>
+                  </button>
+                ) : (
+                  <div className="relative">
+                    <img
+                      src={imagePreview}
+                      alt="review"
+                      className="w-full h-44 object-cover rounded-lg border border-gray-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleImageClear}
+                      disabled={submitting}
+                      className="absolute top-2 right-2 bg-white border border-neutral-dark/20 rounded-full p-1.5 shadow hover:bg-red-50 hover:border-red-300 transition-colors disabled:opacity-50"
+                      title={t('reviews.imageRemove', 'Quitar foto')}
+                    >
+                      <X size={16} className="text-red-600" />
+                    </button>
+                    <p className="text-xs text-primary mt-2 font-medium truncate">
+                      {imageFile?.name}
+                    </p>
+                  </div>
                 )}
               </div>
 
