@@ -11,16 +11,21 @@ import {
   XCircle, CreditCard, Loader2, AlertTriangle, DollarSign, MessageSquare, Star, Image 
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import api from '../api/axios';
 import WorkHoursTable from '../components/orders/WorkHoursTable';
 import ApproveHoursTable from '../components/orders/ApproveHoursTable';
 import { usePriceSummary } from '../hooks/usePriceSummary';
 import ConfirmModal from '../components/modals/ConfirmModal';
 import ReviewModal from '../components/modals/ReviewModal';
+import HiringModal from '../components/modals/HiringModal';
 import ReviewCard from '../components/reviews/ReviewCard';
 import { useChat } from '../context/ChatContext';
 import { getWorkerPortfolio } from '../api/portfolio';
 import ImageViewerModal from '../components/portfolio/ImageViewerModal';
+import PortfolioGrid from '../components/portfolio/PortfolioGrid';
+import PortfolioUploadModal from '../components/portfolio/PortfolioUploadModal';
+import { usePortfolio } from '../hooks/usePortfolio';
 
 // ============================================================================
 // SUB-COMPONENTES
@@ -172,7 +177,7 @@ const PaymentWarning = ({ t }) => (
  * Maneja visualización de información, acciones del cliente/trabajador, chat y reviews
  */
 const OrderDetail = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { orderId } = useParams();
   const navigate = useNavigate();
   const { openChat } = useChat();
@@ -184,8 +189,20 @@ const OrderDetail = () => {
   const [orderReview, setOrderReview] = useState(null);
   const { summary, loading: summaryLoading, error: summaryError, refreshSummary } = usePriceSummary(orderId);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [portfolioPhoto, setPortfolioPhoto] = useState(null);
+  const [isRehireModalOpen, setIsRehireModalOpen] = useState(false);
+  // Lista de evidencias del trabajador asociadas a ESTA orden. El backend
+  // filtra por ?order_id=, así que aquí solo guardamos lo que devuelve.
+  const [evidenceItems, setEvidenceItems] = useState([]);
+  const [evidenceLoading, setEvidenceLoading] = useState(false);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [isEvidenceModalOpen, setIsEvidenceModalOpen] = useState(false);
+  const {
+    createItem: createPortfolioItem,
+    fieldErrors: portfolioFieldErrors,
+    error: portfolioError,
+    uploadProgress: portfolioUploadProgress,
+  } = usePortfolio();
   
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -214,20 +231,18 @@ const OrderDetail = () => {
     }
   }, [orderId]);
 
-  const fetchPortfolioPhoto = useCallback(async () => {
+  const fetchEvidence = useCallback(async () => {
     if (!order?.worker) return;
-    
+    setEvidenceLoading(true);
     try {
-      const items = await getWorkerPortfolio(order.worker);
-      
-      // Find portfolio item linked to this order
-      const linkedPhoto = items.find(item => 
-        item.order_info && item.order_info.id === parseInt(orderId)
-      );
-      
-      setPortfolioPhoto(linkedPhoto || null);
+      // El backend filtra por order_id — endpoint público, no necesita auth.
+      const items = await getWorkerPortfolio(order.worker, { orderId });
+      setEvidenceItems(Array.isArray(items) ? items : []);
     } catch (err) {
-      console.error('Error fetching portfolio photo:', err);
+      console.error('Error fetching evidence:', err);
+      setEvidenceItems([]);
+    } finally {
+      setEvidenceLoading(false);
     }
   }, [order?.worker, orderId]);
 
@@ -252,9 +267,9 @@ const OrderDetail = () => {
 
   useEffect(() => {
     if (order) {
-      fetchPortfolioPhoto();
+      fetchEvidence();
     }
-  }, [order, fetchPortfolioPhoto]);
+  }, [order, fetchEvidence]);
 
   // Helper para extraer mensaje de error
   const extractErrorMessage = (error, defaultMessage) => {
@@ -273,19 +288,20 @@ const OrderDetail = () => {
     
     // Validación: No permitir completar sin precio acordado
     if (newStatus === 'COMPLETED' && (!summary || parseFloat(summary.agreed_price) === 0)) {
-      alert(t('orders.cannotCompleteWithoutApprovedHours'));
+      toast.error(t('orders.cannotCompleteWithoutApprovedHours'));
       return;
     }
-    
+
     try {
       setActionLoading(true);
       await api.patch(`/orders/${orderId}/status/`, { status: newStatus });
       await fetchOrder();
       await refreshSummary();
+      toast.success(t(`orders.statusUpdated.${newStatus}`, t('orders.statusUpdatedGeneric', 'Estado actualizado')));
     } catch (error) {
       console.error('Error updating status:', error);
       const errorMessage = extractErrorMessage(error, t('orders.errorUpdatingStatus'));
-      alert(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -338,15 +354,43 @@ const OrderDetail = () => {
     [summary]
   );
   
-  const showChatButton = useMemo(() => 
-    order && ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'].includes(order.status),
+  const showChatButton = useMemo(() =>
+    order && ['ACCEPTED', 'IN_ESCROW'].includes(order.status),
     [order]
   );
   
-  const isOrderCompleted = useMemo(() => 
+  const isOrderCompleted = useMemo(() =>
     order && order.status === 'COMPLETED',
     [order]
   );
+
+  // El worker puede adjuntar evidencia mientras la orden esté activa
+  // (aceptada o en escrow) o ya completada — útil para mostrar avance
+  // y para dejar prueba final cuando el cliente vaya a calificar.
+  const canUploadEvidence = useMemo(() =>
+    order && ['ACCEPTED', 'IN_ESCROW', 'COMPLETED'].includes(order.status),
+    [order]
+  );
+
+  const handleEvidenceSubmit = useCallback(async (formData) => {
+    // PortfolioUploadModal manda FormData con title/description/image.
+    // Inyectamos la orden de este detalle como linkeada.
+    if (formData instanceof FormData) {
+      formData.set('order', String(orderId));
+      formData.set('is_external_work', 'false');
+    }
+    const result = await createPortfolioItem(formData);
+    if (result?.success) {
+      toast.success(t('orders.evidenceUploaded', 'Evidencia subida'));
+      // Re-fetch del listado para que la nueva foto aparezca en el grid.
+      fetchEvidence();
+    } else {
+      // El usuario ya ve el error en el banner del modal; este toast
+      // sirve para casos donde el modal se cierre antes de leerlo.
+      toast.error(t('orders.evidenceUploadFailed', 'No se pudo subir la evidencia'));
+    }
+    return result;
+  }, [createPortfolioItem, orderId, fetchEvidence, t]);
 
   // Early return para loading - DESPUÉS de todos los hooks
   if (loading || !user) {
@@ -384,6 +428,28 @@ const OrderDetail = () => {
               />
             )}
           </>
+        )}
+
+        {/* Subir evidencia — disponible para el trabajador mientras la
+            orden esté activa o ya completada. Atajo amigable que evita
+            que tenga que ir al portafolio para asociar la foto. */}
+        {isWorker && canUploadEvidence && (
+          <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
+            <h2 className="font-heading text-xl font-bold text-neutral-dark mb-2 flex items-center gap-2">
+              <Image className="text-primary" size={24} />
+              {t('orders.uploadEvidenceTitle', 'Adjuntar evidencia del trabajo')}
+            </h2>
+            <p className="text-neutral-dark/60 text-sm mb-4">
+              {t('orders.uploadEvidenceSubtitle', 'Sube fotos del avance o del resultado final. Aparecerán en tu portafolio asociadas a esta orden.')}
+            </p>
+            <button
+              onClick={() => setIsEvidenceModalOpen(true)}
+              className="w-full md:w-auto bg-primary hover:bg-[#a83f34] text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+            >
+              <Image size={20} />
+              {t('orders.uploadEvidenceButton', 'Subir evidencia')}
+            </button>
+          </div>
         )}
 
         {/* Chat section */}
@@ -440,39 +506,65 @@ const OrderDetail = () => {
           </div>
         )}
 
-        {/* Work Evidence section - Portfolio photo */}
-        {isOrderCompleted && (
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
-            <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
-              <Image className="text-[#C04A3E]" size={24} />
-              {t('orders.workEvidence')}
-            </h2>
-            
-            {portfolioPhoto ? (
-              <>
-                <p className="text-neutral-dark/60 text-sm mb-4">
-                  {t('orders.evidenceDescription')}
-                </p>
-                <div className="relative group">
-                  <img
-                    src={portfolioPhoto.image}
-                    alt={portfolioPhoto.title}
-                    className="w-full max-w-md rounded-lg shadow-md hover:shadow-xl transition-shadow cursor-pointer"
-                    onClick={() => setIsImageViewerOpen(true)}
-                  />
-                  <div className="mt-2">
-                    <h3 className="font-semibold text-neutral-dark">{portfolioPhoto.title}</h3>
-                    {portfolioPhoto.description && (
-                      <p className="text-sm text-neutral-dark/60 mt-1">{portfolioPhoto.description}</p>
-                    )}
-                  </div>
-                </div>
-              </>
-            ) : (
-              <p className="text-neutral-dark/60 text-sm">
-                {t('orders.noEvidenceYet')}
-              </p>
+        {/* Evidencia del trabajo — listado de fotos subidas por el worker
+            asociadas específicamente a esta orden. Backend filtra con
+            ?order_id=. Visible para cliente y worker; el contenido lo
+            ve cada parte distinto pero el componente es el mismo. */}
+        <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
+          <h2 className="font-heading text-xl font-bold text-neutral-dark mb-4 flex items-center gap-2">
+            <Image className="text-primary" size={24} />
+            {t('orders.workEvidence', 'Evidencia del trabajo')}
+            {evidenceItems.length > 0 && (
+              <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                {evidenceItems.length}
+              </span>
             )}
+          </h2>
+
+          {evidenceLoading ? (
+            <p className="text-neutral-dark/60 text-sm">
+              {t('common.loading', 'Cargando...')}
+            </p>
+          ) : evidenceItems.length > 0 ? (
+            <>
+              <p className="text-neutral-dark/60 text-sm mb-4">
+                {t('orders.evidenceDescription', 'Fotos subidas por el trabajador para esta orden.')}
+              </p>
+              <PortfolioGrid
+                items={evidenceItems}
+                readonly={true}
+                onItemClick={(_item, index) => {
+                  setViewerIndex(index);
+                  setIsImageViewerOpen(true);
+                }}
+                currentLang={i18n.language}
+              />
+            </>
+          ) : (
+            <p className="text-neutral-dark/60 text-sm">
+              {isOrderCompleted
+                ? t('orders.noEvidenceYet', 'El trabajador no subió evidencias para esta orden.')
+                : t('orders.evidencePending', 'El trabajador aún no ha subido evidencias.')}
+            </p>
+          )}
+        </div>
+
+        {/* Re-contratar — atajo para clientes con orden completada */}
+        {isClient && isOrderCompleted && (
+          <div className="bg-white rounded-2xl shadow-sm border border-neutral-dark/5 p-6">
+            <h2 className="font-heading text-xl font-bold text-neutral-dark mb-2 flex items-center gap-2">
+              <User size={24} className="text-primary" />
+              {t('orders.rehireTitle', '¿Te gustó el trabajo?')}
+            </h2>
+            <p className="text-sm text-neutral-dark/60 mb-4">
+              {t('orders.rehireSubtitle', 'Vuelve a contratar a {{name}} sin tener que llenar todo de nuevo.', { name: order.worker_name || '' })}
+            </p>
+            <button
+              onClick={() => setIsRehireModalOpen(true)}
+              className="w-full md:w-auto bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:scale-[1.02]"
+            >
+              {t('orders.rehireButton', 'Re-contratar a {{name}}', { name: order.worker_name || t('workerCard.defaultName') })}
+            </button>
           </div>
         )}
 
@@ -566,12 +658,50 @@ const OrderDetail = () => {
         />
       )}
 
-      {/* Image Viewer Modal */}
-      {isImageViewerOpen && portfolioPhoto && (
+      {/* Subida de evidencia desde el detalle de la orden — reutiliza
+          PortfolioUploadModal con lockedOrderId para evitar el dropdown
+          de selección de orden. */}
+      {isEvidenceModalOpen && order && (
+        <PortfolioUploadModal
+          isOpen={isEvidenceModalOpen}
+          onClose={() => setIsEvidenceModalOpen(false)}
+          onSubmit={handleEvidenceSubmit}
+          lockedOrderId={order.id}
+          fieldErrors={portfolioFieldErrors}
+          submitError={portfolioError}
+          uploadProgress={portfolioUploadProgress}
+        />
+      )}
+
+      {/* Re-contratar — HiringModal pre-llenado con la descripción anterior */}
+      {isRehireModalOpen && order && (
+        <HiringModal
+          isOpen={isRehireModalOpen}
+          onClose={(createdOrder) => {
+            setIsRehireModalOpen(false);
+            if (createdOrder?.id) {
+              toast.success(t('orders.rehireSuccess', 'Nueva orden creada'));
+              navigate(`/orders/${createdOrder.id}`);
+            }
+          }}
+          workerProfileId={order.worker}
+          workerName={order.worker_name}
+          workerHourlyRate={order.worker_hourly_rate}
+          initialDescription={order.description}
+          initialPaymentType={parseFloat(order.agreed_price) > 0 ? 'FIXED' : 'HOURLY'}
+          initialAgreedPrice={parseFloat(order.agreed_price) > 0 ? order.agreed_price : ''}
+        />
+      )}
+
+      {/* Image Viewer Modal — navega entre todas las evidencias */}
+      {isImageViewerOpen && evidenceItems.length > 0 && (
         <ImageViewerModal
           isOpen={isImageViewerOpen}
           onClose={() => setIsImageViewerOpen(false)}
-          item={portfolioPhoto}
+          item={evidenceItems[viewerIndex]}
+          items={evidenceItems}
+          currentIndex={viewerIndex}
+          onNavigate={setViewerIndex}
         />
       )}
     </div>

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Clock, Loader2, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { useWorkHours } from '../../hooks/useWorkHours';
 import PriceSummaryCard from './PriceSummaryCard';
 import { usePriceSummary } from '../../hooks/usePriceSummary';
@@ -20,7 +21,7 @@ const ApproveHoursTable = ({ orderId, orderStatus }) => {
       await approveHours(hourId, approved);
       await refreshSummary();
     } catch (err) {
-      alert(t('orders.errorApprovingHours'));
+      toast.error(t('orders.errorApprovingHours'));
     } finally {
       setApprovingId(null);
     }
