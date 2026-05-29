@@ -3,8 +3,11 @@
  * @module utils/websocket
  */
 
-// URL base del WebSocket (usar variable de entorno en producción)
-export const WS_BASE_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
+import { API_CONFIG } from '../config/constants';
+
+// URL base del WebSocket: deriva del API base (http→ws / https→wss)
+// salvo que se haya definido VITE_WS_URL explícitamente.
+export const WS_BASE_URL = API_CONFIG.WS_URL;
 
 /**
  * Configuración general de WebSocket
@@ -61,7 +64,7 @@ export const buildWebSocketURL = (orderId, token) => {
  * @returns {boolean} true si el chat está disponible para ese estado
  */
 export const canChatInStatus = (status) => {
-  const ALLOWED_STATUSES = ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'];
+  const ALLOWED_STATUSES = ['ACCEPTED', 'IN_ESCROW'];
   return ALLOWED_STATUSES.includes(status);
 };
 
