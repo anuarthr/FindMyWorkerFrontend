@@ -98,8 +98,13 @@ Aplicación web moderna para FindMyWorker - plataforma de conexión inteligente 
    
    Edita el archivo `.env` con tus configuraciones:
    ```env
-   VITE_API_URL=http://127.0.0.1:8000/api
-   VITE_WS_URL=ws://localhost:8000
+   # Host puro del backend (sin /api ni slash final).
+   # El frontend deriva la URL REST (`${base}/api/`) y la URL del WebSocket
+   # (`ws(s)://host`) automáticamente.
+   VITE_API_BASE_URL=http://localhost:8000
+
+   # Opcional — sólo si el WS vive en otro host/proxy.
+   # VITE_WS_URL=ws://localhost:8000
    ```
 
 4. **Iniciar el servidor de desarrollo**
@@ -245,14 +250,14 @@ src/
 - Mensajes en tiempo real
 - Persistencia de mensajes
 - Auto-scroll a último mensaje
-- Solo activo en órdenes válidas (ACCEPTED, IN_ESCROW, IN_PROGRESS)
+- Solo activo en órdenes válidas (ACCEPTED, IN_ESCROW)
 
 ### 📦 Gestión de Órdenes
 
 **Flujo de estados:**
 ```
-PENDING → ACCEPTED → IN_ESCROW → IN_PROGRESS → COMPLETED
-                   ↘ REJECTED
+PENDING → ACCEPTED → IN_ESCROW → COMPLETED
+       ↘ CANCELLED  (desde PENDING o ACCEPTED, cliente o trabajador)
 ```
 
 **Features:**

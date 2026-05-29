@@ -6,18 +6,38 @@
  */
 
 /**
+ * Resuelve la URL base del backend desde variables Vite con fallback compatible.
+ * Prefiere VITE_API_BASE_URL (host puro, sin /api/), pero acepta VITE_API_URL
+ * heredada (con /api o /api/) y le quita el sufijo para uso uniforme.
+ * @returns {string} URL base normalizada SIN slash final ni sufijo /api
+ */
+const resolveBackendOrigin = () => {
+  const explicit = import.meta.env.VITE_API_BASE_URL;
+  if (explicit) return explicit.replace(/\/+$/, '');
+
+  const legacy = import.meta.env.VITE_API_URL;
+  if (legacy) {
+    return legacy.replace(/\/+$/, '').replace(/\/api$/, '');
+  }
+  return 'http://localhost:8000';
+};
+
+const BACKEND_ORIGIN = resolveBackendOrigin();
+const API_URL = `${BACKEND_ORIGIN}/api/`;
+const WS_ORIGIN = (import.meta.env.VITE_WS_URL || BACKEND_ORIGIN.replace(/^http/i, 'ws')).replace(/\/+$/, '');
+
+/**
  * Configuración de la API
  * @constant {Object}
- * @property {string} BASE_URL - URL base de la API REST
- * @property {string} WS_URL - URL base del WebSocket para chat en tiempo real
+ * @property {string} BACKEND_ORIGIN - Host puro del backend (http(s)://host[:port]) sin /api ni slash final
+ * @property {string} BASE_URL - URL base de la API REST (BACKEND_ORIGIN + /api/) para axios.create
+ * @property {string} WS_URL - URL base del WebSocket derivada del mismo host (ws://host o wss://host)
  * @property {number} TIMEOUT - Timeout para requests HTTP en milisegundos (30s para backend lento)
  */
 export const API_CONFIG = {
-  // URL base de la API REST
-  BASE_URL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/',
-  // URL base del WebSocket
-  WS_URL: import.meta.env.VITE_WS_URL || 'ws://localhost:8000',
-  // Timeout para requests HTTP (ms) - 30s para backend lento
+  BACKEND_ORIGIN,
+  BASE_URL: API_URL,
+  WS_URL: WS_ORIGIN,
   TIMEOUT: 30000,
 };
 
@@ -42,19 +62,18 @@ export const USER_ROLES = {
 export const ORDER_STATUS = {
   PENDING: 'PENDING',           // Pendiente de aceptación
   ACCEPTED: 'ACCEPTED',         // Aceptada por el trabajador
-  REJECTED: 'REJECTED',         // Rechazada por el trabajador
-  IN_ESCROW: 'IN_ESCROW',       // En depósito de garantía
-  IN_PROGRESS: 'IN_PROGRESS',   // En progreso
-  COMPLETED: 'COMPLETED',       // Completada
-  CANCELLED: 'CANCELLED',       // Cancelada
+  IN_ESCROW: 'IN_ESCROW',       // Pago retenido en garantía
+  COMPLETED: 'COMPLETED',       // Completada (pago liberado)
+  CANCELLED: 'CANCELLED',       // Cancelada (también cubre rechazo desde PENDING)
 };
 
 /**
- * Estados en los que el chat está activo y disponible
- * El chat solo está disponible cuando la orden ha sido aceptada y no ha sido completada/cancelada
+ * Estados en los que el chat está activo y disponible.
+ * El backend bloquea envío de mensajes cuando la orden está CANCELLED o COMPLETED
+ * (códigos de cierre WS 4005). Espejamos ese contrato aquí.
  * @constant {string[]}
  */
-export const CHAT_ACTIVE_STATUSES = ['ACCEPTED', 'IN_ESCROW', 'IN_PROGRESS'];
+export const CHAT_ACTIVE_STATUSES = ['ACCEPTED', 'IN_ESCROW'];
 
 /**
  * Mapeo de profesiones backend → UI (bilingüe)
@@ -114,10 +133,10 @@ export const MAP_CONFIG = {
   DEFAULT_RADIUS: 20,
   // Zoom inicial del mapa
   DEFAULT_ZOOM: 13,
-  // Coordenadas por defecto (Bogotá, Colombia)
+  // Coordenadas por defecto (Santa Marta, Magdalena — alcance del MVP)
   DEFAULT_CENTER: {
-    lat: 4.7110,
-    lng: -74.0721,
+    lat: 11.2404,
+    lng: -74.1990,
   },
 };
 
@@ -152,6 +171,7 @@ export const STORAGE_KEYS = {
   ACCESS_TOKEN: 'access_token',
   REFRESH_TOKEN: 'refresh_token',
   USER_LANGUAGE: 'user_language',
+  CLIENT_LOCATION: 'client_location',
 };
 
 export default {
