@@ -8,6 +8,8 @@ import { Search, MapPin, Navigation, ChevronDown, ChevronUp, Loader2 } from 'luc
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
+// Side effect: garantiza que el pin por defecto cargue (Marker sin icon prop).
+import '../../utils/mapIcons';
 
 const DEFAULT_CENTER = { lat: 11.24079, lng: -74.19904 }; // Santa Marta
 const MIN_QUERY_LENGTH = 3;

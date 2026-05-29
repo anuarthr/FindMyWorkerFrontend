@@ -5,6 +5,22 @@
  */
 
 import L from 'leaflet';
+// Patch global: Leaflet busca los íconos del marker por defecto por URL
+// relativa (`marker-icon.png`) que no existe en el bundle de Vite. Importamos
+// los assets del paquete leaflet para que Vite los procese y devuelva URLs
+// hash-cacheadas, luego los inyectamos al L.Icon.Default. Side effect: se
+// aplica una sola vez al cargar este módulo, así cualquier <Marker /> sin
+// `icon` prop explícito (ej. LocationPicker) muestra el pin correcto.
+import markerIconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIconUrl from 'leaflet/dist/images/marker-icon.png';
+import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIconRetinaUrl,
+  iconUrl: markerIconUrl,
+  shadowUrl: markerShadowUrl,
+});
 
 /**
  * Icono de marcador para ubicación del usuario/cliente

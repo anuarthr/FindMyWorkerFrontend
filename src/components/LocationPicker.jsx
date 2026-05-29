@@ -14,6 +14,9 @@ import { Navigation } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import PropTypes from 'prop-types';
+// Side effect: configura el L.Icon.Default con los assets bundleados,
+// arreglando el marker roto en producción cuando no se pasa `icon` prop.
+import '../utils/mapIcons';
 
 const LocationPicker = ({ latitude, longitude, onLocationChange }) => {
   const { t } = useTranslation();
