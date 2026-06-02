@@ -107,8 +107,11 @@ const AppNavbar = ({ homeHref = '/dashboard' }) => {
   return (
     <nav className="bg-surface border-b border-neutral-dark/5 sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to={homeHref} className="font-heading font-bold text-2xl text-neutral-dark hover:opacity-80 transition-opacity">
-          FindMy<span className="text-primary">Worker</span>
+        <Link to={homeHref} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+          <img src="/FindMyWorkerLogoVects.png" alt="FindMyWorker" className="h-9 w-auto" />
+          <span className="font-heading font-bold text-2xl text-neutral-dark hidden sm:block">
+            FindMy<span className="text-primary">Worker</span>
+          </span>
         </Link>
 
         <div className="flex items-center gap-4">
