@@ -1,6 +1,36 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import i18n from '../i18n';
 import { API_CONFIG, STORAGE_KEYS } from '../config/constants';
+
+/**
+ * Backend en Render free se duerme tras ~15 min sin tráfico y tarda
+ * 30–60s en despertar. La primera request post-sleep cae como
+ * ERR_NETWORK o timeout. Con esta bandera mostramos un toast amable
+ * y reintentamos una vez con timeout extendido para no asustar al
+ * reclutador con un "Network Error" genérico.
+ */
+let coldStartToastId = null;
+let isWarmedUp = false;
+
+/**
+ * "Pinea" al backend silenciosamente para arrancar el despertar antes
+ * de que el usuario haga una request real. Idempotente: una vez que
+ * recibe respuesta, no vuelve a despertar.
+ *
+ * Usa /admin/login/ porque devuelve HTML pequeño sin auth, perfecto
+ * para wake-up. Errores se ignoran (el ping es best-effort).
+ */
+export const wakeBackend = () => {
+  if (isWarmedUp) return Promise.resolve();
+  return fetch(`${API_CONFIG.BACKEND_ORIGIN}/admin/login/`, {
+    method: 'GET',
+    credentials: 'omit',
+    mode: 'no-cors',
+  })
+    .then(() => { isWarmedUp = true; })
+    .catch(() => { /* best-effort */ });
+};
 
 /**
  * Instancia configurada de Axios para comunicación con el backend.
@@ -89,14 +119,55 @@ api.interceptors.request.use(
  *  - 5xx / 403 → log informativo.
  */
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Primera respuesta exitosa = backend despierto. Limpiamos cualquier
+    // toast de cold start que siga visible y cerramos el flag.
+    if (!isWarmedUp) {
+      isWarmedUp = true;
+      if (coldStartToastId) {
+        toast.dismiss(coldStartToastId);
+        coldStartToastId = null;
+      }
+    }
+    return response;
+  },
   async (error) => {
+    const original = error.config;
+    const isNetworkOrTimeout = error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK' || error.message === 'Network Error';
+
+    // Cold start de Render: la primera request post-sleep falla con
+    // ERR_NETWORK o timeout. Mostramos toast amigable y reintentamos
+    // UNA vez con timeout extendido. Solo aplica al primer fallo de
+    // red de la sesión — luego se asume backend despierto.
+    if (isNetworkOrTimeout && original && !original._coldStartRetry && !isWarmedUp) {
+      original._coldStartRetry = true;
+      if (!coldStartToastId) {
+        coldStartToastId = toast.loading(
+          i18n.t('common.coldStart', 'El servidor está despertando, esto puede tardar hasta un minuto la primera vez…'),
+          { duration: 90000 }
+        );
+      }
+      // Dispara wake-up explícito en paralelo (en caso de no haberlo
+      // hecho antes) y reintenta con timeout más largo.
+      wakeBackend();
+      original.timeout = 90000;
+      try {
+        const retry = await api(original);
+        return retry;
+      } catch (retryErr) {
+        if (coldStartToastId) {
+          toast.dismiss(coldStartToastId);
+          coldStartToastId = null;
+        }
+        return Promise.reject(retryErr);
+      }
+    }
+
     if (error.code === 'ECONNABORTED') {
       console.error('Request timeout - la petición tardó demasiado');
       error.message = 'La petición tardó demasiado. Por favor, intenta de nuevo.';
     }
 
-    const original = error.config;
     const status = error.response?.status;
     const isRefreshCall = original?.url?.includes(REFRESH_ENDPOINT);
 

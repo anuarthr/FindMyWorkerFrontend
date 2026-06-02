@@ -1,9 +1,10 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import { AuthProvider } from './context/AuthContext';
 import { ChatProvider } from './context/ChatContext';
+import { wakeBackend } from './api/axios';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -33,6 +34,13 @@ const RouteFallback = () => (
 );
 
 function App() {
+  // Dispara un ping silencioso al backend al montar la app para empezar
+  // a despertar Render mientras el usuario lee la landing/login. Si ya
+  // está despierto, es un no-op.
+  useEffect(() => {
+    wakeBackend();
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>

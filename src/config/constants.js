@@ -38,7 +38,10 @@ export const API_CONFIG = {
   BACKEND_ORIGIN,
   BASE_URL: API_URL,
   WS_URL: WS_ORIGIN,
-  TIMEOUT: 30000,
+  // 60s para tolerar el cold start de Render free tier (puede tardar
+  // hasta ~50s en despertar tras 15 min de inactividad). El interceptor
+  // muestra mensaje amable mientras tanto.
+  TIMEOUT: 60000,
 };
 
 /**
