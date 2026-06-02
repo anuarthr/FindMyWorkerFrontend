@@ -10,6 +10,7 @@ import ProfessionChart from '../../components/admin/dashboard/ProfessionChart';
 import RevenueChart from '../../components/admin/dashboard/RevenueChart';
 import OrdersByStatus from '../../components/admin/dashboard/OrdersByStatus';
 import ErrorBoundary from '../../components/admin/ErrorBoundary';
+import AppNavbar from '../../components/common/AppNavbar';
 import { formatCurrency, formatNumber } from '../../utils/dashboardHelpers';
 import i18n from '../../i18n';
 
@@ -116,13 +117,22 @@ const AdminDashboardPage = () => {
     );
   }
 
-  if (loading) return <DashboardSkeleton />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-neutral-light">
+        <AppNavbar />
+        <DashboardSkeleton />
+      </div>
+    );
+  }
 
   const { user_statistics, profession_statistics, transaction_statistics } = data;
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-neutral-light p-4 md:p-8">
+      <div className="min-h-screen bg-neutral-light">
+        <AppNavbar />
+        <div className="p-4 md:p-8">
 
         {/* Encabezado */}
         <header className="mb-8 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -211,6 +221,7 @@ const AdminDashboardPage = () => {
           <OrdersByStatus byStatus={transaction_statistics.by_status} />
         </div>
 
+        </div>
       </div>
     </ErrorBoundary>
   );

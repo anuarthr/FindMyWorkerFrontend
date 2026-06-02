@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import api from '../../api/axios';
 import { CheckCircle, XCircle, ShieldAlert, UserCheck, Loader2, BarChart2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import AppNavbar from '../../components/common/AppNavbar';
 
 const AdminDashboard = () => {
   const { t } = useTranslation();
@@ -52,18 +53,17 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="animate-spin text-primary" size={40} />
-      </div>
-    );
-  }
+  // El header de página y el navbar siempre se renderizan; el spinner
+  // sólo reemplaza al contenido. Antes el loading devolvía un layout
+  // completamente distinto (sin navbar), por lo que al volver desde
+  // /admin/dashboard el header desaparecía durante la carga inicial.
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-10">
+    <div className="min-h-screen bg-gray-50">
+      <AppNavbar />
+      <div className="p-6 md:p-10">
       <div className="max-w-6xl mx-auto">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
@@ -80,17 +80,24 @@ const AdminDashboard = () => {
             className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-lg px-4 py-2 transition font-sans text-sm font-medium flex-shrink-0"
           >
             <BarChart2 size={16} />
-            Métricas
+            {t('admin.metricsBtn', 'Métricas')}
           </button>
         </div>
 
-        {error && (
+        {loading && (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="animate-spin text-primary" size={40} />
+          </div>
+        )}
+
+        {!loading && error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
             {error}
           </div>
         )}
 
-        {/* Contenido Principal */}
+        {!loading && (
+        /* Contenido Principal */
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-6 border-b border-gray-100 flex justify-between items-center">
             <h2 className="font-bold text-lg text-neutral-dark flex items-center gap-2">
@@ -160,6 +167,8 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
+        )}
+      </div>
       </div>
     </div>
   );
