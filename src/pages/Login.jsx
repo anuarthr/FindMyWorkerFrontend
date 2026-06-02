@@ -19,12 +19,18 @@ import LanguageSwitcher from '../components/common/LanguageSwitcher';
  * el flujo de trabajador (con perfiles, órdenes y portafolio reales).
  */
 const DEMO_PASSWORD = 'Demo1234!';
+// El admin usa una contraseña distinta a los demás demos. Si en el
+// futuro hay más excepciones, basta con añadir el campo `password`.
 const DEMO_USERS = [
   { roleKey: 'client', email: 'demo_cliente@findmyworker.com', emoji: '👤' },
   { roleKey: 'plumber', email: 'carlos.plomero@findmyworker.com', emoji: '🔧' },
   { roleKey: 'electrician', email: 'lucia.electricista@findmyworker.com', emoji: '⚡' },
   { roleKey: 'painter', email: 'miguel.pintor@findmyworker.com', emoji: '🎨' },
+  { roleKey: 'admin', email: 'admin@findmyworker.com.co', emoji: '🛡️', password: '123456789' },
 ];
+
+const passwordFor = (email) =>
+  DEMO_USERS.find(u => u.email === email)?.password || DEMO_PASSWORD;
 
 /**
  * Componente de página de Login
@@ -60,11 +66,12 @@ const Login = () => {
    * que el usuario vea qué email usa) y dispara el login inmediatamente.
    */
   const loginAsDemo = useCallback(async (email) => {
-    setFormData({ email, password: DEMO_PASSWORD });
+    const pwd = passwordFor(email);
+    setFormData({ email, password: pwd });
     setError('');
     setLoading(true);
     try {
-      const res = await login(email, DEMO_PASSWORD);
+      const res = await login(email, pwd);
       if (res.success) {
         navigate('/dashboard');
       } else {
@@ -77,7 +84,7 @@ const Login = () => {
 
   const copyCreds = useCallback(async (email) => {
     try {
-      await navigator.clipboard.writeText(`${email} / ${DEMO_PASSWORD}`);
+      await navigator.clipboard.writeText(`${email} / ${passwordFor(email)}`);
       toast.success(t('auth.demoCopied', 'Credenciales copiadas'));
     } catch {
       toast.error(t('auth.demoCopyFailed', 'No se pudo copiar'));
@@ -220,6 +227,11 @@ const Login = () => {
                     <p className="text-[11px] text-neutral-dark/60 truncate font-mono">
                       {u.email}
                     </p>
+                    {u.password && (
+                      <p className="text-[10px] text-neutral-dark/50 font-mono">
+                        {t('auth.demoPasswordInline', 'pass: ')}{u.password}
+                      </p>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -241,7 +253,7 @@ const Login = () => {
                 </li>
               ))}
               <li className="text-[11px] text-neutral-dark/50 text-center pt-1">
-                {t('auth.demoPasswordHint', 'Contraseña para todos: ')}
+                {t('auth.demoPasswordHint', 'Contraseña por defecto: ')}
                 <code className="font-mono text-neutral-dark/70">{DEMO_PASSWORD}</code>
               </li>
             </ul>
