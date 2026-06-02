@@ -72,11 +72,11 @@ export const ORDER_STATUS = {
 
 /**
  * Estados en los que el chat está activo y disponible.
- * El backend bloquea envío de mensajes cuando la orden está CANCELLED o COMPLETED
- * (códigos de cierre WS 4005). Espejamos ese contrato aquí.
+ * El backend permite chat desde que la orden se crea (PENDING) y mientras
+ * está activa. En COMPLETED o CANCELLED cierra el WS con código 4005.
  * @constant {string[]}
  */
-export const CHAT_ACTIVE_STATUSES = ['ACCEPTED', 'IN_ESCROW'];
+export const CHAT_ACTIVE_STATUSES = ['PENDING', 'ACCEPTED', 'IN_ESCROW'];
 
 /**
  * Mapeo de profesiones backend → UI (bilingüe)

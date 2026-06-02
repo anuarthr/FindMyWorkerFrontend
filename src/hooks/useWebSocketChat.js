@@ -166,11 +166,20 @@ export const useWebSocketChat = (orderId, token, enabled = true, initialMessages
         setError(ERROR_MESSAGES[event.code]);
       }
 
-      // Intentar reconectar si no fue un cierre normal y no hemos excedido los intentos
+      // Cierres definitivos del backend (auth, permisos, recurso no existe,
+      // orden cerrada): NO reintentar. Cualquier otro cierre no-normal
+      // (4xxx custom, errores de red transitorios) sí reintenta hasta
+      // MAX_RETRIES.
+      const TERMINAL_CODES = [
+        CLOSE_CODES.NORMAL_CLOSURE,
+        CLOSE_CODES.UNAUTHORIZED,
+        CLOSE_CODES.FORBIDDEN,
+        CLOSE_CODES.NOT_FOUND,
+        CLOSE_CODES.CHAT_INACTIVE,
+      ];
       if (
         isMountedRef.current &&
-        event.code !== CLOSE_CODES.NORMAL_CLOSURE &&
-        event.code !== CLOSE_CODES.CHAT_INACTIVE &&
+        !TERMINAL_CODES.includes(event.code) &&
         connectionAttempts < WEBSOCKET_CONFIG.MAX_RETRIES
       ) {
         setIsReconnecting(true);

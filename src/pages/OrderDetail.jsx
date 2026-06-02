@@ -355,7 +355,7 @@ const OrderDetail = () => {
   );
   
   const showChatButton = useMemo(() =>
-    order && ['ACCEPTED', 'IN_ESCROW'].includes(order.status),
+    order && ['PENDING', 'ACCEPTED', 'IN_ESCROW'].includes(order.status),
     [order]
   );
   

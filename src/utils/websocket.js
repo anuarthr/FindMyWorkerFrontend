@@ -64,7 +64,7 @@ export const buildWebSocketURL = (orderId, token) => {
  * @returns {boolean} true si el chat está disponible para ese estado
  */
 export const canChatInStatus = (status) => {
-  const ALLOWED_STATUSES = ['ACCEPTED', 'IN_ESCROW'];
+  const ALLOWED_STATUSES = ['PENDING', 'ACCEPTED', 'IN_ESCROW'];
   return ALLOWED_STATUSES.includes(status);
 };
 
