@@ -7,9 +7,9 @@
 import { useState, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
-import { 
-  User, Hammer, Building2, ArrowRight, Loader2, 
-  Mail, Lock, UserCircle, CheckCircle, AlertCircle, ArrowLeft
+import {
+  User, Hammer, Building2, ArrowRight, Loader2,
+  Mail, Lock, UserCircle, CheckCircle, AlertCircle, ArrowLeft, Eye, EyeOff
 } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
@@ -25,6 +25,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const initialRole = ['CLIENT', 'WORKER'].includes(searchParams.get('role'))
     ? searchParams.get('role')
@@ -301,16 +302,27 @@ const Register = () => {
                     <Lock size={16} />
                     {t('auth.passwordLabel')}
                   </label>
-                  <input
-                    type="password"
-                    name="password"
-                    autoComplete="new-password"
-                    value={formData.password}
-                    required
-                    placeholder="••••••••"
-                    className="w-full px-4 py-3.5 bg-white border border-neutral-dark/20 rounded-xl hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                    onChange={handleChange}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      autoComplete="new-password"
+                      value={formData.password}
+                      required
+                      placeholder="••••••••"
+                      className="w-full pl-4 pr-12 py-3.5 bg-white border border-neutral-dark/20 rounded-xl hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                      onChange={handleChange}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(s => !s)}
+                      disabled={loading}
+                      aria-label={showPassword ? t('auth.hidePassword', 'Ocultar contraseña') : t('auth.showPassword', 'Mostrar contraseña')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-dark/40 hover:text-primary transition-colors disabled:opacity-50"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                   <p className="text-xs text-neutral-dark/50 mt-2">
                     {t('auth.passwordHint')}
                   </p>

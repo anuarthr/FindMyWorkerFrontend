@@ -7,7 +7,7 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Briefcase, Lock, Mail, ArrowLeft, Loader2, Sparkles, Copy } from 'lucide-react';
+import { Briefcase, Lock, Mail, ArrowLeft, Loader2, Sparkles, Copy, Eye, EyeOff } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import toast from 'react-hot-toast';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
@@ -42,6 +42,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -152,15 +153,24 @@ const Login = () => {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-dark/40" size={18} />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 required
                 disabled={loading}
                 value={formData.password}
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-neutral-dark/20 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-neutral-dark/30 text-neutral-dark disabled:opacity-60"
+                className="w-full pl-10 pr-11 py-2.5 bg-white border border-neutral-dark/20 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-neutral-dark/30 text-neutral-dark disabled:opacity-60"
                 placeholder={t('auth.passwordPlaceholder')}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(s => !s)}
+                disabled={loading}
+                aria-label={showPassword ? t('auth.hidePassword', 'Ocultar contraseña') : t('auth.showPassword', 'Mostrar contraseña')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-dark/40 hover:text-primary transition-colors disabled:opacity-50"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
             <div className="text-right mt-1.5">
               <Link to="/forgot-password" className="text-xs text-primary hover:underline">
