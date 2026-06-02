@@ -26,7 +26,7 @@ const DEMO_USERS = [
   { roleKey: 'plumber', email: 'carlos.plomero@findmyworker.com', emoji: '🔧' },
   { roleKey: 'electrician', email: 'lucia.electricista@findmyworker.com', emoji: '⚡' },
   { roleKey: 'painter', email: 'miguel.pintor@findmyworker.com', emoji: '🎨' },
-  { roleKey: 'admin', email: 'admin@findmyworker.com.co', emoji: '🛡️', password: '123456789' },
+  { roleKey: 'admin', email: 'admin@findmyworker.com', emoji: '🛡️', password: '123456789' },
 ];
 
 const passwordFor = (email) =>
