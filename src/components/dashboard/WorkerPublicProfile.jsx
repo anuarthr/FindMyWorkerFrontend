@@ -1,16 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  MapPin, Star, Clock, ArrowLeft, ShieldCheck, 
-  MessageSquare, CalendarCheck 
+import {
+  MapPin, Star, Clock, ArrowLeft, ShieldCheck,
+  MessageSquare, CalendarCheck
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { getWorkerById } from '../../api/workers';
+import { listMyOrders } from '../../api/orders';
 import { useTranslation } from 'react-i18next';
 import HiringModal from '../modals/HiringModal';
 import ReviewsList from '../reviews/ReviewsList';
 import ReviewSummary from '../reviews/ReviewSummary';
 import { getFullName, getAvatarUrl } from '../../utils/profileHelpers';
 import { useAuth } from '../../context/AuthContext';
+import { useChat } from '../../context/ChatContext';
+import { canChatInStatus } from '../../utils/websocket';
 import { usePortfolio } from '../../hooks/usePortfolio';
 import PortfolioGrid from '../portfolio/PortfolioGrid';
 import ImageViewerModal from '../portfolio/ImageViewerModal';
@@ -20,9 +24,47 @@ const WorkerPublicProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { openChat } = useChat();
   const [worker, setWorker] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isHiringModalOpen, setIsHiringModalOpen] = useState(false);
+  const [messageLoading, setMessageLoading] = useState(false);
+
+  /**
+   * Click en "Enviar mensaje" desde el perfil del trabajador.
+   * El chat vive dentro de una orden, así que:
+   *  1. Si el cliente ya tiene una orden activa con este worker
+   *     (PENDING/ACCEPTED/IN_ESCROW), abrimos el chat de esa orden.
+   *  2. Si no hay orden activa, abrimos el HiringModal — porque
+   *     sin contratar no hay sala de chat. El usuario verá un
+   *     toast aclaratorio para que entienda el flujo.
+   */
+  const handleSendMessage = useCallback(async () => {
+    if (!user || user.role !== 'CLIENT') {
+      toast.error(t('workerPublicProfile.messageOnlyClients', 'Solo los clientes pueden iniciar chats.'));
+      return;
+    }
+    setMessageLoading(true);
+    try {
+      const data = await listMyOrders();
+      const orders = Array.isArray(data) ? data : (data?.results || data?.data || []);
+      const targetWorkerId = String(id);
+      const active = orders.find((o) =>
+        canChatInStatus(o.status) && String(o.worker ?? o.worker_id ?? '') === targetWorkerId
+      );
+      if (active) {
+        openChat(active.id, active.status);
+      } else {
+        toast(t('workerPublicProfile.messageNoOrder', 'Necesitas una orden activa para chatear. Empieza una contratación.'), { icon: '💬' });
+        setIsHiringModalOpen(true);
+      }
+    } catch (err) {
+      console.error('Error buscando orden para chat:', err);
+      toast.error(t('workerPublicProfile.messageError', 'No se pudo abrir el chat. Intenta de nuevo.'));
+    } finally {
+      setMessageLoading(false);
+    }
+  }, [user, id, openChat, t]);
   
   // Image viewer modal state
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
@@ -236,9 +278,16 @@ const WorkerPublicProfile = () => {
                     {t('workerPublicProfile.hireNow')}
                   </button>
                   
-                  <button className="w-full flex items-center justify-center gap-2 bg-white border-2 border-[#4A3B32] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-gray-50 transition-all cursor-pointer">
+                  <button
+                    type="button"
+                    onClick={handleSendMessage}
+                    disabled={messageLoading}
+                    className="w-full flex items-center justify-center gap-2 bg-white border-2 border-[#4A3B32] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+                  >
                     <MessageSquare size={20} />
-                    {t('workerPublicProfile.sendMessage')}
+                    {messageLoading
+                      ? t('workerPublicProfile.openingChat', 'Abriendo chat...')
+                      : t('workerPublicProfile.sendMessage')}
                   </button>
                 </div>
                 {!worker.is_verified && (
